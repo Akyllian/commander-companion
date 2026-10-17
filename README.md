@@ -17,7 +17,7 @@ A responsive, local-first Commander life counter built with React, TypeScript an
 
 ## Start locally
 
-Requirements: Node.js 22 or newer and npm 10 or newer.
+Requirements: Node.js 22.22.2+ (or 24.15+) and npm 10 or newer.
 
 ```bash
 npm install
@@ -35,6 +35,17 @@ npm run verify   # typecheck + lint + tests with coverage + production build
 Single steps: `npm run typecheck`, `npm run lint`, `npm test`, `npm run coverage`, `npm run build`.
 To try the offline app: `npm run build && npm run preview`, open the page once, then stop the server and reload.
 
+## Deploy
+
+The build in `dist/` is a static site. Phones install it and run it offline only over **HTTPS**.
+For hosts that serve from a subfolder (e.g. GitHub Pages at `/<repo>/`), build with:
+
+```bash
+BASE_PATH=/commander-companion/ npm run build
+```
+
+CI (`.github/workflows/ci.yml`) runs `npm run verify` on Node 22 and 24. Real-device testing follows `docs/PLAYTEST_CHECKLIST.md`.
+
 ## Project map
 
 ```text
@@ -50,6 +61,7 @@ docs/
   DECISIONS.md       architectural decision log
   PLAN_FASE_0_1.md   phase 0–1 technical plan
   UX_REVIEW_FASE_1.md  handoff for UX review
+  PLAYTEST_CHECKLIST.md  real-device test plan (phase 1.5)
   DESIGN_SYSTEM.md   tokens, states and accessibility
   superpowers/       product spec and implementation plan
 CLAUDE.md            working agreement for Claude Code

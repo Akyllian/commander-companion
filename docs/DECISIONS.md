@@ -99,3 +99,11 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 - **Stato:** Accettata (owner: design) e implementata sul branch `fase-1-ux-3`. Solo CSS.
 - **Regole:** i pulsanti dei controlli partita hanno `white-space: nowrap` e `flex-shrink: 0`; "Preferenze" diventa solo icona sotto 52rem (tooltip e `aria-label` invariati); "Giocatori" resta sempre visibile; sotto 46rem i pulsanti possono andare a capo come blocchi, ma il loro testo no. L'header resta su due livelli (brand sopra, controlli sotto) fino a 62rem, come prima; sopra 62rem resta su una riga sola.
 - **Verifica:** misurata a 320, 375, 600, 737, 768, 833, 993 e 1440px: nessun testo spezzato, nessun pulsante fuori dall'header, nessuno scroll orizzontale; "Nuova partita" e "Azzera punteggi" sulla stessa riga da 46rem in su.
+
+## D-017 — CI e build indipendente dall'hosting (Fase 1.5)
+- **Stato:** Accettata e implementata sul branch `fase-1-5-preparazione`. Hosting e repository remoto **non ancora scelti** (decisione del product owner).
+- **CI:** `.github/workflows/ci.yml` (GitHub Actions) esegue `npm ci` e `npm run verify` su Node 22 e 24 a ogni push su `main` e a ogni pull request, poi controlla una build servita da sottocartella. Permessi in sola lettura. Nessun deploy configurato.
+- **Percorso base:** `BASE_PATH` (es. `/commander-companion/`) imposta `base` di Vite, `id`/`start_url`/`scope` del manifest e il fallback di navigazione del service worker. Default `/`. Serve per host che pubblicano in una sottocartella (GitHub Pages); per Netlify o Cloudflare Pages non serve.
+- **Verificato:** build con `BASE_PATH=/commander-companion/`, service worker con scope corretto, riapertura offline a server spento, anche su un link profondo.
+- **Engines:** `jsdom` richiede Node `^22.22.2 || >=24.15.0`; `package.json` ora lo dichiara (prima `>=22`, troppo largo).
+- **Prova al tavolo:** `docs/PLAYTEST_CHECKLIST.md`. I problemi di gravità alta bloccano la Fase 2.
