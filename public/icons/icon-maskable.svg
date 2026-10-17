@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <!-- Maskable placeholder: artwork kept inside the 80% safe zone. -->
+  <rect width="48" height="48" fill="#010101"/>
+  <g transform="translate(24 24) scale(0.72) translate(-24 -24)">
+    <g fill="none" stroke="#4cb9b0" stroke-width="1.8" stroke-linecap="round">
+      <circle cx="24" cy="24" r="17"/>
+      <path d="M24 9.5v29M9.5 24h29M13.7 13.7l20.6 20.6M34.3 13.7 13.7 34.3"/>
+    </g>
+    <circle cx="24" cy="24" r="4.6" fill="#daa932"/>
+  </g>
+</svg>

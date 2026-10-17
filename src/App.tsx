@@ -1,68 +1,59 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useReducer, useState } from 'react'
+import { AppNotices } from './components/AppNotices'
 import { PlayerPanel } from './components/PlayerPanel'
 import { TableControls } from './components/TableControls'
-import { createGame, gameReducer } from './game/game'
-import { loadGame, saveGame } from './game/storage'
-import type { GameAction, GameState } from './game/types'
+import { canRemovePartner, createGame } from './game/game'
+import { createHistory, historyReducer } from './game/history'
+import {
+  loadGame,
+  requestPersistentStorage,
+  saveGame,
+  subscribeToExternalChanges,
+} from './game/storage'
+import type { LoadStatus } from './game/storage'
+import type { GameAction } from './game/types'
+import { useWakeLock } from './platform/useWakeLock'
 
-interface HistoryState {
-  past: GameState[]
-  present: GameState
-  future: GameState[]
-}
-
-const HISTORY_LIMIT = 50
+const isEditableTarget = (target: EventTarget | null) =>
+  target instanceof HTMLElement &&
+  (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))
 
 export default function App() {
-  const [history, setHistory] = useState<HistoryState>(() => ({
-    past: [],
-    present: loadGame(),
-    future: [],
-  }))
+  const [initial] = useState(loadGame)
+  const [history, dispatchHistory] = useReducer(historyReducer, initial.game, createHistory)
+  const [loadStatus, setLoadStatus] = useState<LoadStatus>(initial.status)
+  const [saveFailed, setSaveFailed] = useState(false)
+  const game = history.present
 
-  useEffect(() => saveGame(history.present), [history.present])
+  // Persist every change synchronously so a closed tab never loses the last action.
+  // oxlint-disable-next-line react/set-state-in-effect -- the result comes from an external system (storage).
+  useEffect(() => setSaveFailed(!saveGame(game)), [game])
 
-  const dispatch = (action: GameAction) => {
-    setHistory((current) => {
-      const next = gameReducer(current.present, action)
-      if (next === current.present) return current
-      return {
-        past: [...current.past, current.present].slice(-HISTORY_LIMIT),
-        present: next,
-        future: [],
-      }
-    })
-  }
+  useEffect(() => {
+    void requestPersistentStorage()
+    return subscribeToExternalChanges((external) => dispatchHistory({ type: 'external', game: external }))
+  }, [])
 
-  const undo = () => {
-    setHistory((current) => {
-      const previous = current.past.at(-1)
-      if (!previous) return current
-      return {
-        past: current.past.slice(0, -1),
-        present: previous,
-        future: [current.present, ...current.future],
-      }
-    })
-  }
+  useWakeLock()
 
-  const redo = () => {
-    setHistory((current) => {
-      const next = current.future[0]
-      if (!next) return current
-      return {
-        past: [...current.past, current.present].slice(-HISTORY_LIMIT),
-        present: next,
-        future: current.future.slice(1),
-      }
-    })
-  }
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey) || event.altKey || isEditableTarget(event.target)) return
+      const key = event.key.toLowerCase()
+      if (key === 'z' && !event.shiftKey) dispatchHistory({ type: 'undo' })
+      else if ((key === 'z' && event.shiftKey) || key === 'y') dispatchHistory({ type: 'redo' })
+      else return
+      event.preventDefault()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
-  const replaceGame = (game: GameState) => setHistory({ past: [], present: game, future: [] })
+  const dispatch = (action: GameAction) => dispatchHistory({ type: 'apply', action })
 
   const confirmNewGame = (playerCount: number) => {
     if (window.confirm('Iniziare una nuova partita? I punteggi attuali verranno sostituiti.')) {
-      replaceGame(createGame(playerCount))
+      dispatchHistory({ type: 'replace', game: createGame(playerCount) })
     }
   }
 
@@ -88,22 +79,31 @@ export default function App() {
         </a>
 
         <TableControls
+          key={game.players.length}
+          currentPlayerCount={game.players.length}
           canUndo={history.past.length > 0}
           canRedo={history.future.length > 0}
-          onUndo={undo}
-          onRedo={redo}
+          onUndo={() => dispatchHistory({ type: 'undo' })}
+          onRedo={() => dispatchHistory({ type: 'redo' })}
           onReset={confirmReset}
           onNewGame={confirmNewGame}
         />
       </header>
 
-      <main id="main" className="player-grid" data-player-count={history.present.players.length}>
-        {history.present.players.map((player) => (
+      <AppNotices
+        loadStatus={loadStatus}
+        saveFailed={saveFailed}
+        onDismissLoadStatus={() => setLoadStatus('restored')}
+      />
+
+      <main id="main" className="player-grid" data-player-count={game.players.length}>
+        {game.players.map((player) => (
           <PlayerPanel
             key={player.id}
             player={player}
-            opponents={history.present.players.filter((opponent) => opponent.id !== player.id)}
-            playerCount={history.present.players.length}
+            opponents={game.players.filter((opponent) => opponent.id !== player.id)}
+            playerCount={game.players.length}
+            canRemovePartner={canRemovePartner(game, player.id)}
             dispatch={dispatch}
           />
         ))}
@@ -115,4 +115,3 @@ export default function App() {
     </div>
   )
 }
-

@@ -11,6 +11,7 @@ Continue Commander Companion as a calm, accessible scoring tool for in-person Co
 3. `docs/superpowers/specs/2026-10-16-commander-companion-mvp-design.md`
 4. `docs/ARCHITECTURE.md`
 5. `docs/DESIGN_SYSTEM.md`
+6. `docs/DECISIONS.md`
 
 ## Commands
 
@@ -18,7 +19,7 @@ Continue Commander Companion as a calm, accessible scoring tool for in-person Co
 npm install
 npm run dev
 npm test
-npm run build
+npm run verify   # must pass before any commit
 ```
 
 ## Engineering rules
@@ -28,7 +29,12 @@ npm run build
 - Treat local-storage payloads as unknown input and validate them.
 - Keep `GameAction` a discriminated union.
 - Preserve 2–4 player bounds, 40 starting life, 10 poison and 21 Commander-damage rules.
-- Life can be negative; counters cannot.
+- Commander damage also changes life by the applied amount, and is tracked per commander (partner).
+- Life can be negative; counters cannot. All values stay bounded safe integers.
+- An action that changes nothing must return the same state reference.
+- Schema changes bump `GAME_SCHEMA_VERSION` with a pure, tested migration.
+- Keep `src/game/**` at 100% coverage.
+- Record architectural decisions in `docs/DECISIONS.md`; UX, visual and motion decisions belong to the design owner.
 - Do not introduce a state library until React state demonstrably stops fitting.
 - Do not add network calls to the reducer or UI components.
 
@@ -44,8 +50,7 @@ npm run build
 
 ## Definition of done
 
-- The full test suite passes.
-- `npm run build` passes with strict TypeScript.
+- `npm run verify` passes.
 - The change works at 320px, 768px and 1440px widths.
 - Keyboard-only and reduced-motion use remain viable.
 - Documentation changes when behavior, schema or design tokens change.

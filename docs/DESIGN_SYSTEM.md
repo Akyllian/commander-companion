@@ -31,3 +31,15 @@ Components must consume semantic or component tokens. Add a primitive only when 
 
 Use short Italian action labels and plain rule names. Avoid invented fantasy terms for standard controls: “Annulla” remains “Annulla,” while atmosphere comes from the brand and visual layer.
 
+
+## Provisional components (Phase 1, pending UX review)
+
+Functional placeholders built only from existing tokens; see `docs/UX_REVIEW_FASE_1.md`.
+
+| Component | Class | Notes |
+| --- | --- | --- |
+| System notice | `.app-notice` (`data-tone="warning"`) | update, offline-ready, save-unavailable, recovered-save messages; container is a polite `role="status"` region |
+| Partner toggle | `.partner-toggle`, `.partner-hint` | native checkbox with `accent-color`; whole label is the ≥44px target |
+| Commander damage hint | `.commander-damage__hint` | muted helper text |
+
+Layout fixes applied under the existing rules: counter labels shrink (`min-width: 0`) so steppers never leave the panel; Commander-damage labels wrap instead of truncating; the remove button keeps its 44px width; the name field is 44px tall; controls use `touch-action: manipulation`.

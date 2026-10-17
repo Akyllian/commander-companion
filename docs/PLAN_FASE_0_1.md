@@ -1,6 +1,6 @@
 # Piano tecnico — Fase 0 e Fase 1
 
-Stato: **proposta, in attesa di approvazione**. Data: 2026-10-17.
+Stato: **approvato il 2026-10-17 e completato** (vedi `docs/UX_REVIEW_FASE_1.md`). Risposte: fasi confermate; D-006 sì; D-007 subito; E2E "il più comodo" → D-011.
 Autore: Lead Software Engineer (Claude). Ambito UX/visual/motion: ChatGPT.
 
 I documenti esistenti non definiscono formalmente "Fase 0" e "Fase 1": le definizioni qui sotto sono una proposta da confermare.

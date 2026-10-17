@@ -1,16 +1,40 @@
-import { PLAYER_ACCENTS } from './types'
-import type { GameAction, GameState, PlayerState } from './types'
+import { GAME_SCHEMA_VERSION, PLAYER_ACCENTS } from './types'
+import type { CommanderDamageBySource, GameAction, GameState, PlayerState } from './types'
 
-const STARTING_LIFE = 40
+export const MIN_PLAYERS = 2
+export const MAX_PLAYERS = 4
+export const DEFAULT_PLAYERS = 4
+export const STARTING_LIFE = 40
+/** Rule 704.5c: ten or more poison counters. */
+export const POISON_LIMIT = 10
+/** Rule 903.10a / 704.6c: 21 or more combat damage from the same commander. */
+export const COMMANDER_DAMAGE_LIMIT = 21
+export const NAME_MAX_LENGTH = 28
+/** Domain bounds keep every stored value a safe integer (D-004). */
+export const LIFE_MIN = -999_999
+export const LIFE_MAX = 999_999
+export const COUNTER_MAX = 999_999
 
-const clampPlayerCount = (count: number) => Math.min(4, Math.max(2, Math.round(count)))
-const clampCounter = (value: number) => Math.max(0, value)
+export type DefeatReason = 'life' | 'poison' | 'commander-damage'
 
-export function createGame(playerCount = 4): GameState {
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
+const clampLife = (value: number) => clamp(value, LIFE_MIN, LIFE_MAX)
+const clampCounter = (value: number) => clamp(value, 0, COUNTER_MAX)
+const isValidAmount = (amount: number) => Number.isSafeInteger(amount) && amount !== 0
+
+const clampPlayerCount = (count: number) =>
+  Number.isFinite(count) ? clamp(Math.round(count), MIN_PLAYERS, MAX_PLAYERS) : DEFAULT_PLAYERS
+
+/** Trims and truncates by code point, so an emoji is never split in half. */
+export function normalizePlayerName(name: string): string {
+  return Array.from(name.trim()).slice(0, NAME_MAX_LENGTH).join('').trim()
+}
+
+export function createGame(playerCount = DEFAULT_PLAYERS): GameState {
   const count = clampPlayerCount(playerCount)
 
   return {
-    version: 1,
+    version: GAME_SCHEMA_VERSION,
     players: Array.from({ length: count }, (_, index) => ({
       id: `player-${index + 1}`,
       name: `Giocatore ${index + 1}`,
@@ -19,79 +43,142 @@ export function createGame(playerCount = 4): GameState {
       energy: 0,
       experience: 0,
       accent: PLAYER_ACCENTS[index],
+      hasPartner: false,
       commanderDamage: {},
     })),
   }
 }
 
-export function isPlayerDefeated(player: PlayerState): boolean {
-  return (
-    player.life <= 0 ||
-    player.poison >= 10 ||
-    Object.values(player.commanderDamage).some((damage) => damage >= 21)
-  )
+export function getDefeatReasons(player: PlayerState): DefeatReason[] {
+  const reasons: DefeatReason[] = []
+  if (player.life <= 0) reasons.push('life')
+  if (player.poison >= POISON_LIMIT) reasons.push('poison')
+  if (
+    Object.values(player.commanderDamage).some((damage) =>
+      damage.some((value) => value >= COMMANDER_DAMAGE_LIMIT),
+    )
+  ) {
+    reasons.push('commander-damage')
+  }
+  return reasons
 }
 
+export function isPlayerDefeated(player: PlayerState): boolean {
+  return getDefeatReasons(player).length > 0
+}
+
+/** A partner can be removed only while no player has recorded damage from it. */
+export function canRemovePartner(state: GameState, playerId: string): boolean {
+  if (!state.players.some((player) => player.id === playerId)) return false
+  return state.players.every((player) => (player.commanderDamage[playerId]?.[1] ?? 0) === 0)
+}
+
+function updatePlayer(
+  state: GameState,
+  playerId: string,
+  update: (player: PlayerState) => PlayerState,
+): GameState {
+  const index = state.players.findIndex((player) => player.id === playerId)
+  if (index === -1) return state
+
+  const current = state.players[index]
+  const next = update(current)
+  if (next === current) return state
+
+  const players = state.players.slice()
+  players[index] = next
+  return { ...state, players }
+}
+
+/**
+ * Pure scoring reducer. Any action that would not change the game returns the
+ * same state reference, so history never records an empty step.
+ */
 export function gameReducer(state: GameState, action: GameAction): GameState {
-  if (action.type === 'reset-game') {
-    return {
-      ...state,
-      players: state.players.map((player) => ({
-        ...player,
-        life: STARTING_LIFE,
-        poison: 0,
-        energy: 0,
-        experience: 0,
-        commanderDamage: {},
-      })),
-    }
-  }
-
-  if (action.type === 'remove-player') {
-    if (state.players.length <= 2 || !state.players.some((player) => player.id === action.playerId)) {
-      return state
+  switch (action.type) {
+    case 'adjust-life': {
+      if (!isValidAmount(action.amount)) return state
+      return updatePlayer(state, action.playerId, (player) => {
+        const life = clampLife(player.life + action.amount)
+        return life === player.life ? player : { ...player, life }
+      })
     }
 
-    return {
-      ...state,
-      players: state.players
-        .filter((player) => player.id !== action.playerId)
-        .map((player) => {
-          const { [action.playerId]: _removed, ...commanderDamage } = player.commanderDamage
-          return { ...player, commanderDamage }
-        }),
+    case 'adjust-counter': {
+      if (!isValidAmount(action.amount)) return state
+      return updatePlayer(state, action.playerId, (player) => {
+        const value = clampCounter(player[action.counter] + action.amount)
+        return value === player[action.counter] ? player : { ...player, [action.counter]: value }
+      })
     }
-  }
 
-  return {
-    ...state,
-    players: state.players.map((player) => {
-      if (player.id !== action.playerId) return player
+    case 'adjust-commander-damage': {
+      if (!isValidAmount(action.amount) || action.playerId === action.sourcePlayerId) return state
+      const source = state.players.find((player) => player.id === action.sourcePlayerId)
+      if (!source || (action.commander === 1 && !source.hasPartner)) return state
 
-      switch (action.type) {
-        case 'adjust-life':
-          return { ...player, life: player.life + action.amount }
-        case 'adjust-counter':
-          return {
-            ...player,
-            [action.counter]: clampCounter(player[action.counter] + action.amount),
-          }
-        case 'adjust-commander-damage':
-          return {
-            ...player,
-            commanderDamage: {
-              ...player.commanderDamage,
-              [action.sourcePlayerId]: clampCounter(
-                (player.commanderDamage[action.sourcePlayerId] ?? 0) + action.amount,
-              ),
-            },
-          }
-        case 'rename-player': {
-          const name = action.name.trim().slice(0, 28)
-          return name ? { ...player, name } : player
+      return updatePlayer(state, action.playerId, (player) => {
+        const previous = player.commanderDamage[source.id] ?? [0, 0]
+        const value = clampCounter(previous[action.commander] + action.amount)
+        const applied = value - previous[action.commander]
+        if (applied === 0) return player
+
+        const damage: CommanderDamageBySource = [previous[0], previous[1]]
+        damage[action.commander] = value
+        return {
+          ...player,
+          // Commander damage is ordinary damage too: life moves by the applied amount (D-006).
+          life: clampLife(player.life - applied),
+          commanderDamage: { ...player.commanderDamage, [source.id]: damage },
         }
+      })
+    }
+
+    case 'set-partner': {
+      if (!action.hasPartner && !canRemovePartner(state, action.playerId)) return state
+      return updatePlayer(state, action.playerId, (player) =>
+        player.hasPartner === action.hasPartner ? player : { ...player, hasPartner: action.hasPartner },
+      )
+    }
+
+    case 'rename-player': {
+      const name = normalizePlayerName(action.name)
+      return updatePlayer(state, action.playerId, (player) =>
+        !name || name === player.name ? player : { ...player, name },
+      )
+    }
+
+    case 'remove-player': {
+      if (
+        state.players.length <= MIN_PLAYERS ||
+        !state.players.some((player) => player.id === action.playerId)
+      ) {
+        return state
       }
-    }),
+
+      return {
+        ...state,
+        players: state.players
+          .filter((player) => player.id !== action.playerId)
+          .map((player) => {
+            const { [action.playerId]: _removed, ...commanderDamage } = player.commanderDamage
+            return { ...player, commanderDamage }
+          }),
+      }
+    }
+
+    case 'reset-game':
+      return {
+        ...state,
+        players: state.players.map((player) => ({
+          ...player,
+          life: STARTING_LIFE,
+          poison: 0,
+          energy: 0,
+          experience: 0,
+          commanderDamage: {},
+        })),
+      }
   }
 }
 

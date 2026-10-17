@@ -5,3 +5,4 @@ coverage/
 *.local
 .superpowers/
 .impeccable/hook.cache.json
+dev-dist/

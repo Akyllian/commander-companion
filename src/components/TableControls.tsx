@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 interface TableControlsProps {
+  currentPlayerCount: number
   canUndo: boolean
   canRedo: boolean
   onUndo: () => void
@@ -10,6 +11,7 @@ interface TableControlsProps {
 }
 
 export function TableControls({
+  currentPlayerCount,
   canUndo,
   canRedo,
   onUndo,
@@ -17,10 +19,10 @@ export function TableControls({
   onReset,
   onNewGame,
 }: TableControlsProps) {
-  const [playerCount, setPlayerCount] = useState(4)
+  const [playerCount, setPlayerCount] = useState(currentPlayerCount)
 
   return (
-    <div className="table-controls" aria-label="Controlli partita">
+    <div className="table-controls" role="group" aria-label="Controlli partita">
       <div className="history-controls">
         <button type="button" onClick={onUndo} disabled={!canUndo} aria-label="Annulla ultima azione">
           ↶ <span>Annulla</span>
