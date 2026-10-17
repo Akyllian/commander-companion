@@ -107,3 +107,8 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 - **Verificato:** build con `BASE_PATH=/commander-companion/`, service worker con scope corretto, riapertura offline a server spento, anche su un link profondo.
 - **Engines:** `jsdom` richiede Node `^22.22.2 || >=24.15.0`; `package.json` ora lo dichiara (prima `>=22`, troppo largo).
 - **Prova al tavolo:** `docs/PLAYTEST_CHECKLIST.md`. I problemi di gravità alta bloccano la Fase 2.
+
+## D-018 — Hosting: GitHub + GitHub Pages
+- **Stato:** Scelta dal product owner (2026-10-17); **in attesa** di account/piano e autenticazione.
+- **Deploy:** `.github/workflows/deploy.yml` pubblica su Pages solo dopo che il workflow CI è riuscito su `main` (`workflow_run`), costruendo esattamente il commit verificato, con `BASE_PATH=/<nome-repo>/`. Deploy mai annullati a metà. Avvio manuale possibile (`workflow_dispatch`).
+- **Vincoli GitHub** (documentazione ufficiale): con GitHub Free il repository deve essere **pubblico** per usare Pages; un repository privato richiede un piano a pagamento (es. Pro). In ogni caso il **sito** Pages è pubblico su internet anche se il repository è privato (salvo il controllo d'accesso di Enterprise Cloud). L'app non contiene dati personali: i punteggi restano sul dispositivo.
