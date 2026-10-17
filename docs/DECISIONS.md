@@ -109,6 +109,6 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 - **Prova al tavolo:** `docs/PLAYTEST_CHECKLIST.md`. I problemi di gravità alta bloccano la Fase 2.
 
 ## D-018 — Hosting: GitHub + GitHub Pages
-- **Stato:** Scelta dal product owner (2026-10-17); **in attesa** di account/piano e autenticazione.
+- **Stato:** Attiva dal 2026-10-17. Repository **pubblico** `Akyllian/commander-companion` (scelta del product owner per usare Pages con GitHub Free); sito https://akyllian.github.io/commander-companion/. Primo giro: CI verde su Node 22 e 24, deploy riuscito, service worker attivo in HTTPS.
 - **Deploy:** `.github/workflows/deploy.yml` pubblica su Pages solo dopo che il workflow CI è riuscito su `main` (`workflow_run`), costruendo esattamente il commit verificato, con `BASE_PATH=/<nome-repo>/`. Deploy mai annullati a metà. Avvio manuale possibile (`workflow_dispatch`).
 - **Vincoli GitHub** (documentazione ufficiale): con GitHub Free il repository deve essere **pubblico** per usare Pages; un repository privato richiede un piano a pagamento (es. Pro). In ogni caso il **sito** Pages è pubblico su internet anche se il repository è privato (salvo il controllo d'accesso di Enterprise Cloud). L'app non contiene dati personali: i punteggi restano sul dispositivo.

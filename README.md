@@ -37,6 +37,8 @@ To try the offline app: `npm run build && npm run preview`, open the page once, 
 
 ## Deploy
 
+Live: https://akyllian.github.io/commander-companion/ — deployed automatically from `main` after CI passes.
+
 The build in `dist/` is a static site. Phones install it and run it offline only over **HTTPS**.
 For hosts that serve from a subfolder (e.g. GitHub Pages at `/<repo>/`), build with:
 
