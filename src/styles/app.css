@@ -145,6 +145,12 @@ button:disabled {
   padding-inline: var(--space-3);
 }
 
+/* Header labels never break inside a button (UX review 3); buttons keep their content width. */
+.table-controls button {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 .match-controls > label {
   display: flex;
   align-items: center;
@@ -442,6 +448,13 @@ button:disabled {
   }
 }
 
+/* Preferences collapses to its gear icon (tooltip + accessible name kept). */
+@media (max-width: 52rem) {
+  .preferences-button span {
+    display: none;
+  }
+}
+
 @media (max-width: 46rem) {
   .app-shell {
     padding: var(--space-2);
@@ -488,12 +501,11 @@ button:disabled {
 
 @media (max-width: 27rem) {
   .brand small,
-  .history-controls button span,
-  .preferences-button span,
-  .match-controls > label > span {
+  .history-controls button span {
     display: none;
   }
 
+  /* "Giocatori" stays visible: the number alone would be ambiguous. */
   .match-controls > label {
     flex: 0 0 auto;
   }

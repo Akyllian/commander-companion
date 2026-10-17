@@ -104,4 +104,4 @@ Verifica: `npm run verify` verde (136 test). Controllato nel browser a 320/768/1
 
 Verifica: `npm run verify` verde (141 test). Nel browser (Chromium, Popover API nativa): popover ancorato sotto il pulsante a 320 e 1440px, chiusura con Esc (focus restituito), clic esterno e secondo clic; barra inline nella cella giusta con focus; pulsante rosso pieno nel dialog.
 
-Osservazione per il design (non modificata): a 768px i Controlli partita nell'header sono più fitti con il nuovo pulsante e "Nuova partita"/"Azzera punteggi" vanno su due righe.
+Header a 768px: risolto con D-016 (testo dei pulsanti mai spezzato, Preferenze solo icona sotto 52rem, "Giocatori" sempre visibile).
