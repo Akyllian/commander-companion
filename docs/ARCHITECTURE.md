@@ -5,7 +5,7 @@
 ```text
 React UI (App + components)
           ↓ typed GameAction
-History reducer (src/game/history.ts)  — bounded undo/redo, external-tab steps
+History reducer (src/game/history.ts)  — bounded undo/redo, 700 ms tap groups, external-tab steps
           ↓
 Pure domain reducer (src/game/game.ts) — all scoring rules and bounds
           ↓ current snapshot
@@ -15,6 +15,7 @@ Local persistence (src/game/storage.ts) — validation, migration, backup, tab s
 Platform adapters live outside the domain:
 
 - `src/platform/useWakeLock.ts` keeps the screen on during play.
+- `src/settings/preferences.ts` stores validated device preferences (`keepScreenOn`).
 - `src/pwa/` registers the service worker (`register.ts`, production only) and exposes update state through a tiny external store (`updates.ts`).
 
 `game.ts` contains all scoring rules and never touches the DOM. Components dispatch actions and render state; they do not recalculate rule thresholds (`getDefeatReasons`, `canRemovePartner` are exported for the UI). Every action that would not change the game returns the same state reference, so history never records an empty step.
@@ -54,7 +55,7 @@ Invariants enforced by `parseStoredGame`: 2–4 players, unique ids, names 1–2
 
 ## State history
 
-Up to 50 prior snapshots in memory. Undo/redo history intentionally does not survive refresh; only the latest match state is persisted. New game clears history; reset is an undoable step.
+Up to 50 prior snapshots in memory. Consecutive same-direction taps on the same value within 700 ms merge into one step; `getGroupDelta` exposes the cumulative change for the UI. Undo/redo history intentionally does not survive refresh; only the latest match state is persisted. New game clears history; reset is an undoable step.
 
 ## Offline
 

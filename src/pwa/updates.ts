@@ -3,16 +3,14 @@ type Listener = () => void
 export interface UpdateState {
   /** A new service worker is installed and waiting for the user's confirmation. */
   needRefresh: boolean
-  /** The app shell is cached and the app can start without a network. */
-  offlineReady: boolean
 }
 
-let state: UpdateState = { needRefresh: false, offlineReady: false }
+let state: UpdateState = { needRefresh: false }
 let applyUpdate: (() => Promise<void>) | null = null
 const listeners = new Set<Listener>()
 
-function setState(next: Partial<UpdateState>) {
-  state = { ...state, ...next }
+function setState(next: UpdateState) {
+  state = next
   listeners.forEach((listener) => listener())
 }
 
@@ -26,18 +24,15 @@ export const updateStore = {
     applyUpdate = update
     setState({ needRefresh: true })
   },
-  markOfflineReady() {
-    setState({ offlineReady: true })
-  },
   dismiss() {
-    setState({ needRefresh: false, offlineReady: false })
+    setState({ needRefresh: false })
   },
   async apply() {
     await applyUpdate?.()
   },
   /** Test helper: restore the initial state. */
   reset() {
-    state = { needRefresh: false, offlineReady: false }
+    state = { needRefresh: false }
     applyUpdate = null
     listeners.clear()
   },

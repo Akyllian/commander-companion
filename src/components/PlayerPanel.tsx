@@ -1,13 +1,23 @@
 import { useEffect, useState } from 'react'
-import { getDefeatReasons } from '../game/game'
+import { COMMANDER_DAMAGE_LIMIT, getDefeatReasons } from '../game/game'
 import type { DefeatReason } from '../game/game'
+import { GROUP_WINDOW_MS } from '../game/history'
+import type { GroupTarget } from '../game/history'
 import type { CommanderIndex, CounterKey, GameAction, PlayerState } from '../game/types'
+
+export interface PanelDelta {
+  target: GroupTarget
+  delta: number
+  at: number
+}
 
 interface PlayerPanelProps {
   player: PlayerState
   opponents: PlayerState[]
   playerCount: number
   canRemovePartner: boolean
+  /** The open tap group, when it concerns this player. */
+  delta: PanelDelta | null
   dispatch: (action: GameAction) => void
 }
 
@@ -17,14 +27,12 @@ const COUNTERS: Array<{ key: CounterKey; label: string; symbol: string }> = [
   { key: 'experience', label: 'Esperienza', symbol: '◆' },
 ]
 
-const DEFEAT_LABELS: Record<DefeatReason, string> = {
-  life: 'punti vita a zero o meno',
-  poison: '10 segnalini veleno',
-  'commander-damage': '21 danni da un comandante',
+/** Short visible reason (UX decision 6) and the full sentence for screen readers. */
+const DEFEAT_LABELS: Record<DefeatReason, { short: string; full: string }> = {
+  life: { short: 'Vita', full: 'punti vita a zero o meno' },
+  poison: { short: '10 veleno', full: '10 segnalini veleno' },
+  'commander-damage': { short: '21 danni Commander', full: '21 danni da un comandante' },
 }
-
-/** Rapid taps produce one announcement for the settled total, not one per tap. */
-const ANNOUNCE_DELAY_MS = 700
 
 function useSettledValue<T>(value: T, delay: number): T {
   const [settled, setSettled] = useState(value)
@@ -35,17 +43,48 @@ function useSettledValue<T>(value: T, delay: number): T {
   return settled
 }
 
+/** Temporary cumulative change ("+7") shown while a tap group is open (UX decision 3). */
+function DeltaBadge({ delta }: { delta: number }) {
+  const [visible, setVisible] = useState(true)
+  useEffect(() => {
+    const timer = window.setTimeout(() => setVisible(false), GROUP_WINDOW_MS)
+    return () => window.clearTimeout(timer)
+  }, [])
+  if (!visible || delta === 0) return null
+  return (
+    <span className="delta-badge" aria-hidden="true" data-testid="delta-badge">
+      {delta > 0 ? `+${delta}` : `−${Math.abs(delta)}`}
+    </span>
+  )
+}
+
+const sameTarget = (a: GroupTarget, b: GroupTarget) => JSON.stringify(a) === JSON.stringify(b)
+
+function RemoveIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="remove-icon">
+      <circle cx="10" cy="8" r="3.5" />
+      <path d="M3.5 19.5c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 11h5.5" />
+    </svg>
+  )
+}
+
 export function PlayerPanel({
   player,
   opponents,
   playerCount,
   canRemovePartner,
+  delta,
   dispatch,
 }: PlayerPanelProps) {
+  const [commanderOpen, setCommanderOpen] = useState(false)
   const defeatReasons = getDefeatReasons(player)
   const defeated = defeatReasons.length > 0
-  const settledLife = useSettledValue(player.life, ANNOUNCE_DELAY_MS)
+  const settledLife = useSettledValue(player.life, GROUP_WINDOW_MS)
   const adjustLife = (amount: number) => dispatch({ type: 'adjust-life', playerId: player.id, amount })
+
+  const deltaFor = (target: GroupTarget) =>
+    delta && sameTarget(delta.target, target) ? <DeltaBadge key={delta.at} delta={delta.delta} /> : null
 
   const commanderSources = opponents.flatMap((opponent) =>
     (opponent.hasPartner ? [0, 1] : [0]).map((index) => ({
@@ -54,6 +93,8 @@ export function PlayerPanel({
       label: opponent.hasPartner ? `${opponent.name}, comandante ${index + 1}` : opponent.name,
     })),
   )
+  // The threshold applies to a single commander, so the summary shows the maximum, never the sum.
+  const maxCommanderDamage = Math.max(0, ...Object.values(player.commanderDamage).flat())
 
   const adjustCommanderDamage = (sourcePlayerId: string, commander: CommanderIndex, amount: number) =>
     dispatch({ type: 'adjust-commander-damage', playerId: player.id, sourcePlayerId, commander, amount })
@@ -91,12 +132,7 @@ export function PlayerPanel({
             dispatch({ type: 'rename-player', playerId: player.id, name: event.currentTarget.value })
           }
         />
-        {defeated && (
-          <span className="status-badge">
-            Sconfitto
-            <span className="sr-only">: {defeatReasons.map((reason) => DEFEAT_LABELS[reason]).join(', ')}</span>
-          </span>
-        )}
+        {player.hasPartner && <span className="partner-badge">Partner</span>}
         {playerCount > 2 && (
           <button
             className="icon-button"
@@ -104,16 +140,52 @@ export function PlayerPanel({
             aria-label={`Rimuovi ${player.name}`}
             onClick={() => dispatch({ type: 'remove-player', playerId: player.id })}
           >
-            ×
+            <RemoveIcon />
           </button>
         )}
       </header>
 
+      {defeated && (
+        <p className="defeat-line">
+          <span className="status-badge">
+            Sconfitto ·{' '}
+            {defeatReasons.length === 1
+              ? DEFEAT_LABELS[defeatReasons[0]].short
+              : `${defeatReasons.length} condizioni`}
+            <span className="sr-only">: {defeatReasons.map((reason) => DEFEAT_LABELS[reason].full).join(', ')}</span>
+          </span>
+        </p>
+      )}
+
+      <details className="deck-config">
+        <summary>Configurazione mazzo</summary>
+        <label className="check-option">
+          <input
+            type="checkbox"
+            checked={player.hasPartner}
+            disabled={player.hasPartner && !canRemovePartner}
+            aria-describedby={`${player.id}-partner-hint`}
+            onChange={(event) =>
+              dispatch({ type: 'set-partner', playerId: player.id, hasPartner: event.currentTarget.checked })
+            }
+          />
+          <span>Due comandanti (Partner)</span>
+        </label>
+        <p className="partner-hint" id={`${player.id}-partner-hint`}>
+          {player.hasPartner && !canRemovePartner
+            ? 'Azzera prima i danni del Comandante 2.'
+            : 'I danni dei due comandanti si contano separatamente.'}
+        </p>
+      </details>
+
       <div className="life-zone">
         <span className="life-label">Punti vita</span>
-        <strong className="life-total" data-testid="life-total">
-          {player.life}
-        </strong>
+        <span className="life-value">
+          <strong className="life-total" data-testid="life-total">
+            {player.life}
+          </strong>
+          {deltaFor({ kind: 'life', playerId: player.id })}
+        </span>
         <span className="sr-only" aria-live="polite" aria-atomic="true">
           {`${player.name}: ${settledLife} punti vita`}
         </span>
@@ -133,9 +205,49 @@ export function PlayerPanel({
         ))}
       </div>
 
-      <details className="player-details">
+      <details
+        className="player-details commander-damage"
+        open={commanderOpen}
+        onToggle={(event) => setCommanderOpen(event.currentTarget.open)}
+      >
         <summary>
-          <span>Segnalini e danni</span>
+          <span>Danni Commander</span>
+          <span className="summary-value">
+            massimo {maxCommanderDamage}/{COMMANDER_DAMAGE_LIMIT}
+          </span>
+        </summary>
+        <p className="commander-damage__hint">Ogni danno Commander riduce anche i punti vita.</p>
+        {commanderSources.map(({ opponent, index, label }) => {
+          const value = player.commanderDamage[opponent.id]?.[index] ?? 0
+          return (
+            <div className="counter-row" key={`${opponent.id}-${index}`}>
+              <span className="counter-label">da {label}</span>
+              {deltaFor({ kind: 'commander', playerId: player.id, sourcePlayerId: opponent.id, commander: index })}
+              <div className="stepper" role="group" aria-label={`Danni Commander da ${label}`}>
+                <button
+                  type="button"
+                  aria-label={`Riduci danni Commander da ${label} a ${player.name}`}
+                  onClick={() => adjustCommanderDamage(opponent.id, index, -1)}
+                >
+                  −
+                </button>
+                <output aria-label={`Danni Commander da ${label} a ${player.name}`}>{value}</output>
+                <button
+                  type="button"
+                  aria-label={`Aumenta danni Commander da ${label} a ${player.name}`}
+                  onClick={() => adjustCommanderDamage(opponent.id, index, 1)}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          )
+        })}
+      </details>
+
+      <details className="player-details other-counters">
+        <summary>
+          <span>Altri segnalini</span>
           <span className="summary-total">{player.poison + player.energy + player.experience}</span>
         </summary>
 
@@ -145,6 +257,7 @@ export function PlayerPanel({
               <span className="counter-label">
                 <span aria-hidden="true">{symbol}</span> {label}
               </span>
+              {deltaFor({ kind: 'counter', playerId: player.id, counter: key })}
               <div className="stepper" role="group" aria-label={`${label} di ${player.name}`}>
                 <button
                   type="button"
@@ -168,56 +281,6 @@ export function PlayerPanel({
               </div>
             </div>
           ))}
-        </div>
-
-        <div className="commander-damage">
-          <h3>Danni Commander subiti</h3>
-          <p className="commander-damage__hint">Ogni danno Commander riduce anche i punti vita.</p>
-          {commanderSources.map(({ opponent, index, label }) => {
-            const value = player.commanderDamage[opponent.id]?.[index] ?? 0
-            return (
-              <div className="counter-row" key={`${opponent.id}-${index}`}>
-                <span className="counter-label">da {label}</span>
-                <div className="stepper" role="group" aria-label={`Danni Commander da ${label}`}>
-                  <button
-                    type="button"
-                    aria-label={`Riduci danni Commander da ${label} a ${player.name}`}
-                    onClick={() => adjustCommanderDamage(opponent.id, index, -1)}
-                  >
-                    −
-                  </button>
-                  <output aria-label={`Danni Commander da ${label} a ${player.name}`}>{value}</output>
-                  <button
-                    type="button"
-                    aria-label={`Aumenta danni Commander da ${label} a ${player.name}`}
-                    onClick={() => adjustCommanderDamage(opponent.id, index, 1)}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-
-        <div className="partner-setting">
-          <label className="partner-toggle">
-            <input
-              type="checkbox"
-              checked={player.hasPartner}
-              disabled={player.hasPartner && !canRemovePartner}
-              aria-describedby={`${player.id}-partner-hint`}
-              onChange={(event) =>
-                dispatch({ type: 'set-partner', playerId: player.id, hasPartner: event.currentTarget.checked })
-              }
-            />
-            <span>Il mazzo di {player.name} ha due comandanti (partner)</span>
-          </label>
-          <p className="partner-hint" id={`${player.id}-partner-hint`}>
-            {player.hasPartner && !canRemovePartner
-              ? 'Per toglierlo, azzera prima i danni inflitti dal secondo comandante.'
-              : 'I danni dei due comandanti si contano separatamente.'}
-          </p>
         </div>
       </details>
     </section>

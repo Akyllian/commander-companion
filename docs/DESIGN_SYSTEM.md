@@ -39,7 +39,22 @@ Functional placeholders built only from existing tokens; see `docs/UX_REVIEW_FAS
 | Component | Class | Notes |
 | --- | --- | --- |
 | System notice | `.app-notice` (`data-tone="warning"`) | update, offline-ready, save-unavailable, recovered-save messages; container is a polite `role="status"` region |
-| Partner toggle | `.partner-toggle`, `.partner-hint` | native checkbox with `accent-color`; whole label is the ≥44px target |
+| Partner toggle | `.check-option`, `.partner-hint` | native checkbox with `accent-color`; whole label is the ≥44px target |
 | Commander damage hint | `.commander-damage__hint` | muted helper text |
 
 Layout fixes applied under the existing rules: counter labels shrink (`min-width: 0`) so steppers never leave the panel; Commander-damage labels wrap instead of truncating; the remove button keeps its 44px width; the name field is 44px tall; controls use `touch-action: manipulation`.
+
+## Components from the Phase 1 UX review (D-014)
+
+| Component | Class | Notes |
+| --- | --- | --- |
+| Confirm dialog | `.confirm-dialog`, `::backdrop` uses `--color-scrim` | opaque surface, compact, focus starts on "Annulla" |
+| Undo snackbar | `.undo-snackbar` | fixed bottom, 6 s, never steals focus |
+| Delta badge | `.delta-badge` | `+N`/`−N`, `aria-hidden`, 140 ms fade (instant with reduced motion) |
+| Defeat line | `.defeat-line .status-badge` | "Sconfitto · motivo" on its own line under the name |
+| Partner label | `.partner-badge` | text label, not color-only |
+| Deck configuration | `.deck-config` | disclosure under the name |
+| Match preferences | `.match-preferences` | footer disclosure; hidden when Wake Lock is unsupported |
+| Option row | `.check-option` | checkbox + label, whole row ≥ 44px |
+
+New semantic token: `--color-scrim` (dialog backdrop).

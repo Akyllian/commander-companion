@@ -248,6 +248,7 @@ button:disabled {
 
 .player-panel__header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
 }
@@ -269,8 +270,12 @@ button:disabled {
   background: var(--color-surface-raised);
 }
 
+.defeat-line {
+  margin: var(--space-1) 0 0;
+}
+
 .status-badge {
-  margin-left: auto;
+  display: inline-block;
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-round);
   color: var(--primitive-neutral-50);
@@ -287,9 +292,6 @@ button:disabled {
   font-size: 1.35rem;
 }
 
-.status-badge + .icon-button {
-  margin-left: 0;
-}
 
 .life-zone {
   display: grid;
@@ -334,8 +336,11 @@ button:disabled {
 }
 
 .player-details {
-  margin-top: var(--space-4);
   border-top: 1px solid var(--color-border);
+}
+
+.life-controls + .player-details {
+  margin-top: var(--space-4);
 }
 
 .player-details summary {
@@ -368,10 +373,8 @@ button:disabled {
   gap: var(--space-2);
 }
 
-.commander-damage {
-  margin-top: var(--space-4);
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--color-border);
+.player-details[open] {
+  padding-bottom: var(--space-3);
 }
 
 .commander-damage h3 {
@@ -528,15 +531,7 @@ input[type='checkbox'] {
   font-size: 0.78rem;
 }
 
-.partner-setting {
-  display: grid;
-  gap: var(--space-1);
-  margin-top: var(--space-4);
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--color-border);
-}
-
-.partner-toggle {
+.check-option {
   display: flex;
   align-items: center;
   gap: var(--space-3);
@@ -544,14 +539,14 @@ input[type='checkbox'] {
   cursor: pointer;
 }
 
-.partner-toggle input {
+.check-option input {
   width: 1.375rem;
   height: 1.375rem;
   margin: 0;
   accent-color: var(--color-primary);
 }
 
-.partner-toggle input:disabled + span {
+.check-option input:disabled + span {
   color: var(--color-text-muted);
 }
 
@@ -589,4 +584,174 @@ input[type='checkbox'] {
   /* "comandante 1/2" must stay readable: wrap rather than truncate. */
   overflow-wrap: anywhere;
   white-space: normal;
+}
+
+/* ---- UX decisions 1–9 (2026-10-17) ---- */
+
+.player-name {
+  flex: 1 1 8rem;
+  min-width: 0;
+}
+
+.icon-button {
+  margin-left: 0;
+}
+
+.remove-icon {
+  width: 1.375rem;
+  height: 1.375rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 1.6;
+}
+
+.partner-badge {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-round);
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+
+.deck-config summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--button-height);
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.deck-config[open] {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.life-value {
+  position: relative;
+  display: inline-grid;
+  justify-items: center;
+}
+
+.delta-badge {
+  display: inline-grid;
+  min-width: 2.25rem;
+  min-height: 1.6rem;
+  place-items: center;
+  padding-inline: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-round);
+  color: var(--color-text);
+  background: var(--color-surface-raised);
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  animation: delta-in var(--duration-fast) var(--ease-out);
+}
+
+.life-value .delta-badge {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  margin-left: var(--space-2);
+}
+
+@keyframes delta-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.summary-value {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.app-footer p {
+  margin: 0;
+}
+
+.match-preferences {
+  display: grid;
+  justify-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.match-preferences summary {
+  display: grid;
+  min-height: var(--button-height);
+  place-items: center;
+  padding-inline: var(--space-4);
+  cursor: pointer;
+}
+
+.match-preferences .check-option {
+  font-size: 0.875rem;
+}
+
+.undo-snackbar {
+  position: fixed;
+  z-index: 10;
+  bottom: max(var(--space-4), env(safe-area-inset-bottom));
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  width: max-content;
+  max-width: calc(100% - 2 * var(--space-4));
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-panel);
+  transform: translateX(-50%);
+}
+
+.undo-snackbar button {
+  flex: none;
+  padding-inline: var(--space-4);
+  color: var(--color-primary-soft);
+}
+
+.confirm-dialog {
+  width: min(100% - 2 * var(--space-4), 24rem);
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-panel);
+}
+
+.confirm-dialog::backdrop {
+  background: var(--color-scrim);
+}
+
+.confirm-dialog h2 {
+  margin: 0 0 var(--space-2);
+  font-size: 1.125rem;
+}
+
+.confirm-dialog p {
+  margin: 0 0 var(--space-6);
+  color: var(--color-text-muted);
+}
+
+.confirm-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.confirm-dialog__actions button {
+  flex: 1 1 8rem;
+  padding-inline: var(--space-4);
+}
+
+.confirm-dialog__confirm {
+  border-color: var(--color-danger);
 }

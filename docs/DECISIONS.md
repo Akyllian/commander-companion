@@ -71,3 +71,17 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 ## D-013 — Contratto di coverage
 - **Stato:** Accettata
 - **Decisione:** `src/game/**` (regole, persistenza, history) deve restare al 100% di righe, branch, funzioni e statement; `npm run verify` fallisce altrimenti. Gli invarianti del reducer sono verificati con `fast-check` (≥ 1000 sequenze casuali di azioni, incluse quantità ostili).
+
+## D-014 — Decisioni UX della revisione Fase 1 (ricevute il 2026-10-17)
+- **Stato:** Accettate (owner: design) e implementate sul branch `fase-1-ux`
+- **Fonte:** risposte alle 9 domande di `docs/UX_REVIEW_FASE_1.md`.
+- **Note tecniche di implementazione:**
+  1. Dialog nativo `<dialog>` + `showModal()` (`ConfirmDialog`): focus trap e sfondo inerte del browser, focus iniziale su *Annulla*, Esc gestito via evento `cancel`, focus restituito al pulsante d'origine. Nessun pulsante `submit`, quindi Invio attiva solo il pulsante con focus.
+  2. Rimozione immediata + `UndoSnackbar` (6 s). Il timer si ferma mentre il pulsante ha il focus (WCAG 2.2.1). Lo snackbar resta visibile **solo finché la rimozione è l'ultimo passo**: qualunque altra azione lo nasconde, così il suo *Annulla* non può mai annullare un'altra cosa. L'undo globale resta disponibile.
+  3. Raggruppamento in `historyReducer`: stessa chiave (azione, giocatore, contatore/sorgente/comandante, direzione) entro `GROUP_WINDOW_MS = 700` dall'ultimo tocco = un solo passo. Il timestamp arriva nell'azione (`at`) per mantenere il reducer puro. Il delta mostrato è calcolato rispetto allo snapshot d'inizio gruppo, quindi riflette i valori **applicati** (dopo i clamp). Annuncio screen reader con lo stesso intervallo.
+  4. Due `<details>` distinti; il riepilogo Commander è il **massimo** per singolo comandante. Lo stato aperto è tenuto in memoria per pannello (sopravvive alle azioni, non a un ricaricamento).
+  5. Nessuna rotazione: nessun cambiamento.
+  6. Riga "Sconfitto · motivo" sotto il nome; con più motivi "N condizioni" e testo completo solo per screen reader.
+  7. Preferenza `keepScreenOn` (default `true`) in `src/settings/preferences.ts`, chiave `commander-companion.preferences`, validata campo per campo. Il controllo non viene renderizzato se `navigator.wakeLock` non esiste.
+  8. Rimosso l'avviso "offline pronto" e il relativo stato. Indicatore "Offline" non implementato (indicato come opzionale).
+  9. Sezione "Configurazione mazzo" sotto il nome, etichetta testuale "Partner" nell'header.

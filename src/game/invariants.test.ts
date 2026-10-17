@@ -97,9 +97,10 @@ describe('reducer invariants (property-based)', () => {
       fc.property(scenario, ({ players, actions }) => {
         let history = createHistory(createGame(players))
         const states = [history.present]
-        for (const next of actions) {
+        for (const [index, next] of actions.entries()) {
           const before = history
-          history = historyReducer(history, { type: 'apply', action: next })
+          // Spaced beyond the grouping window so every change is its own step.
+          history = historyReducer(history, { type: 'apply', action: next, at: index * 10_000 })
           if (history !== before) states.push(history.present)
         }
         const steps = Math.min(states.length - 1, 50)
@@ -110,6 +111,35 @@ describe('reducer invariants (property-based)', () => {
         for (let step = 0; step < steps; step += 1) history = historyReducer(history, { type: 'redo' })
         expect(history.present).toBe(states.at(-1))
       }),
+      { numRuns: 500 },
+    )
+  })
+})
+
+describe('tap grouping invariants (property-based)', () => {
+  it('one undo after a burst of grouped taps restores the state before the burst', () => {
+    fc.assert(
+      fc.property(
+        scenario,
+        fc.array(fc.integer({ min: 0, max: 700 }), { minLength: 1, maxLength: 20 }),
+        fc.constantFrom(1, -1, 5, -5),
+        ({ players, actions }, gaps, step) => {
+          let history = createHistory(run(players, actions))
+          const target = history.present.players[0].id
+          const before = history.present
+          let at = 1_000_000
+          for (const gap of gaps) {
+            at += gap
+            history = historyReducer(history, {
+              type: 'apply',
+              at,
+              action: { type: 'adjust-life', playerId: target, amount: step },
+            })
+          }
+          expect(history.past.length).toBeLessThanOrEqual(1)
+          expect(historyReducer(history, { type: 'undo' }).present).toBe(before)
+        },
+      ),
       { numRuns: 500 },
     )
   })

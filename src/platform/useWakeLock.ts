@@ -1,5 +1,8 @@
 import { useEffect } from 'react'
 
+/** The preference control is hidden, not disabled, when this is false (UX decision 7). */
+export const isWakeLockSupported = () => typeof navigator !== 'undefined' && 'wakeLock' in navigator
+
 /**
  * Keeps the screen awake while the table is visible (D-009). The browser releases
  * the lock whenever the page is hidden, so it is requested again on return.
@@ -7,7 +10,7 @@ import { useEffect } from 'react'
  */
 export function useWakeLock(enabled = true) {
   useEffect(() => {
-    if (!enabled || !('wakeLock' in navigator)) return
+    if (!enabled || !isWakeLockSupported()) return
 
     let sentinel: WakeLockSentinel | null = null
     let disposed = false

@@ -1,5 +1,7 @@
 # Resoconto Fase 0–1 per la revisione UX
 
+> **Aggiornamento 2026-10-17:** le 9 decisioni sono arrivate e sono implementate sul branch `fase-1-ux` (vedi D-014 in `DECISIONS.md` e la sezione 7 qui sotto).
+
 Data: 2026-10-17 · Branch: `fase-0-1` · Destinatario: ChatGPT (art direction, UX, visual e motion design)
 Mittente: Lead Software Engineer (Claude)
 
@@ -74,3 +76,19 @@ Da ripetere sulla build di produzione (`npm run build && npm run preview`) dopo 
 - [ ] Ricarica: punteggi ripristinati.
 - [ ] Offline: aprire una volta, spegnere il server, ricaricare → l'app si apre con la partita.
 - [ ] Nuova build: l'avviso di aggiornamento appare e non ricarica finché non si tocca *Aggiorna*.
+
+## 7. Esito della revisione (implementato)
+
+| # | Decisione | Stato | Punti aperti per il design |
+| --- | --- | --- | --- |
+| 1 | Dialog di conferma | fatto | stile del pulsante distruttivo (oggi bordo `--color-danger`) |
+| 2 | Snackbar "X rimosso" + Annulla, nuova icona di rimozione | fatto | l'icona "persona −" è provvisoria; lo snackbar fisso in basso copre per 6 s l'ultima riga su mobile |
+| 3 | Raggruppamento 700 ms + delta `+N` | fatto | posizione e aspetto del badge (oggi accanto al valore, comparsa in dissolvenza 140 ms, istantanea con reduced motion) |
+| 4 | Danni Commander separati, "massimo X/21" | fatto | — |
+| 5 | Nessuna rotazione | nessuna modifica | "Vista tavolo" da studiare dopo test su tablet |
+| 6 | "Sconfitto · motivo" | fatto | — |
+| 7 | "Mantieni lo schermo acceso" nelle preferenze | fatto | non esisteva una superficie "preferenze": oggi è un `<details>` "Preferenze" nel footer, provvisorio |
+| 8 | Avviso offline eliminato | fatto | indicatore "Offline" discreto non implementato (opzionale) |
+| 9 | Configurazione mazzo vicino al nome + etichetta Partner | fatto | — |
+
+Verifica: `npm run verify` verde (136 test). Controllato nel browser a 320/768/1440px: nessun overflow; dialog modale con focus su *Annulla*, Esc da tastiera reale, focus restituito; snackbar e rimozione funzionanti.

@@ -4,6 +4,7 @@ import { createGame, gameReducer } from './game/game'
 import { BACKUP_KEY, STORAGE_KEY } from './game/storage'
 import { updateStore } from './pwa/updates'
 
+let clock = 0
 const panel = (name: RegExp) => screen.getByRole('region', { name })
 const life = (name: RegExp) => within(panel(name)).getByTestId('life-total')
 const click = (scope: HTMLElement, name: RegExp) => fireEvent.click(within(scope).getByRole('button', { name }))
@@ -66,7 +67,35 @@ describe('scoring', () => {
     render(<App />)
     const player = panel(/giocatore 1/i)
     for (let step = 0; step < 10; step += 1) click(player, /aumenta veleno di giocatore 1/i)
-    expect(within(player).getByText('Sconfitto')).toHaveTextContent(/10 segnalini veleno/)
+    expect(within(player).getByText(/sconfitto ·/i)).toHaveTextContent('Sconfitto · 10 veleno: 10 segnalini veleno')
+  })
+
+  it('summarises several defeat conditions', () => {
+    vi.spyOn(performance, 'now').mockImplementation(() => (clock += 1000))
+    render(<App />)
+    const player = panel(/giocatore 1/i)
+    for (let step = 0; step < 10; step += 1) click(player, /aumenta veleno di giocatore 1/i)
+    for (let step = 0; step < 8; step += 1) click(player, /riduci di 5 la vita/i)
+    expect(within(player).getByText(/sconfitto ·/i)).toHaveTextContent(/^Sconfitto · 2 condizioni/)
+  })
+
+  it('summarises Commander damage with the maximum from one commander, not the sum', () => {
+    render(<App />)
+    const target = panel(/giocatore 1/i)
+    for (let step = 0; step < 3; step += 1) click(target, /aumenta danni commander da giocatore 2 a giocatore 1/i)
+    click(target, /aumenta danni commander da giocatore 3 a giocatore 1/i)
+    expect(within(target).getByText('massimo 3/21')).toBeInTheDocument()
+  })
+
+  it('keeps the Commander section open once expanded', () => {
+    render(<App />)
+    const summary = within(panel(/giocatore 1/i)).getByText('Danni Commander')
+    const details = summary.closest('details') as HTMLDetailsElement
+    expect(details.open).toBe(false)
+    details.open = true
+    fireEvent(details, new Event('toggle'))
+    click(panel(/giocatore 1/i), /aumenta.*1.*vita/i)
+    expect(details.open).toBe(true)
   })
 })
 
@@ -74,6 +103,7 @@ describe('partner commanders', () => {
   it('tracks the two commanders of a partner deck separately', () => {
     render(<App />)
     fireEvent.click(within(panel(/giocatore 2/i)).getByRole('checkbox', { name: /due comandanti/i }))
+    expect(within(panel(/giocatore 2/i)).getByText('Partner')).toBeInTheDocument()
 
     const target = panel(/giocatore 1/i)
     click(target, /aumenta danni commander da giocatore 2, comandante 2 a giocatore 1/i)
@@ -86,7 +116,7 @@ describe('partner commanders', () => {
 
     const toggle = within(panel(/giocatore 2/i)).getByRole('checkbox', { name: /due comandanti/i })
     expect(toggle).toBeDisabled()
-    expect(within(panel(/giocatore 2/i)).getByText(/azzera prima i danni/i)).toBeInTheDocument()
+    expect(within(panel(/giocatore 2/i)).getByText('Azzera prima i danni del Comandante 2.')).toBeInTheDocument()
   })
 })
 
@@ -114,29 +144,42 @@ describe('players and match', () => {
     expect(screen.getByRole('combobox', { name: /numero di giocatori/i })).toHaveValue('3')
   })
 
-  it('starts a new game only after confirmation', () => {
-    const confirm = vi.spyOn(window, 'confirm').mockReturnValueOnce(false).mockReturnValueOnce(true)
+  it('starts a new game only after confirming in the dialog', () => {
     render(<App />)
     click(panel(/giocatore 1/i), /riduci.*5.*vita/i)
     fireEvent.change(screen.getByRole('combobox', { name: /numero di giocatori/i }), { target: { value: '2' } })
+    const opener = screen.getByRole('button', { name: /nuova partita/i })
+    opener.focus()
 
-    fireEvent.click(screen.getByRole('button', { name: /nuova partita/i }))
+    fireEvent.click(opener)
+    const dialog = screen.getByRole('dialog', { name: /iniziare una nuova partita/i })
+    expect(dialog).toHaveAccessibleDescription('I punteggi attuali verranno sostituiti.')
+    // Focus starts on the safe action, so Enter never confirms by accident.
+    expect(within(dialog).getByRole('button', { name: 'Annulla' })).toHaveFocus()
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Annulla' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(opener).toHaveFocus()
     expect(screen.getAllByRole('region')).toHaveLength(4)
 
-    fireEvent.click(screen.getByRole('button', { name: /nuova partita/i }))
-    expect(confirm).toHaveBeenCalledTimes(2)
+    fireEvent.click(opener)
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Nuova partita' }))
     expect(screen.getAllByRole('region')).toHaveLength(2)
     expect(screen.getByRole('button', { name: /annulla ultima azione/i })).toBeDisabled()
   })
 
-  it('resets scores only after confirmation', () => {
-    vi.spyOn(window, 'confirm').mockReturnValueOnce(false).mockReturnValueOnce(true)
+  it('resets scores only after confirming, and closes with Escape', () => {
     render(<App />)
     click(panel(/giocatore 1/i), /riduci.*5.*vita/i)
 
     fireEvent.click(screen.getByRole('button', { name: /azzera punteggi/i }))
+    const dialog = screen.getByRole('dialog', { name: /azzerare tutti i punteggi/i })
+    fireEvent(dialog, new Event('cancel', { cancelable: true }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(life(/giocatore 1/i)).toHaveTextContent('35')
+
     fireEvent.click(screen.getByRole('button', { name: /azzera punteggi/i }))
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Azzera punteggi' }))
     expect(life(/giocatore 1/i)).toHaveTextContent('40')
   })
 })
@@ -227,11 +270,107 @@ describe('persistence and system notices', () => {
     expect(apply).toHaveBeenCalledOnce()
   })
 
-  it('confirms when the app is ready to work offline', () => {
+})
+
+describe('rapid taps (UX decision 3)', () => {
+  it('groups fast taps into one undo step and shows the cumulative delta', () => {
+    vi.useFakeTimers()
+    let now = 0
+    vi.spyOn(performance, 'now').mockImplementation(() => now)
     render(<App />)
-    act(() => updateStore.markOfflineReady())
-    expect(screen.getByText(/senza connessione/i)).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Ok' }))
-    expect(screen.queryByText(/senza connessione/i)).not.toBeInTheDocument()
+    const player = panel(/giocatore 1/i)
+
+    for (const at of [0, 300, 600]) {
+      now = at
+      click(player, /aumenta di 1 la vita/i)
+    }
+    expect(life(/giocatore 1/i)).toHaveTextContent('43')
+    expect(within(player).getByTestId('delta-badge')).toHaveTextContent('+3')
+
+    act(() => vi.advanceTimersByTime(700))
+    expect(within(player).queryByTestId('delta-badge')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /annulla ultima azione/i }))
+    expect(life(/giocatore 1/i)).toHaveTextContent('40')
+  })
+
+  it('shows deltas next to counters and Commander damage', () => {
+    // One instant: every tap falls in the window, so only target/direction changes split groups.
+    vi.spyOn(performance, 'now').mockReturnValue(0)
+    render(<App />)
+    const player = panel(/giocatore 1/i)
+    click(player, /riduci di 1 la vita/i)
+    click(player, /aumenta veleno di giocatore 1/i)
+    click(player, /aumenta veleno di giocatore 1/i)
+    expect(within(player).getByTestId('delta-badge')).toHaveTextContent('+2')
+    click(player, /aumenta danni commander da giocatore 3 a giocatore 1/i)
+    expect(within(player).getByTestId('delta-badge')).toHaveTextContent('+1')
+    click(player, /riduci danni commander da giocatore 3 a giocatore 1/i)
+    expect(within(player).getByTestId('delta-badge')).toHaveTextContent('−1')
+  })
+})
+
+describe('player removal (UX decision 2)', () => {
+  it('removes immediately and offers Annulla in a snackbar', () => {
+    render(<App />)
+    click(panel(/giocatore 3/i), /rimuovi giocatore 3/i)
+    expect(screen.getAllByRole('region')).toHaveLength(3)
+
+    const snackbar = screen.getByText('Giocatore 3 rimosso').closest('.undo-snackbar') as HTMLElement
+    fireEvent.click(within(snackbar).getByRole('button', { name: 'Annulla' }))
+    expect(screen.getAllByRole('region')).toHaveLength(4)
+    expect(screen.queryByText('Giocatore 3 rimosso')).not.toBeInTheDocument()
+  })
+
+  it('hides the snackbar after six seconds unless its button has focus', () => {
+    vi.useFakeTimers()
+    render(<App />)
+    click(panel(/giocatore 3/i), /rimuovi giocatore 3/i)
+    const undo = within(screen.getByText('Giocatore 3 rimosso').closest('.undo-snackbar') as HTMLElement).getByRole(
+      'button',
+      { name: 'Annulla' },
+    )
+
+    fireEvent.focus(undo)
+    act(() => vi.advanceTimersByTime(10_000))
+    expect(screen.getByText('Giocatore 3 rimosso')).toBeInTheDocument()
+
+    fireEvent.blur(undo)
+    act(() => vi.advanceTimersByTime(6000))
+    expect(screen.queryByText('Giocatore 3 rimosso')).not.toBeInTheDocument()
+    // The global undo still restores the player.
+    fireEvent.click(screen.getByRole('button', { name: /annulla ultima azione/i }))
+    expect(screen.getAllByRole('region')).toHaveLength(4)
+  })
+
+  it('hides the snackbar as soon as another action happens', () => {
+    render(<App />)
+    click(panel(/giocatore 3/i), /rimuovi giocatore 3/i)
+    click(panel(/giocatore 1/i), /aumenta di 1 la vita/i)
+    expect(screen.queryByText('Giocatore 3 rimosso')).not.toBeInTheDocument()
+  })
+})
+
+describe('preferences (UX decision 7)', () => {
+  afterEach(() => {
+    Reflect.deleteProperty(navigator, 'wakeLock')
+  })
+
+  it('hides the screen-on control when the browser cannot keep the screen awake', () => {
+    render(<App />)
+    expect(screen.queryByRole('checkbox', { name: /mantieni lo schermo acceso/i })).not.toBeInTheDocument()
+  })
+
+  it('offers the control on by default and remembers the choice', () => {
+    const request = vi.fn(async () => ({ released: false, release: vi.fn(async () => undefined) }))
+    Object.defineProperty(navigator, 'wakeLock', { configurable: true, value: { request } })
+    const first = render(<App />)
+    const toggle = screen.getByRole('checkbox', { name: /mantieni lo schermo acceso/i })
+    expect(toggle).toBeChecked()
+
+    fireEvent.click(toggle)
+    first.unmount()
+    render(<App />)
+    expect(screen.getByRole('checkbox', { name: /mantieni lo schermo acceso/i })).not.toBeChecked()
   })
 })

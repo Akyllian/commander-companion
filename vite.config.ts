@@ -54,6 +54,7 @@ export default defineConfig({
       thresholds: {
         // Scoring rules, persistence and history are the reliability core.
         'src/game/**': { lines: 100, branches: 100, functions: 100, statements: 100 },
+        'src/settings/**': { lines: 100, branches: 100, functions: 100, statements: 100 },
       },
     },
   },

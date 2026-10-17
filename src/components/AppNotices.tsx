@@ -46,14 +46,6 @@ export function AppNotices({ loadStatus, saveFailed, onDismissLoadStatus }: AppN
         </p>
       )}
 
-      {update.offlineReady && !update.needRefresh && (
-        <p className="app-notice">
-          L'app ora funziona anche senza connessione.
-          <button type="button" className="quiet-button" onClick={updateStore.dismiss}>
-            Ok
-          </button>
-        </p>
-      )}
     </div>
   )
 }

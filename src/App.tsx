@@ -1,9 +1,11 @@
 import { useEffect, useReducer, useState } from 'react'
 import { AppNotices } from './components/AppNotices'
+import { ConfirmDialog } from './components/ConfirmDialog'
 import { PlayerPanel } from './components/PlayerPanel'
 import { TableControls } from './components/TableControls'
+import { UndoSnackbar } from './components/UndoSnackbar'
 import { canRemovePartner, createGame } from './game/game'
-import { createHistory, historyReducer } from './game/history'
+import { createHistory, getGroupDelta, historyReducer } from './game/history'
 import {
   loadGame,
   requestPersistentStorage,
@@ -11,8 +13,18 @@ import {
   subscribeToExternalChanges,
 } from './game/storage'
 import type { LoadStatus } from './game/storage'
-import type { GameAction } from './game/types'
-import { useWakeLock } from './platform/useWakeLock'
+import type { GameAction, GameState } from './game/types'
+import { isWakeLockSupported, useWakeLock } from './platform/useWakeLock'
+import { loadPreferences, savePreferences } from './settings/preferences'
+
+type PendingConfirmation = { kind: 'new-game'; playerCount: number } | { kind: 'reset' } | null
+
+interface Removal {
+  playerId: string
+  name: string
+  /** The game right before the removal; the snackbar lives only while removal is the latest step. */
+  before: GameState
+}
 
 const isEditableTarget = (target: EventTarget | null) =>
   target instanceof HTMLElement &&
@@ -23,7 +35,11 @@ export default function App() {
   const [history, dispatchHistory] = useReducer(historyReducer, initial.game, createHistory)
   const [loadStatus, setLoadStatus] = useState<LoadStatus>(initial.status)
   const [saveFailed, setSaveFailed] = useState(false)
+  const [preferences, setPreferences] = useState(loadPreferences)
+  const [pending, setPending] = useState<PendingConfirmation>(null)
+  const [removal, setRemoval] = useState<Removal | null>(null)
   const game = history.present
+  const groupDelta = getGroupDelta(history)
 
   // Persist every change synchronously so a closed tab never loses the last action.
   // oxlint-disable-next-line react/set-state-in-effect -- the result comes from an external system (storage).
@@ -34,7 +50,7 @@ export default function App() {
     return subscribeToExternalChanges((external) => dispatchHistory({ type: 'external', game: external }))
   }, [])
 
-  useWakeLock()
+  useWakeLock(preferences.keepScreenOn)
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -49,18 +65,32 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  const dispatch = (action: GameAction) => dispatchHistory({ type: 'apply', action })
-
-  const confirmNewGame = (playerCount: number) => {
-    if (window.confirm('Iniziare una nuova partita? I punteggi attuali verranno sostituiti.')) {
-      dispatchHistory({ type: 'replace', game: createGame(playerCount) })
+  const dispatch = (action: GameAction) => {
+    if (action.type === 'remove-player') {
+      const player = game.players.find((candidate) => candidate.id === action.playerId)
+      if (player) setRemoval({ playerId: player.id, name: player.name, before: game })
     }
+    dispatchHistory({ type: 'apply', action, at: performance.now() })
   }
 
-  const confirmReset = () => {
-    if (window.confirm('Azzerare vita, segnalini e danni mantenendo i nomi?')) {
-      dispatch({ type: 'reset-game' })
-    }
+  // Any later step (or undo) makes the removal no longer the latest action: hide the snackbar
+  // so its "Annulla" can never undo something else.
+  const removalIsLatest =
+    removal !== null &&
+    history.past.at(-1) === removal.before &&
+    history.future.length === 0 &&
+    !game.players.some((player) => player.id === removal.playerId)
+
+  const confirm = () => {
+    if (pending?.kind === 'new-game') dispatchHistory({ type: 'replace', game: createGame(pending.playerCount) })
+    if (pending?.kind === 'reset') dispatch({ type: 'reset-game' })
+    setPending(null)
+  }
+
+  const setKeepScreenOn = (keepScreenOn: boolean) => {
+    const next = { ...preferences, keepScreenOn }
+    setPreferences(next)
+    savePreferences(next)
   }
 
   return (
@@ -85,8 +115,8 @@ export default function App() {
           canRedo={history.future.length > 0}
           onUndo={() => dispatchHistory({ type: 'undo' })}
           onRedo={() => dispatchHistory({ type: 'redo' })}
-          onReset={confirmReset}
-          onNewGame={confirmNewGame}
+          onReset={() => setPending({ kind: 'reset' })}
+          onNewGame={(playerCount) => setPending({ kind: 'new-game', playerCount })}
         />
       </header>
 
@@ -104,14 +134,57 @@ export default function App() {
             opponents={game.players.filter((opponent) => opponent.id !== player.id)}
             playerCount={game.players.length}
             canRemovePartner={canRemovePartner(game, player.id)}
+            delta={groupDelta?.target.playerId === player.id ? groupDelta : null}
             dispatch={dispatch}
           />
         ))}
       </main>
 
       <footer className="app-footer">
-        I punteggi restano su questo dispositivo. Commander Companion non sostituisce le regole ufficiali.
+        {isWakeLockSupported() && (
+          <details className="match-preferences">
+            <summary>Preferenze</summary>
+            <label className="check-option">
+              <input
+                type="checkbox"
+                checked={preferences.keepScreenOn}
+                onChange={(event) => setKeepScreenOn(event.currentTarget.checked)}
+              />
+              <span>Mantieni lo schermo acceso</span>
+            </label>
+          </details>
+        )}
+        <p>I punteggi restano su questo dispositivo. Commander Companion non sostituisce le regole ufficiali.</p>
       </footer>
+
+      {removalIsLatest && (
+        <UndoSnackbar
+          key={removal.playerId}
+          message={`${removal.name} rimosso`}
+          onUndo={() => {
+            dispatchHistory({ type: 'undo' })
+            setRemoval(null)
+          }}
+          onDismiss={() => setRemoval(null)}
+        />
+      )}
+
+      <ConfirmDialog
+        open={pending?.kind === 'new-game'}
+        title="Iniziare una nuova partita?"
+        description="I punteggi attuali verranno sostituiti."
+        confirmLabel="Nuova partita"
+        onConfirm={confirm}
+        onCancel={() => setPending(null)}
+      />
+      <ConfirmDialog
+        open={pending?.kind === 'reset'}
+        title="Azzerare tutti i punteggi?"
+        description="Vita, segnalini e danni torneranno ai valori iniziali. I nomi resteranno invariati."
+        confirmLabel="Azzera punteggi"
+        onConfirm={confirm}
+        onCancel={() => setPending(null)}
+      />
     </div>
   )
 }

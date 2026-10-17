@@ -9,10 +9,10 @@ A responsive, local-first Commander life counter built with React, TypeScript an
 - Poison, energy and experience counters
 - Incoming Commander damage by opponent, also reducing life, with partner commanders tracked separately
 - Defeat indicators for 0 life, 10 poison or 21 damage from one commander
-- Undo/redo (buttons and Ctrl/Cmd+Z), score reset and new-game flow
+- Undo/redo (buttons and Ctrl/Cmd+Z) with rapid taps grouped into one step, confirmed reset and new-game dialogs, undoable player removal
 - Local persistence with schema migration, corrupt-save backup and multi-tab sync
 - Installable PWA that works offline; updates wait for confirmation
-- Screen kept awake during play where supported
+- Screen kept awake during play where supported (can be turned off)
 - Responsive desktop/mobile layout and reduced-motion support
 
 ## Start locally
