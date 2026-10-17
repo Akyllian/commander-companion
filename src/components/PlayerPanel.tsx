@@ -60,11 +60,13 @@ function DeltaBadge({ delta }: { delta: number }) {
 
 const sameTarget = (a: GroupTarget, b: GroupTarget) => JSON.stringify(a) === JSON.stringify(b)
 
+/** Standard "user-minus": remove from this match, not delete forever. */
 function RemoveIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className="remove-icon">
-      <circle cx="10" cy="8" r="3.5" />
-      <path d="M3.5 19.5c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 11h5.5" />
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M22 11h-6" />
     </svg>
   )
 }
@@ -135,9 +137,10 @@ export function PlayerPanel({
         {player.hasPartner && <span className="partner-badge">Partner</span>}
         {playerCount > 2 && (
           <button
-            className="icon-button"
+            className="icon-button remove-button"
             type="button"
             aria-label={`Rimuovi ${player.name}`}
+            title={`Rimuovi ${player.name}`}
             onClick={() => dispatch({ type: 'remove-player', playerId: player.id })}
           >
             <RemoveIcon />

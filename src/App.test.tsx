@@ -311,22 +311,25 @@ describe('rapid taps (UX decision 3)', () => {
 })
 
 describe('player removal (UX decision 2)', () => {
-  it('removes immediately and offers Annulla in a snackbar', () => {
+  it('removes immediately and offers Annulla inline, in the removed panel position', () => {
     render(<App />)
     click(panel(/giocatore 3/i), /rimuovi giocatore 3/i)
     expect(screen.getAllByRole('region')).toHaveLength(3)
 
-    const snackbar = screen.getByText('Giocatore 3 rimosso').closest('.undo-snackbar') as HTMLElement
-    fireEvent.click(within(snackbar).getByRole('button', { name: 'Annulla' }))
+    const bar = screen.getByText('Giocatore 3 rimosso').closest('.undo-bar') as HTMLElement
+    const cells = Array.from(document.getElementById('main')?.children ?? [])
+    expect(cells.indexOf(bar)).toBe(2)
+    expect(bar).toHaveFocus()
+    fireEvent.click(within(bar).getByRole('button', { name: 'Annulla' }))
     expect(screen.getAllByRole('region')).toHaveLength(4)
     expect(screen.queryByText('Giocatore 3 rimosso')).not.toBeInTheDocument()
   })
 
-  it('hides the snackbar after six seconds unless its button has focus', () => {
+  it('hides the bar after six seconds unless its button has focus', () => {
     vi.useFakeTimers()
     render(<App />)
     click(panel(/giocatore 3/i), /rimuovi giocatore 3/i)
-    const undo = within(screen.getByText('Giocatore 3 rimosso').closest('.undo-snackbar') as HTMLElement).getByRole(
+    const undo = within(screen.getByText('Giocatore 3 rimosso').closest('.undo-bar') as HTMLElement).getByRole(
       'button',
       { name: 'Annulla' },
     )
@@ -343,7 +346,15 @@ describe('player removal (UX decision 2)', () => {
     expect(screen.getAllByRole('region')).toHaveLength(4)
   })
 
-  it('hides the snackbar as soon as another action happens', () => {
+  it('moves focus to the score grid when the focused bar disappears', () => {
+    vi.useFakeTimers()
+    render(<App />)
+    click(panel(/giocatore 3/i), /rimuovi giocatore 3/i)
+    act(() => vi.advanceTimersByTime(6000))
+    expect(document.getElementById('main')).toHaveFocus()
+  })
+
+  it('hides the bar as soon as another action happens', () => {
     render(<App />)
     click(panel(/giocatore 3/i), /rimuovi giocatore 3/i)
     click(panel(/giocatore 1/i), /aumenta di 1 la vita/i)
@@ -358,19 +369,21 @@ describe('preferences (UX decision 7)', () => {
 
   it('hides the screen-on control when the browser cannot keep the screen awake', () => {
     render(<App />)
-    expect(screen.queryByRole('checkbox', { name: /mantieni lo schermo acceso/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Preferenze' })).not.toBeInTheDocument()
   })
 
   it('offers the control on by default and remembers the choice', () => {
     const request = vi.fn(async () => ({ released: false, release: vi.fn(async () => undefined) }))
     Object.defineProperty(navigator, 'wakeLock', { configurable: true, value: { request } })
     const first = render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'Preferenze' }))
     const toggle = screen.getByRole('checkbox', { name: /mantieni lo schermo acceso/i })
     expect(toggle).toBeChecked()
 
     fireEvent.click(toggle)
     first.unmount()
     render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'Preferenze' }))
     expect(screen.getByRole('checkbox', { name: /mantieni lo schermo acceso/i })).not.toBeChecked()
   })
 })

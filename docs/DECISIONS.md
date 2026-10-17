@@ -85,3 +85,12 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
   7. Preferenza `keepScreenOn` (default `true`) in `src/settings/preferences.ts`, chiave `commander-companion.preferences`, validata campo per campo. Il controllo non viene renderizzato se `navigator.wakeLock` non esiste.
   8. Rimosso l'avviso "offline pronto" e il relativo stato. Indicatore "Offline" non implementato (indicato come opzionale).
   9. Sezione "Configurazione mazzo" sotto il nome, etichetta testuale "Partner" nell'header.
+
+## D-015 — Decisioni definitive sui quattro punti aperti (ricevute il 2026-10-17)
+- **Stato:** Accettate (owner: design) e implementate sul branch `fase-1-ux-2`
+- **Note tecniche:**
+  1. **Pulsante distruttivo pieno** solo nel dialog. Nuovi token: `--color-danger-hover` (L 0.55), `--color-danger-active` (L 0.45), `--color-on-danger`. Contrasto testo: 6.3:1 base, 5.1:1 hover, 7.6:1 active.
+  2. **Icona `user-minus`** standard (stroke 1.75, 22px, target 44px), muted a riposo, rossa su hover/focus/active. Il rosso base su superficie scura dava solo 3.0:1, quindi per i primi piani si usa `--color-danger-foreground` (L 0.65, 5.6:1). `title` + `aria-label` "Rimuovi Giocatore N".
+  3. **Barra Annulla inline** (`UndoBar`) nella cella del pannello rimosso, uguale su ogni larghezza; overlay eliminato. Poiché il pulsante cliccato scompare, il focus passa alla barra (non al suo pulsante, così il timer non si ferma); quando la barra sparisce con il focus dentro, il focus va alla griglia `#main`. Valgono ancora: pausa del timer sul focus del pulsante, visibilità solo finché la rimozione è l'ultimo passo, undo globale.
+  4. **Preferenze in popover** nativo (`popover="auto"`, `popovertarget`) dopo "Azzera punteggi": top layer, chiusura con Esc, clic esterno o pulsante. Il pannello è ancorato in `beforetoggle` (sincrono) tramite `top`/`right`, senza misure. Lo stato aperto arriva dall'evento DOM `toggle` (asincrono, non passa da React). `aria-expanded` è lasciato al browser in modalità nativa. Fallback con lo stesso comportamento dove l'API manca (e in jsdom). A 320px solo icona.
+- **Bug trovati in verifica:** la regola mobile `.match-controls label > span` nascondeva anche il testo del popover; ristretta ai figli diretti.

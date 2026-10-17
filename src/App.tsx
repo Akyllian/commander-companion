@@ -2,8 +2,9 @@ import { useEffect, useReducer, useState } from 'react'
 import { AppNotices } from './components/AppNotices'
 import { ConfirmDialog } from './components/ConfirmDialog'
 import { PlayerPanel } from './components/PlayerPanel'
+import { PreferencesMenu } from './components/PreferencesMenu'
 import { TableControls } from './components/TableControls'
-import { UndoSnackbar } from './components/UndoSnackbar'
+import { UndoBar } from './components/UndoBar'
 import { canRemovePartner, createGame } from './game/game'
 import { createHistory, getGroupDelta, historyReducer } from './game/history'
 import {
@@ -16,12 +17,15 @@ import type { LoadStatus } from './game/storage'
 import type { GameAction, GameState } from './game/types'
 import { isWakeLockSupported, useWakeLock } from './platform/useWakeLock'
 import { loadPreferences, savePreferences } from './settings/preferences'
+import type { Preferences } from './settings/preferences'
 
 type PendingConfirmation = { kind: 'new-game'; playerCount: number } | { kind: 'reset' } | null
 
 interface Removal {
   playerId: string
   name: string
+  /** Grid position of the removed panel, where the undo bar appears. */
+  index: number
   /** The game right before the removal; the snackbar lives only while removal is the latest step. */
   before: GameState
 }
@@ -67,8 +71,9 @@ export default function App() {
 
   const dispatch = (action: GameAction) => {
     if (action.type === 'remove-player') {
-      const player = game.players.find((candidate) => candidate.id === action.playerId)
-      if (player) setRemoval({ playerId: player.id, name: player.name, before: game })
+      const index = game.players.findIndex((candidate) => candidate.id === action.playerId)
+      const player = game.players[index]
+      if (player) setRemoval({ playerId: player.id, name: player.name, index, before: game })
     }
     dispatchHistory({ type: 'apply', action, at: performance.now() })
   }
@@ -81,14 +86,47 @@ export default function App() {
     history.future.length === 0 &&
     !game.players.some((player) => player.id === removal.playerId)
 
+  const dismissRemoval = () => {
+    // If the bar held focus, hand it to the score grid rather than losing it.
+    const hadFocus = Boolean(document.activeElement?.closest('.undo-bar'))
+    setRemoval(null)
+    if (hadFocus) document.getElementById('main')?.focus()
+  }
+
+  const panels = game.players.map((player) => (
+    <PlayerPanel
+      key={player.id}
+      player={player}
+      opponents={game.players.filter((opponent) => opponent.id !== player.id)}
+      playerCount={game.players.length}
+      canRemovePartner={canRemovePartner(game, player.id)}
+      delta={groupDelta?.target.playerId === player.id ? groupDelta : null}
+      dispatch={dispatch}
+    />
+  ))
+  if (removalIsLatest) {
+    panels.splice(
+      removal.index,
+      0,
+      <UndoBar
+        key={`undo-${removal.playerId}`}
+        message={`${removal.name} rimosso`}
+        onUndo={() => {
+          dispatchHistory({ type: 'undo' })
+          setRemoval(null)
+        }}
+        onDismiss={dismissRemoval}
+      />,
+    )
+  }
+
   const confirm = () => {
     if (pending?.kind === 'new-game') dispatchHistory({ type: 'replace', game: createGame(pending.playerCount) })
     if (pending?.kind === 'reset') dispatch({ type: 'reset-game' })
     setPending(null)
   }
 
-  const setKeepScreenOn = (keepScreenOn: boolean) => {
-    const next = { ...preferences, keepScreenOn }
+  const updatePreferences = (next: Preferences) => {
     setPreferences(next)
     savePreferences(next)
   }
@@ -117,6 +155,10 @@ export default function App() {
           onRedo={() => dispatchHistory({ type: 'redo' })}
           onReset={() => setPending({ kind: 'reset' })}
           onNewGame={(playerCount) => setPending({ kind: 'new-game', playerCount })}
+          extra={
+            // Keeping the screen on is the only preference: hide the menu when unsupported.
+            isWakeLockSupported() && <PreferencesMenu preferences={preferences} onChange={updatePreferences} />
+          }
         />
       </header>
 
@@ -126,48 +168,13 @@ export default function App() {
         onDismissLoadStatus={() => setLoadStatus('restored')}
       />
 
-      <main id="main" className="player-grid" data-player-count={game.players.length}>
-        {game.players.map((player) => (
-          <PlayerPanel
-            key={player.id}
-            player={player}
-            opponents={game.players.filter((opponent) => opponent.id !== player.id)}
-            playerCount={game.players.length}
-            canRemovePartner={canRemovePartner(game, player.id)}
-            delta={groupDelta?.target.playerId === player.id ? groupDelta : null}
-            dispatch={dispatch}
-          />
-        ))}
+      <main id="main" className="player-grid" data-player-count={panels.length} tabIndex={-1}>
+        {panels}
       </main>
 
       <footer className="app-footer">
-        {isWakeLockSupported() && (
-          <details className="match-preferences">
-            <summary>Preferenze</summary>
-            <label className="check-option">
-              <input
-                type="checkbox"
-                checked={preferences.keepScreenOn}
-                onChange={(event) => setKeepScreenOn(event.currentTarget.checked)}
-              />
-              <span>Mantieni lo schermo acceso</span>
-            </label>
-          </details>
-        )}
         <p>I punteggi restano su questo dispositivo. Commander Companion non sostituisce le regole ufficiali.</p>
       </footer>
-
-      {removalIsLatest && (
-        <UndoSnackbar
-          key={removal.playerId}
-          message={`${removal.name} rimosso`}
-          onUndo={() => {
-            dispatchHistory({ type: 'undo' })
-            setRemoval(null)
-          }}
-          onDismiss={() => setRemoval(null)}
-        />
-      )}
 
       <ConfirmDialog
         open={pending?.kind === 'new-game'}

@@ -49,12 +49,17 @@ Layout fixes applied under the existing rules: counter labels shrink (`min-width
 | Component | Class | Notes |
 | --- | --- | --- |
 | Confirm dialog | `.confirm-dialog`, `::backdrop` uses `--color-scrim` | opaque surface, compact, focus starts on "Annulla" |
-| Undo snackbar | `.undo-snackbar` | fixed bottom, 6 s, never steals focus |
+| Undo bar | `.undo-bar` | inline in the removed panel's grid cell, 6 s, dashed border (D-015) |
 | Delta badge | `.delta-badge` | `+N`/`−N`, `aria-hidden`, 140 ms fade (instant with reduced motion) |
 | Defeat line | `.defeat-line .status-badge` | "Sconfitto · motivo" on its own line under the name |
 | Partner label | `.partner-badge` | text label, not color-only |
 | Deck configuration | `.deck-config` | disclosure under the name |
-| Match preferences | `.match-preferences` | footer disclosure; hidden when Wake Lock is unsupported |
+| Preferences menu | `.preferences-button`, `.preferences-panel` | gear button after "Azzera punteggi", native popover; hidden when Wake Lock is unsupported (D-015) |
 | Option row | `.check-option` | checkbox + label, whole row ≥ 44px |
 
-New semantic token: `--color-scrim` (dialog backdrop).
+New semantic tokens: `--color-scrim` (dialog backdrop); `--color-danger-hover`, `--color-danger-active`, `--color-on-danger` (filled destructive button, dialog only); `--color-danger-foreground` (red icons/text on dark surfaces, 5.6:1).
+
+| Component | Default | Hover | Focus | Active |
+| --- | --- | --- | --- | --- |
+| Destructive confirm | filled `--color-danger` | `--color-danger-hover` | gold ring | `--color-danger-active` |
+| Remove player | muted icon | `--color-danger-foreground` | gold ring + red icon | red icon |

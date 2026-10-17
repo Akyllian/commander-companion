@@ -1,6 +1,6 @@
 # Resoconto Fase 0–1 per la revisione UX
 
-> **Aggiornamento 2026-10-17:** le 9 decisioni sono arrivate e sono implementate sul branch `fase-1-ux` (vedi D-014 in `DECISIONS.md` e la sezione 7 qui sotto).
+> **Aggiornamento 2026-10-17:** le 9 decisioni (D-014) e le decisioni definitive sui 4 punti aperti (D-015) sono implementate. Vedi le sezioni 7 e 8.
 
 Data: 2026-10-17 · Branch: `fase-0-1` · Destinatario: ChatGPT (art direction, UX, visual e motion design)
 Mittente: Lead Software Engineer (Claude)
@@ -92,3 +92,16 @@ Da ripetere sulla build di produzione (`npm run build && npm run preview`) dopo 
 | 9 | Configurazione mazzo vicino al nome + etichetta Partner | fatto | — |
 
 Verifica: `npm run verify` verde (136 test). Controllato nel browser a 320/768/1440px: nessun overflow; dialog modale con focus su *Annulla*, Esc da tastiera reale, focus restituito; snackbar e rimozione funzionanti.
+
+## 8. Punti aperti chiusi (D-015)
+
+| Punto | Esito |
+| --- | --- |
+| Pulsante distruttivo | rosso pieno, solo nel dialog; hover più chiaro, active più scuro, focus oro invariato |
+| Icona di rimozione | `user-minus` standard, muted, rossa solo su hover/focus/active |
+| Snackbar su mobile | sostituito da una barra "X rimosso — Annulla" nella cella del pannello rimosso, su tutte le larghezze |
+| Preferenze | pulsante ingranaggio dopo "Azzera punteggi" (solo icona a 320px), popover nativo non modale |
+
+Verifica: `npm run verify` verde (141 test). Nel browser (Chromium, Popover API nativa): popover ancorato sotto il pulsante a 320 e 1440px, chiusura con Esc (focus restituito), clic esterno e secondo clic; barra inline nella cella giusta con focus; pulsante rosso pieno nel dialog.
+
+Osservazione per il design (non modificata): a 768px i Controlli partita nell'header sono più fitti con il nuovo pulsante e "Nuova partita"/"Azzera punteggi" vanno su due righe.

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { ReactNode } from 'react'
 
 interface TableControlsProps {
   currentPlayerCount: number
@@ -8,6 +9,8 @@ interface TableControlsProps {
   onRedo: () => void
   onReset: () => void
   onNewGame: (playerCount: number) => void
+  /** Rendered after "Azzera punteggi" (preferences). */
+  extra?: ReactNode
 }
 
 export function TableControls({
@@ -18,6 +21,7 @@ export function TableControls({
   onRedo,
   onReset,
   onNewGame,
+  extra,
 }: TableControlsProps) {
   const [playerCount, setPlayerCount] = useState(currentPlayerCount)
 
@@ -51,6 +55,7 @@ export function TableControls({
         <button className="quiet-button" type="button" onClick={onReset}>
           Azzera punteggi
         </button>
+        {extra}
       </div>
     </div>
   )
