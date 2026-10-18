@@ -26,6 +26,8 @@ function RuleText({ part }: { part: RuleTextPart }) {
 export function RulesDialog({ open, onClose }: RulesDialogProps) {
   return (
     <ModalSideSheet open={open} title="Regole Commander" className="rules-sheet" onClose={onClose}>
+      {/* Decorative arcane band (no artwork behind body copy); scenic strips await original art. */}
+      <div className="rules-band" aria-hidden="true" />
       <p className="rules-intro">{RULES_INTRODUCTION}</p>
       {RULE_GROUPS.map((group) => (
         <section key={group.id} className="rules-group" aria-labelledby={`rules-${group.id}`}>

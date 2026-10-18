@@ -41,13 +41,15 @@ npm run verify   # must pass before any commit
 
 ## Design rules
 
+- Visual identity follows the locked canonical reference `docs/art-direction/CANONICAL_ART_DIRECTION.md` (D-024): display serif (`--font-display`) for brand, life totals, resting player names and editorial headings; the utility face for controls, inputs, long copy and references.
+- Atmosphere comes from authored CSS/SVG linework and gradients; never ship Wizards of the Coast card art or unlicensed images.
 - Use the primitive → semantic → component token layers in `src/styles/tokens.css`.
 - Use OKLCH for new colors and verify contrast.
 - Keep touch targets at least 44px.
 - Add a visible focus state and accessible name for every new control.
 - Never rely on color alone; pair state color with text or a symbol.
 - Every animation needs a reduced-motion behavior.
-- Avoid gradient text, parchment backgrounds, ornate fonts in controls, decorative glass cards and gesture-only actions.
+- Avoid gradient text, parchment backgrounds, display or ornate fonts in controls, decorative glass cards and gesture-only actions.
 
 ## Workflow
 

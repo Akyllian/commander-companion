@@ -60,6 +60,13 @@ export function PlayerPanel({
   // Lives above both presentations, so switching layout or reopening details keeps it.
   const [commanderOpen, setCommanderOpen] = useState(false)
   const [detailsOpen, setDetailsOpen] = useState(false)
+  // One-shot light bloom on the life total when it changes (never on first render, D-024).
+  const [lastLife, setLastLife] = useState(player.life)
+  const [bloom, setBloom] = useState(0)
+  if (lastLife !== player.life) {
+    setLastLife(player.life)
+    setBloom((count) => count + 1)
+  }
   const defeatReasons = getDefeatReasons(player)
   const defeated = defeatReasons.length > 0
   const settledLife = useSettledValue(player.life, GROUP_WINDOW_MS)
@@ -104,7 +111,7 @@ export function PlayerPanel({
 
   const lifeValue = (
     <span className="life-value">
-      <strong className="life-total" data-testid="life-total">
+      <strong key={bloom} className="life-total" data-testid="life-total" data-bloom={bloom > 0 || undefined}>
         {player.life}
       </strong>
       {deltaFor(delta, { kind: 'life', playerId: player.id })}

@@ -1,5 +1,6 @@
 import { useEffect, useReducer, useState } from 'react'
 import { AppNotices } from './components/AppNotices'
+import { BrandSigil } from './components/icons'
 import { ConfirmDialog } from './components/ConfirmDialog'
 import { PlayerPanel } from './components/PlayerPanel'
 import { RulesDialog } from './components/RulesDialog'
@@ -149,11 +150,7 @@ export default function App() {
     <div className="app-shell" data-compact-landscape={compact}>
       <header className="app-header">
         <a className="brand" href="#main" aria-label="Commander Companion, vai ai punteggi">
-          <svg className="brand-mark" viewBox="0 0 48 48" aria-hidden="true">
-            <circle cx="24" cy="24" r="19" />
-            <path d="M24 8v32M8 24h32M13 13l22 22M35 13 13 35" />
-            <circle cx="24" cy="24" r="5" />
-          </svg>
+          <BrandSigil />
           <span>
             <strong>Commander Companion</strong>
             <small>Il grimorio del tavolo</small>

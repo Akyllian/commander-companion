@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef } from 'react'
 import type { ReactNode, RefObject } from 'react'
 import { createPortal } from 'react-dom'
+import { CloseIcon } from './icons'
 
 interface ModalSideSheetProps {
   open: boolean
@@ -88,7 +89,7 @@ export function ModalSideSheet({
       <header className="side-sheet__header">
         <h2 id={titleId}>{title}</h2>
         <button ref={closeRef} type="button" className="icon-button" aria-label="Chiudi" title="Chiudi" onClick={onClose}>
-          ×
+          <CloseIcon />
         </button>
       </header>
       <div className="side-sheet__body">{children}</div>

@@ -3,7 +3,9 @@
 Status: ready for implementation review  
 Date: 2026-10-18  
 Applies to: Phase 1.6 compact landscape and Phase 2a quick rules reference  
-Visual board: [`docs/art-direction/compact-landscape-and-rules.svg`](art-direction/compact-landscape-and-rules.svg)
+Canonical reference: [`docs/art-direction/CANONICAL_ART_DIRECTION.md`](art-direction/CANONICAL_ART_DIRECTION.md) — **highest visual authority**  
+Canonical visual board: [`docs/art-direction/canonical-compact-and-rules.svg`](art-direction/canonical-compact-and-rules.svg)  
+Legacy geometry board: [`docs/art-direction/compact-landscape-and-rules.svg`](art-direction/compact-landscape-and-rules.svg) — use for layout history only
 
 ## Scope
 
@@ -12,11 +14,11 @@ This document defines visual hierarchy, component appearance and motion. It does
 - [`Compact landscape layout`](superpowers/specs/2026-10-18-compact-landscape-design.md)
 - [`Quick rules reference`](superpowers/specs/2026-10-18-rules-reference-design.md)
 
-If this document conflicts with either approved spec on behavior or content, the approved spec wins. For visual treatment and motion, this is the implementation handoff.
+If this document conflicts with either approved spec on behavior or content, the approved spec wins. For atmosphere, typography, imagery and ornament, the canonical art-direction reference wins. For visual treatment and motion details not resolved there, this is the implementation handoff.
 
 ## North star
 
-The physical scene is a shared phone on a card table in subdued ambient light. Players glance from cards to the screen for less than a second, often from an angle. The interface should feel like a precise enchanted instrument: near-black metal, restrained verdigris light and small gold signals. It must never resemble parchment, a card frame, a fantasy game launcher or a particle effect.
+The physical scene is a shared phone on a card table in subdued ambient light. Players glance from cards to the screen for less than a second, often from an angle. The interface should feel like a premium illustrated grimoire transformed into a precise tabletop instrument: ink-black metal and glass, cinematic fantasy scenes, fine arcane linework, warm antique gold and luminous teal. It must never collapse into a generic dark dashboard, parchment theme, medieval cartoon or noisy fantasy game launcher.
 
 Three hierarchy rules govern every screen:
 
@@ -39,7 +41,7 @@ Use the existing tokens in `src/styles/tokens.css`. Do not introduce a parallel 
 | Danger | `--color-danger*` | Defeat and point-of-no-return actions only |
 | Player identity | existing four accents | One edge, small label detail or restrained glow |
 
-The current system sans stack remains correct. Use tabular numerals for scores and counters. Do not add a fantasy display face.
+Use the canonical two-role typography system: an elegant high-contrast display serif for brand, major headings, player identity and life numerals where space permits; a highly legible utility face for compact controls, inputs, references and long copy. Use tabular numerals for scores and counters. The serif must feel editorial and premium, never novelty-medieval.
 
 ## Compact landscape composition
 
@@ -57,7 +59,7 @@ At 844×330, use the approved vertical budget exactly:
 
 At 844×390, preserve the same header and gaps. Give the extra height to the two grid rows as breathing room; do not enlarge controls or the header.
 
-The compact canvas loses the standard radial background emphasis. Retain only a very low-chroma ambient lift behind the grid so four panels read as one instrument rather than four glowing cards.
+The compact canvas reduces background spectacle but retains the canonical world through low-contrast scenic texture, arcane linework or an atmospheric blue-green lift. Four panels should read as one instrument, not four generic gray cards or four competing illustrations.
 
 ### Header
 
@@ -179,7 +181,7 @@ The rules sheet is a compact reading surface, not a collection of feature cards.
 
 Group headings anchor scanning. Within a group, keep 12px between title and body/reference cluster and 16px between adjacent rules. Use 24px before a new group. The sheet should look calm at the top and become no denser toward the bottom.
 
-No tabs, sticky table of contents, decorative book texture or fantasy ornaments are added.
+No sticky table of contents or decorative parchment texture is added. Restrained gold numbering, arcane linework and selective scenic illustration are welcome when they reinforce the canonical reference without fragmenting the reading flow.
 
 ## Motion principles
 
@@ -213,7 +215,7 @@ Native popover/dialog lifecycle may constrain exit animation. Correct dismissal,
 
 ## Ambient motion
 
-The standard player sigil may retain its existing 24-second linear rotation because it is low-contrast and conveys the enchanted-instrument atmosphere. It is hidden in compact landscape and stops under reduced motion. Do not add particles, shimmer, breathing glows or animated gradients.
+The standard player sigil may retain its existing 24-second linear rotation because it is low-contrast and conveys the enchanted-instrument atmosphere. It is hidden in compact landscape and stops under reduced motion. A subtle one-shot gold/teal light bloom may support a meaningful selected state. Do not add celebratory particles, continuous high-contrast pulsing, elastic motion or animated gradients.
 
 ## Reduced motion
 

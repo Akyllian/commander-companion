@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { ReactNode } from 'react'
 import type { Preferences } from '../settings/preferences'
+import { RedoIcon, UndoIcon } from './icons'
 import { MatchMenu } from './MatchMenu'
 import { PreferencesMenu } from './PreferencesMenu'
 
@@ -59,10 +60,10 @@ export function TableControls({
   const history = (
     <div className="history-controls">
       <button type="button" onClick={onUndo} disabled={!canUndo} aria-label="Annulla ultima azione">
-        ↶ <span>Annulla</span>
+        <UndoIcon /> <span>Annulla</span>
       </button>
       <button type="button" onClick={onRedo} disabled={!canRedo} aria-label="Ripeti ultima azione">
-        ↷ <span>Ripeti</span>
+        <RedoIcon /> <span>Ripeti</span>
       </button>
     </div>
   )

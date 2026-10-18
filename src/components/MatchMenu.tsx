@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Preferences } from '../settings/preferences'
+import { ChevronDownIcon } from './icons'
 import { PopoverMenu } from './PopoverMenu'
 import { KeepScreenOnOption } from './PreferencesMenu'
 
@@ -37,7 +38,7 @@ export function MatchMenu({
   }
 
   return (
-    <PopoverMenu label="Partita" buttonClassName="match-menu-button" supportsPopover={supportsPopover} trigger="Partita">
+    <PopoverMenu label="Partita" buttonClassName="match-menu-button" supportsPopover={supportsPopover} trigger={<>Partita <ChevronDownIcon /></>}>
       {(close) => (
         <div className="match-menu">
           <label className="match-menu__players">
