@@ -96,3 +96,12 @@ Tutti i passi superati tranne uno. Nessun problema di gravità alta, quindi la F
 | 8.4 | Menu «Partita» | Giocatori, Nuova partita, Azzera punteggi, Mantieni lo schermo acceso | | |
 | 8.5 | Torna in verticale | layout standard, punteggi identici | | |
 | 8.6 | Ingrandimento testo / zoom al massimo | i pannelli vanno su una colonna e si scorre in verticale; nessun pulsante tagliato | | |
+
+## 9. Riferimento alle regole (Fase 2a)
+
+| # | Passi | Risultato atteso | iPhone | Android |
+| --- | --- | --- | --- | --- |
+| 9.1 | Tocca «Regole» (in verticale e in orizzontale) | si apre «Regole Commander» con 3 gruppi e 7 regole, numeri di regola e data | | |
+| 9.2 | Chiudi con ✕ (o Esc su tastiera) | la partita è identica, Annulla funziona come prima | | |
+| 9.3 | Modalità aereo, riapri l'app, apri «Regole» | tutto il contenuto disponibile | | |
+| 9.4 | VoiceOver / TalkBack sulla tassa del comandante | legge «due mana generici» e «Non tracciata dall'app» | | |

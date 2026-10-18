@@ -20,6 +20,15 @@ interface TableControlsProps {
   onRedo: () => void
   onReset: () => void
   onNewGame: (playerCount: number) => void
+  onOpenRules: () => void
+}
+
+function BookIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="button-icon">
+      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+    </svg>
+  )
 }
 
 export function TableControls({
@@ -35,8 +44,17 @@ export function TableControls({
   onRedo,
   onReset,
   onNewGame,
+  onOpenRules,
 }: TableControlsProps) {
   const [playerCount, setPlayerCount] = useState(currentPlayerCount)
+
+  // Checking a threshold is an in-game task, so Regole stays top-level, outside Partita.
+  const rules = (
+    <button type="button" className="rules-button" aria-label="Regole Commander" title="Regole Commander" onClick={onOpenRules}>
+      <BookIcon />
+      <span>Regole</span>
+    </button>
+  )
 
   const history = (
     <div className="history-controls">
@@ -55,6 +73,7 @@ export function TableControls({
         {history}
         <div className="match-controls">
           {status}
+          {rules}
           <MatchMenu
             currentPlayerCount={currentPlayerCount}
             preferences={preferences}
@@ -91,6 +110,7 @@ export function TableControls({
         <button className="quiet-button" type="button" onClick={onReset}>
           Azzera punteggi
         </button>
+        {rules}
         {showPreferences && <PreferencesMenu preferences={preferences} onChange={onPreferencesChange} />}
       </div>
     </div>

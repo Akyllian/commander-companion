@@ -416,7 +416,7 @@ describe('compact landscape (Phase 1.6)', () => {
     const names = within(controls)
       .getAllByRole('button')
       .map((button) => button.getAttribute('aria-label') ?? button.textContent)
-    expect(names).toEqual(['Annulla ultima azione', 'Ripeti ultima azione', 'Partita'])
+    expect(names).toEqual(['Annulla ultima azione', 'Ripeti ultima azione', 'Regole Commander', 'Partita'])
 
     fireEvent.click(within(controls).getByRole('button', { name: 'Partita' }))
     fireEvent.click(screen.getByRole('button', { name: 'Azzera punteggi' }))
@@ -518,5 +518,64 @@ describe('compact landscape (Phase 1.6)', () => {
     const controls = screen.getByRole('group', { name: 'Controlli partita' })
     expect(within(controls).getByRole('button', { name: 'Stato app' })).toHaveAccessibleDescription('1 avviso')
     expect(document.querySelector('.app-notices:not(.app-notices--panel)')).toBeNull()
+  })
+})
+
+describe('rules reference (Phase 2a)', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  const controlNames = () =>
+    within(screen.getByRole('group', { name: 'Controlli partita' }))
+      .getAllByRole('button')
+      .map((button) => button.getAttribute('aria-label') ?? button.textContent)
+
+  it('sits after Azzera punteggi and before Preferenze in the standard header', () => {
+    Object.defineProperty(navigator, 'wakeLock', { configurable: true, value: { request: vi.fn(async () => ({ released: false, release: vi.fn(async () => undefined) })) } })
+    render(<App />)
+    const names = controlNames()
+    expect(names.slice(-3)).toEqual(['Azzera punteggi', 'Regole Commander', 'Preferenze'])
+    Reflect.deleteProperty(navigator, 'wakeLock')
+  })
+
+  it('sits right before Partita in the compact header, after Stato app', () => {
+    installMatchMedia(true)
+    localStorage.setItem('commander-companion.game.v1', '{broken')
+    render(<App />)
+    expect(controlNames().slice(-3)).toEqual(['Stato app', 'Regole Commander', 'Partita'])
+  })
+
+  it('opens and closes without changing the game or its history', () => {
+    render(<App />)
+    click(panel(/giocatore 1/i), /riduci di 5 la vita/i)
+    const undo = screen.getByRole('button', { name: /annulla ultima azione/i })
+    const before = { life: life(/giocatore 1/i).textContent, undo: (undo as HTMLButtonElement).disabled }
+    const stored = localStorage.getItem('commander-companion.game.v1')
+
+    const trigger = screen.getByRole('button', { name: 'Regole Commander' })
+    trigger.focus()
+    fireEvent.click(trigger)
+    fireEvent.click(within(screen.getByRole('dialog', { name: 'Regole Commander' })).getByRole('button', { name: 'Chiudi' }))
+    expect(trigger).toHaveFocus()
+
+    fireEvent.click(trigger)
+    fireEvent(screen.getByRole('dialog', { name: 'Regole Commander' }), new Event('cancel', { cancelable: true }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+
+    expect({ life: life(/giocatore 1/i).textContent, undo: (undo as HTMLButtonElement).disabled }).toEqual(before)
+    expect(localStorage.getItem('commander-companion.game.v1')).toBe(stored)
+    fireEvent.click(undo)
+    expect(life(/giocatore 1/i)).toHaveTextContent('40')
+  })
+
+  it('uses the combat-damage helper wherever Commander damage is shown', () => {
+    const helper = 'Registra qui solo i danni da combattimento del comandante: riducono anche i punti vita.'
+    const standard = render(<App />)
+    expect(within(panel(/giocatore 1/i)).getByText(helper)).toBeInTheDocument()
+    standard.unmount()
+
+    installMatchMedia(true)
+    render(<App />)
+    fireEvent.click(within(panel(/giocatore 1/i)).getByRole('button', { name: /dettagli/i }))
+    expect(within(screen.getByRole('dialog')).getByText(helper)).toBeInTheDocument()
   })
 })

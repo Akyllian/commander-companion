@@ -5,6 +5,8 @@ export const MIN_PLAYERS = 2
 export const MAX_PLAYERS = 4
 export const DEFAULT_PLAYERS = 4
 export const STARTING_LIFE = 40
+/** Rule 704.5a: 0 or less life. */
+export const LIFE_DEFEAT_LIMIT = 0
 /** Rule 704.5c: ten or more poison counters. */
 export const POISON_LIMIT = 10
 /** Rule 903.10a / 704.6c: 21 or more combat damage from the same commander. */
@@ -51,7 +53,7 @@ export function createGame(playerCount = DEFAULT_PLAYERS): GameState {
 
 export function getDefeatReasons(player: PlayerState): DefeatReason[] {
   const reasons: DefeatReason[] = []
-  if (player.life <= 0) reasons.push('life')
+  if (player.life <= LIFE_DEFEAT_LIMIT) reasons.push('life')
   if (player.poison >= POISON_LIMIT) reasons.push('poison')
   if (
     Object.values(player.commanderDamage).some((damage) =>
