@@ -1,0 +1,307 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="1000" viewBox="0 0 1680 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Commander Companion canonical compact and rules translation</title>
+  <desc id="desc">A visual art-direction board translating the approved cinematic dark-fantasy, antique-gold and luminous-teal reference into the compact score screen, rules sheet and motion language.</desc>
+  <defs>
+    <linearGradient id="board" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#071313"/>
+      <stop offset="0.52" stop-color="#030909"/>
+      <stop offset="1" stop-color="#0b1110"/>
+    </linearGradient>
+    <radialGradient id="tealAura">
+      <stop offset="0" stop-color="#2ed7c6" stop-opacity=".22"/>
+      <stop offset=".45" stop-color="#11635e" stop-opacity=".08"/>
+      <stop offset="1" stop-color="#020707" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="goldAura">
+      <stop offset="0" stop-color="#f0cb72" stop-opacity=".24"/>
+      <stop offset=".5" stop-color="#a36d24" stop-opacity=".07"/>
+      <stop offset="1" stop-color="#020707" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="panelTeal" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#0b2526"/>
+      <stop offset=".42" stop-color="#071516"/>
+      <stop offset="1" stop-color="#030808"/>
+    </linearGradient>
+    <linearGradient id="panelGold" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#28200f"/>
+      <stop offset=".45" stop-color="#11140f"/>
+      <stop offset="1" stop-color="#030808"/>
+    </linearGradient>
+    <linearGradient id="panelViolet" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#21162b"/>
+      <stop offset=".45" stop-color="#101016"/>
+      <stop offset="1" stop-color="#030808"/>
+    </linearGradient>
+    <linearGradient id="panelEmber" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#2b1712"/>
+      <stop offset=".45" stop-color="#15100d"/>
+      <stop offset="1" stop-color="#030808"/>
+    </linearGradient>
+    <linearGradient id="veil" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#020707" stop-opacity=".2"/>
+      <stop offset=".55" stop-color="#020707" stop-opacity=".58"/>
+      <stop offset="1" stop-color="#020707" stop-opacity=".9"/>
+    </linearGradient>
+    <linearGradient id="goldLine" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#8d682c" stop-opacity=".25"/>
+      <stop offset=".5" stop-color="#f0ce83"/>
+      <stop offset="1" stop-color="#8d682c" stop-opacity=".25"/>
+    </linearGradient>
+    <filter id="softTeal" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="7" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softGold" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <pattern id="stars" width="84" height="62" patternUnits="userSpaceOnUse">
+      <circle cx="9" cy="12" r=".8" fill="#dceeed" opacity=".18"/>
+      <circle cx="48" cy="25" r=".6" fill="#f0ce83" opacity=".16"/>
+      <circle cx="72" cy="53" r=".7" fill="#5ce1d4" opacity=".14"/>
+    </pattern>
+    <clipPath id="p1"><rect width="365" height="123" rx="12"/></clipPath>
+    <clipPath id="p2"><rect width="365" height="123" rx="12"/></clipPath>
+    <clipPath id="p3"><rect width="365" height="123" rx="12"/></clipPath>
+    <clipPath id="p4"><rect width="365" height="123" rx="12"/></clipPath>
+    <style>
+      .ui{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+      .display{font-family:"Cormorant Garamond",Georgia,"Times New Roman",serif}
+      .board-title{fill:#f4e9ce;font-size:25px;font-weight:600;letter-spacing:.02em}
+      .board-note{fill:#94aaa7;font-size:13px}
+      .micro{fill:#8da29f;font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+      .name{fill:#f3ead7;font-size:15px;font-weight:600;letter-spacing:.035em}
+      .life{fill:#fae7b7;font-size:52px;font-weight:600;text-anchor:middle;dominant-baseline:middle;font-variant-numeric:tabular-nums}
+      .button{fill:#f3ead7;font-size:13px;font-weight:700;text-anchor:middle;dominant-baseline:middle}
+      .rule-title{fill:#f4e9ce;font-size:16px;font-weight:600;letter-spacing:.02em}
+      .rule-body{fill:#d7dfdc;font-size:12px}
+      .rule-ref{fill:#9cafaa;font-size:10px}
+    </style>
+  </defs>
+
+  <rect width="1680" height="1000" fill="url(#board)"/>
+  <rect width="1680" height="1000" fill="url(#stars)"/>
+  <ellipse cx="250" cy="110" rx="500" ry="340" fill="url(#tealAura)"/>
+  <ellipse cx="1460" cy="80" rx="430" ry="330" fill="url(#goldAura)"/>
+
+  <!-- masthead -->
+  <g transform="translate(54 45)">
+    <g transform="translate(22 19)" filter="url(#softGold)">
+      <path d="M0-17L10-7L17 0L10 7L0 17L-10 7L-17 0L-10-7Z" fill="none" stroke="#edca77" stroke-width="1.2"/>
+      <circle r="4" fill="#edca77"/>
+      <path d="M0-25V25M-25 0H25" stroke="#53cfc4" stroke-width=".8" opacity=".7"/>
+    </g>
+    <text x="62" y="21" class="display" fill="#f4e9ce" font-size="31" letter-spacing=".12em">COMMANDER COMPANION</text>
+    <text x="63" y="46" class="ui micro" fill="#b9cbc8">CANONICAL UI TRANSLATION · COMPACT SCORE + RULES + MOTION</text>
+  </g>
+  <path d="M54 111H1626" stroke="url(#goldLine)"/>
+
+  <!-- Compact score artboard -->
+  <g transform="translate(54 145)">
+    <text class="display board-title">Compact landscape · illustrated instrument</text>
+    <text y="28" class="ui board-note">844×330 · identical geometry, new material language</text>
+    <g transform="translate(0 52)">
+      <rect width="778" height="304" rx="19" fill="#020606" stroke="#a88343" stroke-width="1.2"/>
+      <rect x="1" y="1" width="776" height="302" rx="18" fill="none" stroke="#2f746f" opacity=".6"/>
+      <rect x="8" y="8" width="762" height="48" rx="12" fill="#071010" stroke="#8b6c37"/>
+      <path d="M22 55H756" stroke="#2a7c76" opacity=".45"/>
+      <g transform="translate(33 32)" filter="url(#softTeal)">
+        <circle r="14" fill="none" stroke="#4bd4c8" stroke-width="1"/>
+        <path d="M0-13L5-5L13 0L5 5L0 13L-5 5L-13 0L-5-5Z" fill="none" stroke="#d9b768"/>
+        <circle r="3" fill="#f0ce83"/>
+      </g>
+      <text x="58" y="30" class="display" fill="#f4e9ce" font-size="16" letter-spacing=".08em">COMMANDER</text>
+      <text x="58" y="44" class="ui micro" font-size="8">COMPANION</text>
+      <!-- header controls -->
+      <g class="ui">
+        <g transform="translate(506 12)"><rect width="44" height="40" rx="10" fill="#0a1212" stroke="#344a47"/><text x="22" y="21" class="button" font-size="18">↶</text></g>
+        <g transform="translate(554 12)"><rect width="44" height="40" rx="10" fill="#0a1212" stroke="#344a47"/><text x="22" y="21" class="button" font-size="18">↷</text></g>
+        <g transform="translate(606 12)"><rect width="70" height="40" rx="10" fill="#0a1212" stroke="#75603a"/><text x="35" y="21" class="button" font-size="12">▯  Regole</text></g>
+        <g transform="translate(680 12)"><rect width="82" height="40" rx="10" fill="#101814" stroke="#d1aa59"/><path d="M8 39H74" stroke="#f0ce83" stroke-width="2" filter="url(#softGold)"/><text x="41" y="21" class="button" font-size="12">Partita⌄</text></g>
+      </g>
+
+      <!-- panel 1 -->
+      <g transform="translate(8 64)" clip-path="url(#p1)">
+        <rect width="365" height="123" fill="url(#panelTeal)"/>
+        <circle cx="69" cy="26" r="92" fill="url(#tealAura)"/>
+        <path d="M0 104L68 42L115 87L156 48L233 123H0Z" fill="#082020" opacity=".76"/>
+        <circle cx="284" cy="18" r="40" fill="none" stroke="#45bfb5" opacity=".18"/>
+        <path d="M242 18H326M284-24V60M254-12L314 48M314-12L254 48" stroke="#48bfb6" opacity=".1"/>
+        <rect width="365" height="123" fill="url(#veil)"/>
+        <rect x=".7" y=".7" width="363.6" height="121.6" rx="11.3" fill="none" stroke="#d7b66d"/>
+        <path d="M8 8H88M277 8H357" stroke="#55d3c7" stroke-width="1.2"/>
+        <text x="16" y="25" class="display name">DANNY</text>
+        <text x="16" y="39" class="ui micro" font-size="8">ZIMONE · INFINITE ANALYST</text>
+        <g transform="translate(318 8)"><rect width="39" height="39" rx="9" fill="#071011" stroke="#6d603f"/><text x="19.5" y="20" class="button">•••</text></g>
+        <g class="ui" transform="translate(28 67)">
+          <g><rect width="44" height="44" rx="10" fill="#071010" stroke="#75603a"/><text x="22" y="23" class="button">−5</text></g>
+          <g transform="translate(48)"><rect width="44" height="44" rx="10" fill="#0d2927" stroke="#52cbbf"/><text x="22" y="23" class="button">−1</text></g>
+          <text x="137" y="23" class="display life">40</text>
+          <g transform="translate(182)"><rect width="44" height="44" rx="10" fill="#0d2927" stroke="#52cbbf"/><text x="22" y="23" class="button">+1</text></g>
+          <g transform="translate(230)"><rect width="44" height="44" rx="10" fill="#071010" stroke="#75603a"/><text x="22" y="23" class="button">+5</text></g>
+        </g>
+      </g>
+
+      <!-- panel 2 -->
+      <g transform="translate(405 64)" clip-path="url(#p2)">
+        <rect width="365" height="123" fill="url(#panelGold)"/>
+        <circle cx="292" cy="20" r="86" fill="url(#goldAura)"/>
+        <circle cx="292" cy="11" r="36" fill="#d4b367" opacity=".13"/>
+        <path d="M0 110L80 61L130 88L196 39L270 91L330 53L365 76V123H0Z" fill="#17150d" opacity=".82"/>
+        <rect width="365" height="123" fill="url(#veil)"/>
+        <rect x=".7" y=".7" width="363.6" height="121.6" rx="11.3" fill="none" stroke="#e0bf73"/>
+        <path d="M8 8H88M277 8H357" stroke="#d4ac56" stroke-width="1.2"/>
+        <text x="16" y="25" class="display name">GIULIA</text>
+        <text x="16" y="39" class="ui micro" font-size="8">AURA OF SERENITY</text>
+        <g transform="translate(318 8)"><rect width="39" height="39" rx="9" fill="#0c0e0b" stroke="#806b3d"/><text x="19.5" y="20" class="button">•••</text></g>
+        <g class="ui" transform="translate(28 67)">
+          <g><rect width="44" height="44" rx="10" fill="#0b0e0d" stroke="#75603a"/><text x="22" y="23" class="button">−5</text></g>
+          <g transform="translate(48)"><rect width="44" height="44" rx="10" fill="#2c240f" stroke="#d7b255"/><text x="22" y="23" class="button">−1</text></g>
+          <text x="137" y="23" class="display life">40</text>
+          <g transform="translate(182)"><rect width="44" height="44" rx="10" fill="#2c240f" stroke="#d7b255"/><text x="22" y="23" class="button">+1</text></g>
+          <g transform="translate(230)"><rect width="44" height="44" rx="10" fill="#0b0e0d" stroke="#75603a"/><text x="22" y="23" class="button">+5</text></g>
+        </g>
+      </g>
+
+      <!-- panel 3 -->
+      <g transform="translate(8 195)" clip-path="url(#p3)">
+        <rect width="365" height="123" fill="url(#panelViolet)"/>
+        <circle cx="76" cy="30" r="86" fill="#7846a3" opacity=".11"/>
+        <path d="M27 123Q41 63 69 37Q98 65 111 123M51 70L18 44M83 63L128 30" fill="none" stroke="#ae7ad0" stroke-width="5" opacity=".14"/>
+        <rect width="365" height="123" fill="url(#veil)"/>
+        <rect x=".7" y=".7" width="363.6" height="121.6" rx="11.3" fill="none" stroke="#c5a567"/>
+        <path d="M8 8H88M277 8H357" stroke="#ad76d4" stroke-width="1.2"/>
+        <text x="16" y="25" class="display name">PLAYER 3</text>
+        <text x="16" y="39" class="ui micro" font-size="8">SHADOW STRATEGIST</text>
+        <g transform="translate(318 8)"><rect width="39" height="39" rx="9" fill="#0b0b10" stroke="#6f573b"/><text x="19.5" y="20" class="button">•••</text></g>
+        <g class="ui" transform="translate(28 67)">
+          <g><rect width="44" height="44" rx="10" fill="#090b0c" stroke="#75603a"/><text x="22" y="23" class="button">−5</text></g>
+          <g transform="translate(48)"><rect width="44" height="44" rx="10" fill="#21152b" stroke="#a66dcb"/><text x="22" y="23" class="button">−1</text></g>
+          <text x="137" y="23" class="display life">38</text>
+          <g transform="translate(182)"><rect width="44" height="44" rx="10" fill="#21152b" stroke="#a66dcb"/><text x="22" y="23" class="button">+1</text></g>
+          <g transform="translate(230)"><rect width="44" height="44" rx="10" fill="#090b0c" stroke="#75603a"/><text x="22" y="23" class="button">+5</text></g>
+        </g>
+      </g>
+
+      <!-- panel 4 -->
+      <g transform="translate(405 195)" clip-path="url(#p4)">
+        <rect width="365" height="123" fill="url(#panelEmber)"/>
+        <circle cx="288" cy="30" r="78" fill="#bd572e" opacity=".12"/>
+        <path d="M250 123Q271 77 289 42Q307 82 329 123M264 78L236 58M309 76L341 48" fill="none" stroke="#db734f" stroke-width="6" opacity=".13"/>
+        <rect width="365" height="123" fill="url(#veil)"/>
+        <rect x=".7" y=".7" width="363.6" height="121.6" rx="11.3" fill="none" stroke="#d1ad69"/>
+        <path d="M8 8H88M277 8H357" stroke="#dd7757" stroke-width="1.2"/>
+        <text x="16" y="25" class="display name">PLAYER 4</text>
+        <text x="16" y="39" class="ui micro" font-size="8">WILD GENESIS</text>
+        <g transform="translate(318 8)"><rect width="39" height="39" rx="9" fill="#100c0a" stroke="#70583a"/><text x="19.5" y="20" class="button">•••</text></g>
+        <g class="ui" transform="translate(28 67)">
+          <g><rect width="44" height="44" rx="10" fill="#0a0c0c" stroke="#75603a"/><text x="22" y="23" class="button">−5</text></g>
+          <g transform="translate(48)"><rect width="44" height="44" rx="10" fill="#2e1913" stroke="#d86e4c"/><text x="22" y="23" class="button">−1</text></g>
+          <text x="137" y="23" class="display life">40</text>
+          <g transform="translate(182)"><rect width="44" height="44" rx="10" fill="#2e1913" stroke="#d86e4c"/><text x="22" y="23" class="button">+1</text></g>
+          <g transform="translate(230)"><rect width="44" height="44" rx="10" fill="#0a0c0c" stroke="#75603a"/><text x="22" y="23" class="button">+5</text></g>
+        </g>
+      </g>
+    </g>
+  </g>
+
+  <!-- Rules artboard -->
+  <g transform="translate(875 145)">
+    <text class="display board-title">Rules · illustrated editorial guide</text>
+    <text y="28" class="ui board-note">Continuous reading surface · gold numbering · scenic anchors</text>
+    <g transform="translate(0 52)">
+      <rect width="751" height="304" rx="19" fill="#020606" stroke="#80683c"/>
+      <g opacity=".32">
+        <path d="M0 245L94 164L148 205L221 126L294 211L375 143L447 218L535 132L608 201L690 155L751 206V304H0Z" fill="#12302f"/>
+        <circle cx="590" cy="76" r="78" fill="url(#goldAura)"/>
+      </g>
+      <rect width="751" height="304" rx="19" fill="#020606" opacity=".63"/>
+
+      <g transform="translate(252 8)">
+        <rect width="491" height="288" rx="12" fill="#07100f" stroke="#c5a260"/>
+        <rect x="1" y="1" width="489" height="286" rx="11" fill="none" stroke="#28726d" opacity=".55"/>
+        <!-- scenic header band -->
+        <g clip-path="url(#p2)">
+          <rect width="491" height="84" fill="url(#panelTeal)"/>
+          <circle cx="410" cy="4" r="78" fill="url(#goldAura)"/>
+          <path d="M0 84L68 38L119 71L177 28L233 70L298 32L373 76L435 42L491 65V84Z" fill="#0b2524"/>
+          <path d="M348 64L386 26L418 64M376 42L347 17M397 44L432 15" fill="none" stroke="#59cfc4" opacity=".22"/>
+          <rect width="491" height="84" fill="url(#veil)" opacity=".74"/>
+        </g>
+        <text x="18" y="31" class="display" fill="#f4e9ce" font-size="22" letter-spacing=".035em">Regole Commander</text>
+        <text x="18" y="52" class="ui" fill="#c2d2cf" font-size="10">Una guida rapida ai punteggi mostrati dall’app.</text>
+        <g transform="translate(438 8)"><rect width="44" height="44" rx="10" fill="#07100f" stroke="#856b3b"/><text x="22" y="23" class="button" font-size="18">×</text></g>
+        <path d="M14 84H477" stroke="url(#goldLine)"/>
+
+        <g transform="translate(18 108)">
+          <text class="display rule-title">Le soglie della partita</text>
+          <path d="M7 25V153" stroke="#3ac2b7" stroke-width="1.2" opacity=".6"/>
+          <circle cx="7" cy="45" r="8" fill="#0c2523" stroke="#e6c36f"/>
+          <text x="7" y="48" class="ui" fill="#f4e9ce" font-size="8" text-anchor="middle">1</text>
+          <text x="28" y="42" class="display" fill="#f4e9ce" font-size="14">Vita iniziale</text>
+          <text x="28" y="58" class="ui rule-body">Ogni giocatore inizia con <tspan fill="#f5d88e" font-weight="700">40</tspan> punti vita.</text>
+          <text x="28" y="73" class="ui rule-ref">Regola 903.7</text>
+
+          <circle cx="7" cy="96" r="8" fill="#0c2523" stroke="#e6c36f"/>
+          <text x="7" y="99" class="ui" fill="#f4e9ce" font-size="8" text-anchor="middle">2</text>
+          <text x="28" y="93" class="display" fill="#f4e9ce" font-size="14">Vita a zero</text>
+          <text x="28" y="109" class="ui rule-body">Con <tspan fill="#f5d88e" font-weight="700">0 o meno</tspan> punti vita, un giocatore perde.</text>
+          <text x="28" y="124" class="ui rule-ref">Regola 704.5a</text>
+
+          <circle cx="7" cy="147" r="8" fill="#0c2523" stroke="#e6c36f"/>
+          <text x="7" y="150" class="ui" fill="#f4e9ce" font-size="8" text-anchor="middle">3</text>
+          <text x="28" y="144" class="display" fill="#f4e9ce" font-size="14">Veleno</text>
+          <text x="28" y="160" class="ui rule-body"><tspan fill="#f5d88e" font-weight="700">10 o più</tspan> segnalini veleno causano la sconfitta.</text>
+          <text x="28" y="175" class="ui rule-ref">Regola 704.5c</text>
+        </g>
+        <path d="M18 272H473" stroke="#7c6438" opacity=".65"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- Material and motion strip -->
+  <g transform="translate(54 590)">
+    <text class="display board-title">Material language</text>
+    <text y="28" class="ui board-note">Richness from typography, atmosphere and linework—not from more controls</text>
+    <g transform="translate(0 55)">
+      <rect width="492" height="128" rx="14" fill="#071110" stroke="#7d663b"/>
+      <text x="20" y="29" class="ui micro" fill="#d2b66d">TYPE PAIRING</text>
+      <text x="20" y="76" class="display" fill="#f4e9ce" font-size="42">40 · Commander</text>
+      <text x="22" y="105" class="ui" fill="#b9c9c6" font-size="12">Display serif for identity and values · Inter for utility and copy</text>
+
+      <g transform="translate(512)">
+        <rect width="492" height="128" rx="14" fill="#071110" stroke="#7d663b"/>
+        <text x="20" y="29" class="ui micro" fill="#d2b66d">MATERIAL PALETTE</text>
+        <g transform="translate(22 48)">
+          <circle cx="25" cy="25" r="24" fill="#020707" stroke="#4b615d"/><circle cx="89" cy="25" r="24" fill="#103231" stroke="#4cc9bd"/><circle cx="153" cy="25" r="24" fill="#d8b464" stroke="#f2d48b"/><circle cx="217" cy="25" r="24" fill="#f4e9ce" stroke="#fff5df"/>
+          <text x="260" y="18" class="ui" fill="#d7dfdc" font-size="12">INK · ARCANE TEAL</text>
+          <text x="260" y="39" class="ui" fill="#d7dfdc" font-size="12">ANTIQUE GOLD · WARM IVORY</text>
+        </g>
+      </g>
+
+      <g transform="translate(1024)">
+        <rect width="548" height="128" rx="14" fill="#071110" stroke="#7d663b"/>
+        <text x="20" y="29" class="ui micro" fill="#d2b66d">ICON + LINEWORK</text>
+        <g transform="translate(52 72)" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <path d="M-16 0H16M0-16V16M-11-11L11 11M11-11L-11 11" stroke="#48cfc3" stroke-width="1.5"/>
+          <circle r="5" stroke="#e1bd68" stroke-width="1.5"/>
+        </g>
+        <g transform="translate(126 72)" stroke="#e7d9b9" stroke-width="1.7" fill="none"><path d="M-13-13H8Q14-13 14-7V13H-13Z"/><path d="M-6-7H7M-6 0H7M-6 7H3"/></g>
+        <g transform="translate(200 72)" stroke="#dcb862" stroke-width="1.7" fill="none"><circle r="17"/><path d="M-9 0H9M0-9V9"/></g>
+        <text x="244" y="69" class="ui" fill="#d7dfdc" font-size="12">1.5–1.75px rounded strokes</text>
+        <text x="244" y="89" class="ui" fill="#9fb1ad" font-size="11">Ivory inactive · gold active · teal magical state</text>
+      </g>
+    </g>
+  </g>
+
+  <g transform="translate(54 808)">
+    <text class="display board-title">Motion · controlled arcane illumination</text>
+    <text y="28" class="ui board-note">Use the existing 140/220ms system; add one-shot light cues, never choreography</text>
+    <g transform="translate(0 55)" class="ui">
+      <g><rect width="370" height="105" rx="13" fill="#071110" stroke="#425550"/><text x="18" y="25" class="micro" fill="#e0bd6a">01 · SELECTED ACTION</text><path d="M28 72H184" stroke="#403a29" stroke-width="2"/><path d="M28 72H150" stroke="#f0ce83" stroke-width="2" filter="url(#softGold)"/><text x="18" y="94" class="rule-ref">140ms · gold underline ignition</text></g>
+      <g transform="translate(392)"><rect width="370" height="105" rx="13" fill="#071110" stroke="#425550"/><text x="18" y="25" class="micro" fill="#e0bd6a">02 · SCORE CHANGE</text><text x="118" y="61" class="display life" font-size="46">41</text><circle cx="118" cy="57" r="42" fill="none" stroke="#f0ce83" opacity=".3" filter="url(#softGold)"/><text x="18" y="94" class="rule-ref">140ms · 2px settle + local light bloom</text></g>
+      <g transform="translate(784)"><rect width="370" height="105" rx="13" fill="#071110" stroke="#425550"/><text x="18" y="25" class="micro" fill="#e0bd6a">03 · SIDE SHEET</text><rect x="196" y="36" width="152" height="54" rx="9" fill="#0b1514" stroke="#b28e4d"/><path d="M196 36V90" stroke="#53cfc4" stroke-width="2" filter="url(#softTeal)"/><path d="M166 63H188" stroke="#8db4af" stroke-dasharray="3 3"/><text x="18" y="94" class="rule-ref">220ms in · 140ms out · edge line illuminates once</text></g>
+      <g transform="translate(1176)"><rect width="396" height="105" rx="13" fill="#071110" stroke="#425550"/><text x="18" y="25" class="micro" fill="#e0bd6a">04 · REDUCED MOTION</text><circle cx="79" cy="63" r="23" fill="none" stroke="#53706b"/><path d="M63 79L95 47" stroke="#e0bd6a" stroke-width="2"/><text x="118" y="60" class="rule-body">Instant final state</text><text x="118" y="79" class="rule-ref">No transform, draw, bloom or drift</text></g>
+    </g>
+  </g>
+</svg>

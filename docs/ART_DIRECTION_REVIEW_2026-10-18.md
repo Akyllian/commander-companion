@@ -7,6 +7,10 @@ Date: 2026-10-18
 Scope: compact landscape, match popover, player-details sheet, rules sheet and motion  
 Reference: [`ART_DIRECTION_AND_MOTION.md`](ART_DIRECTION_AND_MOTION.md)
 
+> **Canonical visual correction:** the user-approved reference is now locked in [`art-direction/CANONICAL_ART_DIRECTION.md`](art-direction/CANONICAL_ART_DIRECTION.md). Its cinematic dark-fantasy, antique-gold, luminous-teal, illustrated and serif-led language supersedes any wording in this review that could be interpreted as favoring a generic minimal dark-product aesthetic.
+
+The follow-up gap review and updated visual translation live in [`CANONICAL_VISUAL_GAP_REVIEW.md`](CANONICAL_VISUAL_GAP_REVIEW.md) and [`art-direction/canonical-compact-and-rules.svg`](art-direction/canonical-compact-and-rules.svg). Use those artifacts for the next visual pass.
+
 This review concerns art direction, visual hierarchy and animation only. It does not request changes to React architecture, domain behavior, persistence, rules content or test strategy.
 
 ## Executive verdict
@@ -109,7 +113,7 @@ Also:
 - add a 1px divider between adjacent rules and before the footer;
 - render `{2}` as a 24px textual mana token with neutral fill and gold outline;
 - keep `Non tracciata dall’app` neutral/gold, never danger red;
-- do not introduce cards, tabs, a sticky table of contents or fantasy ornament.
+- do not introduce a card per rule or a sticky table of contents; use restrained gold numbering, arcane linework and selective scenic illustration in the canonical visual language.
 
 ### P2 — Implement the approved motion recipes
 

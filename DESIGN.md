@@ -1,8 +1,12 @@
 # Commander Companion Design System
 
+## Canonical visual reference
+
+The user-approved art direction is locked in [`docs/art-direction/CANONICAL_ART_DIRECTION.md`](docs/art-direction/CANONICAL_ART_DIRECTION.md). It takes precedence for atmosphere, typography, imagery, ornament and perceived production value. This document supplies implementation constraints where it does not conflict with that reference.
+
 ## Theme
 
-A near-black tabletop illuminated by a controlled teal spell-circle and small gold mana signals. The app is dark because it is used around a physical game table where glare competes with cards; the surface stays neutral so the colored light retains meaning.
+A premium dark-fantasy editorial world: ink-black and deep blue-green surfaces, warm antique gold, luminous teal, cinematic illustration and fine arcane linework. The app remains dark because it is used around a physical game table where glare competes with cards, but it must not collapse into a generic dark product UI.
 
 ## Color
 
@@ -18,7 +22,7 @@ Color strategy is restrained in controls and committed in state feedback. Never 
 
 ## Typography
 
-Use the system sans stack for quick loading and familiar controls. Life totals use the same family with tabular numerals, high weight and tight but safe tracking. No display font appears in labels, inputs or buttons.
+Use an elegant high-contrast display serif for the brand, major headings, player names where space permits, life totals and editorial numerals. Use a highly legible utility face for compact controls, inputs, references and long copy. Scores and counters retain tabular numerals, high weight and safe tracking. The display serif is a required identity signal, not optional decoration.
 
 ## Layout
 
@@ -38,5 +42,4 @@ Every interactive element has hover, focus, active and disabled treatment. Loadi
 
 ## Motion
 
-The panel sigil rotates slowly as ambient state. Buttons use a 140ms state transition. Motion conveys tactility and atmosphere but never gates visibility. `prefers-reduced-motion` reduces all movement to effectively instant state changes.
-
+Motion feels like controlled arcane illumination: slow low-contrast sigil/linework movement, brief gold or teal ignition for meaningful selected states, and fast local score feedback. Buttons use a 140ms state transition; sheets use the approved 140–220ms directional transitions. Motion never gates visibility. `prefers-reduced-motion` reduces all movement to effectively instant state changes.
