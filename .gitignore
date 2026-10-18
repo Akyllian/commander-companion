@@ -6,3 +6,6 @@ coverage/
 .superpowers/
 .impeccable/hook.cache.json
 dev-dist/
+
+# Local knowledge-graph cache (graphify): machine-specific, never committed.
+graphify-out/
