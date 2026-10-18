@@ -140,3 +140,10 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 - **Accesso:** «Regole» è un pulsante di primo livello (nome accessibile «Regole Commander»): nell'header standard dopo «Azzera punteggi», in quello compatto subito prima di «Partita».
 - **Correttezza:** il testo d'aiuto dei danni Commander ora dice che contano solo i danni da combattimento, sia nel pannello standard sia nello sheet compatto.
 - **Art direction in sospeso:** badge «Non tracciata dall'app», simbolo `{2}`, tipografia dello sheet. Ora c'è solo struttura con i token esistenti.
+
+## D-022 — Header standard: i gruppi di controlli vanno a capo come blocchi (P1 della revisione di art direction)
+- **Stato:** Accettata. Fonte: `docs/ART_DIRECTION_REVIEW_2026-10-18.md`, P1.
+- **Causa:** aggiungendo «Regole» (D-021) l'header standard non è stato rimisurato. Tra 46rem e ~1050 px i controlli uscivano dall'header: 31 px a 768 px, 62 px a 736 px, 65 px a 993 px. Errore di verifica di Claude.
+- **Correzione (solo CSS):** i due gruppi, Annulla/Ripeti e gestione partita, vanno a capo come blocchi interi (`flex-wrap` su `.table-controls` e `.match-controls`). Il testo dei pulsanti non si spezza mai (D-016) e le etichette restano visibili.
+- **Verifica:** 320, 736, 768, 900, 993, 1100 e 1440 px → nessun overflow, nessun controllo fuori dall'header, nessun testo spezzato, target ≥ 44 px, «Nuova partita» e «Azzera punteggi» sulla stessa riga da 46rem in su. Layout compatto invariato (844×330: header 52 px, 4 pannelli senza scroll).
+- **Regola di processo:** ogni nuovo controllo nell'header richiede di rimisurare l'header su tutta la fascia 320–1440 px, non solo sui tre punti 320, 768 e 1440.

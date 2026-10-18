@@ -145,6 +145,22 @@ button:disabled {
   padding-inline: var(--space-3);
 }
 
+/* Header controls (art-direction review P1): the two groups — history and match management —
+   wrap as whole blocks when the header is too narrow, so no control is ever pushed outside it.
+   Labels never break inside a button (D-016); buttons keep their content width. */
+.app-header > .table-controls {
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  min-width: 0;
+  row-gap: var(--space-2);
+}
+
+.match-controls {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 /* Header labels never break inside a button (UX review 3); buttons keep their content width. */
 .table-controls button {
   flex-shrink: 0;
@@ -443,7 +459,7 @@ button:disabled {
     flex-direction: column;
   }
 
-  .table-controls {
+  .app-header > .table-controls {
     justify-content: space-between;
   }
 }
