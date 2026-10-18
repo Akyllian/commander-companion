@@ -119,3 +119,16 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 - **Fase 2:** tutte e quattro le funzioni (riferimento regole, cronologia partite, immagini giocatori, vista tavolo per tablet), nell'ordine 2a → 2b → 2c → 2d, dopo o in parallelo alla Fase 1.6 (orizzontale).
 - **Flusso Git:** da ora ogni fase vive su un branch e arriva su `main` con una pull request, unita solo con la CI verde. Il push diretto su `main` del 2026-10-18 è l'ultimo.
 - **Definizione di fatto:** aggiunta la verifica a 844×390 in orizzontale.
+
+## D-020 — Layout compatto in orizzontale (Fase 1.6)
+- **Stato:** Accettata. Spec e piano di ChatGPT: `docs/superpowers/specs/2026-10-18-compact-landscape-design.md`, `docs/superpowers/plans/2026-10-18-compact-landscape.md`.
+- **Divisione:** Claude ha implementato la struttura (componenti, geometria, focus, accessibilità, test). Art direction e animazioni restano a ChatGPT: i nuovi elementi usano solo token esistenti e nessuna transizione nuova.
+- **Una sola fonte per la condizione:** `COMPACT_LANDSCAPE_QUERY` (`(orientation: landscape) and (max-height: 30rem)`) è valutata in JS (`useCompactLandscape`). Il CSS usa `[data-compact-landscape='true']` invece di ripetere la media query, così struttura e stili non possono divergere.
+- **Componenti condivisi:** `PopoverMenu` (Preferenze, Partita, Stato app), con lo stesso fallback e lo spostamento del focus dentro il menu all'apertura; `ModalSideSheet` (dettagli giocatore, poi regole), con `<dialog>` nativo e fallback a portal, `inert` e trappola del Tab; `PlayerSections`, usato sia nel pannello standard sia nello sheet.
+- **Ripiego accessibile:** sotto 32rem di larghezza (per esempio zoom 200% su 844 px) la griglia compatta passa a una colonna e scorre in verticale, così i controlli da 44 px non vengono mai tagliati.
+- **Scostamenti dalla spec, da confermare con il design:**
+  1. sotto 32rem la griglia va su **una colonna**: la spec diceva solo che «può riorganizzarsi»;
+  2. il badge compatto accorcia solo il motivo e mantiene la parola «Sconfitto»;
+  3. la riga vita è limitata a 24rem nelle celle larghe (2 giocatori e terzo pannello a tutta larghezza), così i pulsanti non si ingrandiscono;
+  4. «21 danni Commander» diventa «21 Commander» solo nel badge compatto, come da spec; il layout standard resta invariato.
+- **Verifica:** a 844×390, 844×330 e 568×320 i 4 pannelli e i 16 pulsanti vita sono visibili senza scroll, l'header è alto 52 px e tutti i target sono ≥ 44 px; 2 e 3 giocatori come da spec; valori −999 e 999 e nomi lunghi senza sovrapposizioni; zoom 200% simulato senza scroll orizzontale e senza controlli tagliati; layout standard invariato a 390, 768 e 1440 px.

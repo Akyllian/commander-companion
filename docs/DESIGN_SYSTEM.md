@@ -63,3 +63,14 @@ New semantic tokens: `--color-scrim` (dialog backdrop); `--color-danger-hover`, 
 | --- | --- | --- | --- | --- |
 | Destructive confirm | filled `--color-danger` | `--color-danger-hover` | gold ring | `--color-danger-active` |
 | Remove player | muted icon | `--color-danger-foreground` | gold ring + red icon | red icon |
+
+## Compact landscape components (D-020) — structure final, visuals pending art direction
+
+| Component | Class / hook | Notes |
+| --- | --- | --- |
+| Compact shell | `.app-shell[data-compact-landscape='true']` | 52px header, footer hidden, safe-area padding |
+| Score rail | `.score-rail` | `[−5] [−1] LIFE [+1] [+5]`, max 24rem, life `clamp(1.5rem, 9cqi, 2.25rem)` |
+| Details button | `.details-button` | ⋯ icon, 44px, `Dettagli di <nome>` |
+| Side sheet | `.side-sheet`, `__header`, `__body` | 8px inset, 28rem max, inner scroll |
+| Popover menu | `.popover-menu`, `.popover-panel` | Preferenze, Partita, Stato app |
+| Status button | `.status-button`, `__marker` | "!" marker + text, count in the description |

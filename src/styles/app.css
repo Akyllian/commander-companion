@@ -699,7 +699,7 @@ input[type='checkbox'] {
   margin: 0;
 }
 
-.preferences-menu {
+.popover-menu {
   position: relative;
 }
 
@@ -722,7 +722,7 @@ input[type='checkbox'] {
   stroke-width: 1.75;
 }
 
-.preferences-panel {
+.popover-panel {
   width: max-content;
   max-width: min(20rem, calc(100vw - 2 * var(--space-4)));
   padding: var(--space-2) var(--space-4);
@@ -734,7 +734,7 @@ input[type='checkbox'] {
 }
 
 /* Native popover: top layer, anchored by script under the button (top/right). */
-.preferences-panel[popover] {
+.popover-panel[popover] {
   position: fixed;
   inset: auto;
   margin: 0;
@@ -745,14 +745,14 @@ input[type='checkbox'] {
 }
 
 /* Fallback when the Popover API is missing. */
-.preferences-panel[data-fallback] {
+.popover-panel[data-fallback] {
   position: absolute;
   z-index: 10;
   top: calc(100% + var(--space-2));
   right: 0;
 }
 
-.preferences-panel[data-fallback][hidden] {
+.popover-panel[data-fallback][hidden] {
   display: none;
 }
 
@@ -836,4 +836,314 @@ input[type='checkbox'] {
 .confirm-dialog__confirm:active:not(:disabled) {
   border-color: var(--color-danger-active);
   background: var(--color-danger-active);
+}
+
+/* ---- Side sheet (player details, rules) — structure only; visuals pending art direction ---- */
+
+.side-sheet {
+  position: fixed;
+  inset: var(--space-2) var(--space-2) var(--space-2) auto;
+  display: flex;
+  flex-direction: column;
+  width: min(28rem, calc(100vw - 2 * var(--space-2)));
+  max-width: none;
+  height: calc(100vh - 2 * var(--space-2));
+  height: calc(100dvh - 2 * var(--space-2));
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-panel);
+}
+
+.side-sheet:not([open]):not([data-fallback]) {
+  display: none;
+}
+
+.side-sheet[data-fallback] {
+  z-index: 20;
+}
+
+.side-sheet::backdrop {
+  background: var(--color-scrim);
+}
+
+.side-sheet__header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.side-sheet__header h2 {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-size: 1rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.side-sheet__body {
+  display: grid;
+  flex: 1 1 auto;
+  align-content: start;
+  gap: var(--space-2);
+  min-height: 0;
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.side-sheet__body .partner-badge {
+  justify-self: start;
+}
+
+.remove-player-action {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding-inline: var(--space-4);
+}
+
+/* Compact menus: Partita and Stato app. */
+.match-menu {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 14rem;
+  padding-block: var(--space-2);
+}
+
+.match-menu__players {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.popover-panel[popover] {
+  max-height: calc(100dvh - 4rem);
+  overflow-y: auto;
+}
+
+.app-notices--panel {
+  max-width: 22rem;
+  margin: var(--space-2) 0;
+}
+
+.status-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.status-button__marker {
+  display: inline-grid;
+  width: 1.25rem;
+  height: 1.25rem;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-round);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+/* ---- Compact landscape (Phase 1.6, spec 2026-10-18) ----
+   Activated by `data-compact-landscape`, set from COMPACT_LANDSCAPE_QUERY in JS (single source).
+   Budget at 844×330: 8 + 52 header + 8 + 2 rows of ~123 + 8 gap + 8. */
+
+.app-shell[data-compact-landscape='true'] {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding:
+    max(var(--space-2), env(safe-area-inset-top))
+    max(var(--space-2), env(safe-area-inset-right))
+    max(var(--space-2), env(safe-area-inset-bottom))
+    max(var(--space-2), env(safe-area-inset-left));
+}
+
+.app-shell[data-compact-landscape='true'] .app-footer {
+  display: none;
+}
+
+.app-shell[data-compact-landscape='true'] .app-header {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+  max-height: 3.25rem;
+  margin: 0;
+  padding: var(--space-1) var(--space-2);
+}
+
+.app-shell[data-compact-landscape='true'] .brand > span {
+  display: none;
+}
+
+.app-shell[data-compact-landscape='true'] .brand-mark {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.app-shell[data-compact-landscape='true'] .table-controls {
+  flex: 1 1 auto;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.app-shell[data-compact-landscape='true'] .history-controls,
+.app-shell[data-compact-landscape='true'] .match-controls {
+  flex: none;
+  flex-wrap: nowrap;
+}
+
+.app-shell[data-compact-landscape='true'] .history-controls button span {
+  display: none;
+}
+
+.app-shell[data-compact-landscape='true'] .history-controls button {
+  min-width: var(--button-height);
+}
+
+/* Grid: rows fill the height when they fit, and grow (page scrolls vertically) when zoom or
+   text size makes the 44px controls unable to fit — accessibility wins over no-scroll. */
+.app-shell[data-compact-landscape='true'] .player-grid,
+.app-shell[data-compact-landscape='true'] .player-grid[data-player-count='2'] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(min-content, 1fr);
+  gap: var(--space-2);
+  min-height: 0;
+}
+
+/* Three players: three columns from 44rem, otherwise 2 + one spanning panel. */
+.app-shell[data-compact-landscape='true'] .player-grid[data-player-count='3'] > :nth-child(3) {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 44rem) {
+  .app-shell[data-compact-landscape='true'] .player-grid[data-player-count='3'] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .app-shell[data-compact-landscape='true'] .player-grid[data-player-count='3'] > :nth-child(3) {
+    grid-column: auto;
+  }
+}
+
+/* Accessible reflow (200% zoom, very narrow CSS viewports): two columns can no longer hold a
+   44px rail, so panels stack and the page scrolls vertically instead of clipping controls. */
+@media (max-width: 32rem) {
+  .app-shell[data-compact-landscape='true'] .player-grid,
+  .app-shell[data-compact-landscape='true'] .player-grid[data-player-count] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .app-shell[data-compact-landscape='true'] .player-grid[data-player-count='3'] > :nth-child(3) {
+    grid-column: auto;
+  }
+}
+
+.player-panel[data-compact] {
+  display: grid;
+  /* Never wider than the cell: long names or badges clip instead of pushing the rail out. */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-content: space-evenly;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+}
+
+.player-panel[data-compact] .player-panel__header {
+  flex-wrap: nowrap;
+}
+
+.player-panel[data-compact] .player-name {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-panel[data-compact] .status-badge {
+  display: inline-flex;
+  flex: 0 1 auto;
+  min-width: 0;
+  white-space: pre;
+}
+
+.player-panel[data-compact] .status-badge__label {
+  flex: none;
+}
+
+.player-panel[data-compact] .status-badge__reason {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-panel[data-compact] .details-button {
+  flex: none;
+}
+
+.score-rail {
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(var(--button-height), 1fr)) minmax(3.5ch, 1.4fr) repeat(
+      2,
+      minmax(var(--button-height), 1fr)
+    );
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.player-panel[data-compact] .score-rail {
+  /* Wide cells (2 players, spanning 3rd panel) add breathing room, not bigger controls. */
+  justify-self: center;
+  width: 100%;
+  max-width: 24rem;
+}
+
+.score-rail .score-button {
+  min-height: var(--button-height);
+  padding: 0;
+}
+
+.score-rail .life-value {
+  justify-self: center;
+  min-width: 0;
+}
+
+.score-rail .life-total {
+  /* Shrinks only when the rail is narrow, so "-999" never collides with the buttons. */
+  font-size: clamp(1.5rem, 9cqi, 2.25rem);
+  line-height: 1;
+}
+
+/* The delta overlays the value: it never changes row dimensions. */
+.score-rail .life-value .delta-badge {
+  top: auto;
+  bottom: 100%;
+  left: 50%;
+  margin: 0;
+  transform: translateX(-50%);
+}
+
+.app-shell[data-compact-landscape='true'] .undo-bar {
+  align-self: stretch;
+  align-content: center;
 }

@@ -85,3 +85,14 @@ Gravità **alta** = punteggio sbagliato o perso, app che non si apre, regola app
 Tutti i passi superati tranne uno. Nessun problema di gravità alta, quindi la Fase 2 non è bloccata.
 
 - **Problema 1 (iPhone, passo 4.4, gravità media):** in orizzontale con 4 giocatori bisogna scorrere. Misurato a 844×390: header 138 px, pannello 472 px, 0 pannelli su 4 interamente visibili. Classificato come **UX/layout**, non tecnico: i dati restano corretti alla rotazione, ma per farli stare in una schermata va deciso cosa togliere dal pannello. Brief per il design: `docs/UX_BRIEF_ORIZZONTALE.md`.
+
+## 8. Layout compatto in orizzontale (Fase 1.6)
+
+| # | Passi | Risultato atteso | iPhone | Android |
+| --- | --- | --- | --- | --- |
+| 8.1 | 4 giocatori, telefono in orizzontale (app installata e in Safari) | i 4 pannelli e tutti i pulsanti vita visibili senza scorrere | | |
+| 8.2 | Tocca ⋯ su un pannello | si apre «Dettagli di …» a destra; Danni Commander, Altri segnalini, Configurazione mazzo, Rimuovi giocatore | | |
+| 8.3 | Rimuovi un giocatore dallo sheet | lo sheet si chiude; «X rimosso — Annulla» nella sua cella | | |
+| 8.4 | Menu «Partita» | Giocatori, Nuova partita, Azzera punteggi, Mantieni lo schermo acceso | | |
+| 8.5 | Torna in verticale | layout standard, punteggi identici | | |
+| 8.6 | Ingrandimento testo / zoom al massimo | i pannelli vanno su una colonna e si scorre in verticale; nessun pulsante tagliato | | |
