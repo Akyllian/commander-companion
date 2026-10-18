@@ -3,10 +3,12 @@ import App from './App'
 import { createGame, gameReducer } from './game/game'
 import { BACKUP_KEY, STORAGE_KEY } from './game/storage'
 import { updateStore } from './pwa/updates'
+import { installMatchMedia } from './test/matchMedia'
 
 let clock = 0
 const panel = (name: RegExp) => screen.getByRole('region', { name })
 const life = (name: RegExp) => within(panel(name)).getByTestId('life-total')
+const badgeOf = (scope: HTMLElement) => within(scope).getByText('Sconfitto').closest('.status-badge') as HTMLElement
 const click = (scope: HTMLElement, name: RegExp) => fireEvent.click(within(scope).getByRole('button', { name }))
 
 afterEach(() => {
@@ -67,7 +69,7 @@ describe('scoring', () => {
     render(<App />)
     const player = panel(/giocatore 1/i)
     for (let step = 0; step < 10; step += 1) click(player, /aumenta veleno di giocatore 1/i)
-    expect(within(player).getByText(/sconfitto ·/i)).toHaveTextContent('Sconfitto · 10 veleno: 10 segnalini veleno')
+    expect(badgeOf(player)).toHaveTextContent('Sconfitto · 10 veleno: 10 segnalini veleno')
   })
 
   it('summarises several defeat conditions', () => {
@@ -76,7 +78,7 @@ describe('scoring', () => {
     const player = panel(/giocatore 1/i)
     for (let step = 0; step < 10; step += 1) click(player, /aumenta veleno di giocatore 1/i)
     for (let step = 0; step < 8; step += 1) click(player, /riduci di 5 la vita/i)
-    expect(within(player).getByText(/sconfitto ·/i)).toHaveTextContent(/^Sconfitto · 2 condizioni/)
+    expect(badgeOf(player)).toHaveTextContent(/^Sconfitto · 2 condizioni/)
   })
 
   it('summarises Commander damage with the maximum from one commander, not the sum', () => {
@@ -385,5 +387,136 @@ describe('preferences (UX decision 7)', () => {
     render(<App />)
     fireEvent.click(screen.getByRole('button', { name: 'Preferenze' }))
     expect(screen.getByRole('checkbox', { name: /mantieni lo schermo acceso/i })).not.toBeChecked()
+  })
+})
+
+describe('compact landscape (Phase 1.6)', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  const shell = () => document.querySelector('.app-shell') as HTMLElement
+
+  it('switches layout when the media query changes, without touching the game', () => {
+    const media = installMatchMedia(false)
+    render(<App />)
+    click(panel(/giocatore 1/i), /riduci di 5 la vita/i)
+    expect(shell()).toHaveAttribute('data-compact-landscape', 'false')
+
+    act(() => media.set(true))
+    expect(shell()).toHaveAttribute('data-compact-landscape', 'true')
+    expect(life(/giocatore 1/i)).toHaveTextContent('35')
+
+    act(() => media.set(false))
+    expect(screen.getByRole('button', { name: 'Nuova partita' })).toBeInTheDocument()
+  })
+
+  it('keeps Undo, Redo and Partita in the header and moves match actions inside Partita', () => {
+    installMatchMedia(true)
+    render(<App />)
+    const controls = screen.getByRole('group', { name: 'Controlli partita' })
+    const names = within(controls)
+      .getAllByRole('button')
+      .map((button) => button.getAttribute('aria-label') ?? button.textContent)
+    expect(names).toEqual(['Annulla ultima azione', 'Ripeti ultima azione', 'Partita'])
+
+    fireEvent.click(within(controls).getByRole('button', { name: 'Partita' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Azzera punteggi' }))
+    expect(screen.getByRole('dialog', { name: /azzerare tutti i punteggi/i })).toBeInTheDocument()
+  })
+
+  it('shows a score rail and moves secondary controls to the details sheet', () => {
+    installMatchMedia(true)
+    render(<App />)
+    const player = panel(/giocatore 1/i)
+
+    const rail = within(player).getByRole('group', { name: 'Punti vita di Giocatore 1' })
+    expect(within(rail).getAllByRole('button').map((button) => button.textContent)).toEqual(['-5', '-1', '+1', '+5'])
+    expect(rail.children[2]).toContainElement(within(player).getByTestId('life-total'))
+    expect(within(player).queryByRole('button', { name: /rimuovi/i })).not.toBeInTheDocument()
+    expect(within(player).queryByText('Danni Commander')).not.toBeInTheDocument()
+
+    const details = within(player).getByRole('button', { name: 'Dettagli di Giocatore 1' })
+    details.focus()
+    fireEvent.click(details)
+    const sheet = screen.getByRole('dialog', { name: 'Dettagli di Giocatore 1' })
+    expect(within(sheet).getByRole('button', { name: 'Chiudi' })).toHaveFocus()
+    const headings = Array.from(sheet.querySelectorAll('summary, .remove-player-action')).map((node) =>
+      node.textContent?.replace(/\s+/g, ' ').trim(),
+    )
+    expect(headings.map((text) => text?.split(/massimo|\d/)[0].trim())).toEqual([
+      'Danni Commander',
+      'Altri segnalini',
+      'Configurazione mazzo',
+      'Rimuovi giocatore',
+    ])
+
+    fireEvent(sheet, new Event('cancel', { cancelable: true }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(details).toHaveFocus()
+  })
+
+  it('keeps scores and the Commander section state across close and reopen', () => {
+    installMatchMedia(true)
+    render(<App />)
+    const open = () => fireEvent.click(within(panel(/giocatore 1/i)).getByRole('button', { name: /dettagli/i }))
+
+    open()
+    let sheet = screen.getByRole('dialog')
+    const commander = within(sheet).getByText('Danni Commander').closest('details') as HTMLDetailsElement
+    commander.open = true
+    fireEvent(commander, new Event('toggle'))
+    fireEvent.click(within(sheet).getByRole('button', { name: /aumenta danni commander da giocatore 2/i }))
+    fireEvent.click(within(sheet).getByRole('button', { name: 'Chiudi' }))
+    expect(life(/giocatore 1/i)).toHaveTextContent('39')
+
+    open()
+    sheet = screen.getByRole('dialog')
+    expect((within(sheet).getByText('Danni Commander').closest('details') as HTMLDetailsElement).open).toBe(true)
+    expect(within(sheet).getByText('massimo 1/21')).toBeInTheDocument()
+  })
+
+  it('removes from the sheet and leaves a focused Undo bar in that cell', () => {
+    installMatchMedia(true)
+    render(<App />)
+    fireEvent.click(within(panel(/giocatore 2/i)).getByRole('button', { name: /dettagli/i }))
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Rimuovi giocatore' }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    const bar = screen.getByText('Giocatore 2 rimosso').closest('.undo-bar') as HTMLElement
+    expect(Array.from(document.getElementById('main')?.children ?? []).indexOf(bar)).toBe(1)
+    expect(bar).toHaveFocus()
+
+    fireEvent.click(within(bar).getByRole('button', { name: 'Annulla' }))
+    expect(screen.getAllByRole('region')).toHaveLength(4)
+  })
+
+  it('shows the compact defeat label and keeps every reason for screen readers', () => {
+    installMatchMedia(true)
+    render(<App />)
+    fireEvent.click(within(panel(/giocatore 1/i)).getByRole('button', { name: /dettagli/i }))
+    const sheet = screen.getByRole('dialog')
+    for (let step = 0; step < 21; step += 1) {
+      fireEvent.click(within(sheet).getByRole('button', { name: /aumenta danni commander da giocatore 2/i }))
+    }
+    fireEvent.click(within(sheet).getByRole('button', { name: 'Chiudi' }))
+    expect(badgeOf(panel(/giocatore 1/i))).toHaveTextContent(
+      'Sconfitto · 21 Commander: 21 danni da un comandante',
+    )
+  })
+
+  it('offers removal only when more than two players remain', () => {
+    installMatchMedia(true)
+    localStorage.setItem('commander-companion.game.v1', JSON.stringify(createGame(2)))
+    render(<App />)
+    fireEvent.click(within(panel(/giocatore 1/i)).getByRole('button', { name: /dettagli/i }))
+    expect(within(screen.getByRole('dialog')).queryByRole('button', { name: 'Rimuovi giocatore' })).not.toBeInTheDocument()
+  })
+
+  it('moves notices into the header as Stato app', () => {
+    installMatchMedia(true)
+    localStorage.setItem('commander-companion.game.v1', '{broken')
+    render(<App />)
+    const controls = screen.getByRole('group', { name: 'Controlli partita' })
+    expect(within(controls).getByRole('button', { name: 'Stato app' })).toHaveAccessibleDescription('1 avviso')
+    expect(document.querySelector('.app-notices:not(.app-notices--panel)')).toBeNull()
   })
 })

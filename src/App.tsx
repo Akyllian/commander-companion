@@ -2,7 +2,6 @@ import { useEffect, useReducer, useState } from 'react'
 import { AppNotices } from './components/AppNotices'
 import { ConfirmDialog } from './components/ConfirmDialog'
 import { PlayerPanel } from './components/PlayerPanel'
-import { PreferencesMenu } from './components/PreferencesMenu'
 import { TableControls } from './components/TableControls'
 import { UndoBar } from './components/UndoBar'
 import { canRemovePartner, createGame } from './game/game'
@@ -15,6 +14,7 @@ import {
 } from './game/storage'
 import type { LoadStatus } from './game/storage'
 import type { GameAction, GameState } from './game/types'
+import { useCompactLandscape } from './platform/useCompactLandscape'
 import { isWakeLockSupported, useWakeLock } from './platform/useWakeLock'
 import { loadPreferences, savePreferences } from './settings/preferences'
 import type { Preferences } from './settings/preferences'
@@ -42,6 +42,7 @@ export default function App() {
   const [preferences, setPreferences] = useState(loadPreferences)
   const [pending, setPending] = useState<PendingConfirmation>(null)
   const [removal, setRemoval] = useState<Removal | null>(null)
+  const compact = useCompactLandscape()
   const game = history.present
   const groupDelta = getGroupDelta(history)
 
@@ -101,6 +102,7 @@ export default function App() {
       playerCount={game.players.length}
       canRemovePartner={canRemovePartner(game, player.id)}
       delta={groupDelta?.target.playerId === player.id ? groupDelta : null}
+      compact={compact}
       dispatch={dispatch}
     />
   ))
@@ -120,6 +122,15 @@ export default function App() {
     )
   }
 
+  const notices = (
+    <AppNotices
+      loadStatus={loadStatus}
+      saveFailed={saveFailed}
+      onDismissLoadStatus={() => setLoadStatus('restored')}
+      compact={compact}
+    />
+  )
+
   const confirm = () => {
     if (pending?.kind === 'new-game') dispatchHistory({ type: 'replace', game: createGame(pending.playerCount) })
     if (pending?.kind === 'reset') dispatch({ type: 'reset-game' })
@@ -132,7 +143,7 @@ export default function App() {
   }
 
   return (
-    <div className="app-shell">
+    <div className="app-shell" data-compact-landscape={compact}>
       <header className="app-header">
         <a className="brand" href="#main" aria-label="Commander Companion, vai ai punteggi">
           <svg className="brand-mark" viewBox="0 0 48 48" aria-hidden="true">
@@ -151,22 +162,20 @@ export default function App() {
           currentPlayerCount={game.players.length}
           canUndo={history.past.length > 0}
           canRedo={history.future.length > 0}
+          compact={compact}
+          preferences={preferences}
+          onPreferencesChange={updatePreferences}
+          // Keeping the screen on is the only preference: hide it when unsupported.
+          showPreferences={isWakeLockSupported()}
+          status={compact && notices}
           onUndo={() => dispatchHistory({ type: 'undo' })}
           onRedo={() => dispatchHistory({ type: 'redo' })}
           onReset={() => setPending({ kind: 'reset' })}
           onNewGame={(playerCount) => setPending({ kind: 'new-game', playerCount })}
-          extra={
-            // Keeping the screen on is the only preference: hide the menu when unsupported.
-            isWakeLockSupported() && <PreferencesMenu preferences={preferences} onChange={updatePreferences} />
-          }
         />
       </header>
 
-      <AppNotices
-        loadStatus={loadStatus}
-        saveFailed={saveFailed}
-        onDismissLoadStatus={() => setLoadStatus('restored')}
-      />
+      {!compact && notices}
 
       <main id="main" className="player-grid" data-player-count={panels.length} tabIndex={-1}>
         {panels}

@@ -9,8 +9,8 @@ Documento vivo: si aggiorna alla fine di ogni fase. Ultimo aggiornamento: 2026-1
 | 0 | Fondamenta: git, lint, coverage, test property-based, PWA offline | ✅ conclusa ([piano](PLAN_FASE_0_1.md)) |
 | 1 | Contatori affidabili, regole corrette, revisione UX (D-014–D-016) | ✅ conclusa ([resoconto](UX_REVIEW_FASE_1.md)) |
 | 1.5 | CI, deploy su GitHub Pages, prova al tavolo | ✅ conclusa ([checklist](PLAYTEST_CHECKLIST.md)) |
-| 1.6 | Layout compatto in orizzontale | ⏳ attende il design ([brief](UX_BRIEF_ORIZZONTALE.md)) |
-| 2a | Riferimento rapido alle regole | ⏳ attende il design ([brief](UX_BRIEF_REGOLE.md)) |
+| 1.6 | Layout compatto in orizzontale | ✅ implementata (D-020) — in attesa di prova su iPhone e revisione visiva |
+| 2a | Riferimento rapido alle regole | 🔨 in corso (spec approvata) |
 | 2b | Cronologia partite | da iniziare |
 | 2c | Immagini dei giocatori | da iniziare |
 | 2d | Vista tavolo per tablet | da iniziare (serve prima una prova su tablet) |
