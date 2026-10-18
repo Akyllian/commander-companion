@@ -1,0 +1,225 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="900" viewBox="0 0 1680 900" role="img" aria-labelledby="title desc">
+  <title id="title">Commander Companion compact landscape and rules art direction</title>
+  <desc id="desc">Two compact landscape interface artboards and a motion storyboard using a near-black, teal and gold visual system.</desc>
+  <defs>
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <style>
+      .ui { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .label { fill: #eef5f4; font-size: 14px; font-weight: 700; }
+      .muted { fill: #9caeac; font-size: 12px; }
+      .buttonText { fill: #eef5f4; font-size: 12px; font-weight: 700; text-anchor: middle; dominant-baseline: middle; }
+      .life { fill: #f6fbfa; font-size: 42px; font-weight: 750; text-anchor: middle; dominant-baseline: middle; font-variant-numeric: tabular-nums; }
+      .boardTitle { fill: #eef5f4; font-size: 20px; font-weight: 750; }
+      .boardNote { fill: #9caeac; font-size: 13px; }
+      .ruleTitle { fill: #eef5f4; font-size: 13px; font-weight: 700; }
+      .ruleBody { fill: #cad5d3; font-size: 11px; }
+      .ruleRef { fill: #91a29f; font-size: 10px; }
+    </style>
+  </defs>
+
+  <rect width="1680" height="900" fill="#08090a"/>
+  <circle cx="260" cy="40" r="290" fill="#44b8b0" opacity="0.035"/>
+  <circle cx="1450" cy="850" r="340" fill="#d7ad42" opacity="0.025"/>
+
+  <g class="ui">
+    <text x="48" y="52" class="boardTitle">Compact landscape · score-first</text>
+    <text x="48" y="76" class="boardNote">844×390 reference — fixed controls, restrained atmosphere, no document scroll</text>
+
+    <!-- Compact game artboard -->
+    <g transform="translate(48 104)">
+      <rect width="760" height="351" rx="18" fill="#050607" stroke="#2d3d3c"/>
+      <rect x="8" y="8" width="744" height="47" rx="11" fill="#0f1314" stroke="#344543"/>
+
+      <!-- Brand mark -->
+      <g transform="translate(28 31)" filter="url(#softGlow)">
+        <circle r="14" fill="none" stroke="#57b9b3" stroke-width="1.4"/>
+        <circle r="3.5" fill="#d6ae47"/>
+        <path d="M-10 0H10M0-10V10M-7-7L7 7M7-7L-7 7" stroke="#57b9b3" stroke-width="1" opacity="0.7"/>
+      </g>
+
+      <!-- Header controls -->
+      <g transform="translate(52 10)">
+        <rect width="42" height="42" rx="9" fill="#151b1c" stroke="#374947"/>
+        <text x="21" y="22" class="buttonText" font-size="18">↶</text>
+      </g>
+      <g transform="translate(98 10)">
+        <rect width="42" height="42" rx="9" fill="#151b1c" stroke="#374947"/>
+        <text x="21" y="22" class="buttonText" font-size="18">↷</text>
+      </g>
+      <g transform="translate(590 10)">
+        <rect width="70" height="42" rx="9" fill="#151b1c" stroke="#374947"/>
+        <text x="35" y="22" class="buttonText">Regole</text>
+      </g>
+      <g transform="translate(664 10)">
+        <rect width="80" height="42" rx="9" fill="#182020" stroke="#57b9b3"/>
+        <text x="40" y="22" class="buttonText">Partita⌄</text>
+      </g>
+
+      <!-- Four player panels -->
+      <g transform="translate(8 63)">
+        <rect width="368" height="136" rx="11" fill="#0d1011" stroke="#3d5653"/>
+        <path d="M11 .5H357" stroke="#57b9b3" stroke-width="1.5"/>
+        <text x="12" y="29" class="label">Giocatore 1</text>
+        <rect x="314" y="7" width="44" height="44" rx="9" fill="#151b1c" stroke="#374947"/>
+        <text x="336" y="27" class="buttonText" font-size="17">•••</text>
+        <g transform="translate(48 79)">
+          <rect width="44" height="44" rx="9" fill="#151b1c" stroke="#374947"/><text x="22" y="23" class="buttonText">−5</text>
+          <rect x="48" width="44" height="44" rx="9" fill="#17302f" stroke="#57b9b3"/><text x="70" y="23" class="buttonText">−1</text>
+          <text x="136" y="23" class="life">40</text>
+          <rect x="180" width="44" height="44" rx="9" fill="#17302f" stroke="#57b9b3"/><text x="202" y="23" class="buttonText">+1</text>
+          <rect x="228" width="44" height="44" rx="9" fill="#151b1c" stroke="#374947"/><text x="250" y="23" class="buttonText">+5</text>
+        </g>
+      </g>
+      <g transform="translate(384 63)">
+        <rect width="368" height="136" rx="11" fill="#0d1011" stroke="#665b31"/>
+        <path d="M11 .5H357" stroke="#d6ae47" stroke-width="1.5"/>
+        <text x="12" y="29" class="label">Giocatore 2</text>
+        <rect x="314" y="7" width="44" height="44" rx="9" fill="#151b1c" stroke="#374947"/>
+        <text x="336" y="27" class="buttonText" font-size="17">•••</text>
+        <g transform="translate(48 79)">
+          <rect width="44" height="44" rx="9" fill="#151b1c" stroke="#374947"/><text x="22" y="23" class="buttonText">−5</text>
+          <rect x="48" width="44" height="44" rx="9" fill="#302b17" stroke="#d6ae47"/><text x="70" y="23" class="buttonText">−1</text>
+          <text x="136" y="23" class="life">38</text>
+          <rect x="180" width="44" height="44" rx="9" fill="#302b17" stroke="#d6ae47"/><text x="202" y="23" class="buttonText">+1</text>
+          <rect x="228" width="44" height="44" rx="9" fill="#151b1c" stroke="#374947"/><text x="250" y="23" class="buttonText">+5</text>
+        </g>
+      </g>
+      <g transform="translate(8 207)">
+        <rect width="368" height="136" rx="11" fill="#0d1011" stroke="#554467"/>
+        <path d="M11 .5H357" stroke="#9c6dcc" stroke-width="1.5"/>
+        <text x="12" y="29" class="label">Nyx, Tessitrice del Vuoto</text>
+        <rect x="221" y="10" width="85" height="22" rx="11" fill="#853a34"/><text x="263" y="21" class="buttonText" font-size="10">Sconfitto</text>
+        <rect x="314" y="7" width="44" height="44" rx="9" fill="#151b1c" stroke="#374947"/>
+        <text x="336" y="27" class="buttonText" font-size="17">•••</text>
+        <g transform="translate(48 79)">
+          <rect width="44" height="44" rx="9" fill="#151b1c" stroke="#374947"/><text x="22" y="23" class="buttonText">−5</text>
+          <rect x="48" width="44" height="44" rx="9" fill="#281d31" stroke="#9c6dcc"/><text x="70" y="23" class="buttonText">−1</text>
+          <text x="136" y="23" class="life">−10</text>
+          <rect x="180" width="44" height="44" rx="9" fill="#281d31" stroke="#9c6dcc"/><text x="202" y="23" class="buttonText">+1</text>
+          <rect x="228" width="44" height="44" rx="9" fill="#151b1c" stroke="#374947"/><text x="250" y="23" class="buttonText">+5</text>
+        </g>
+      </g>
+      <g transform="translate(384 207)">
+        <rect width="368" height="136" rx="11" fill="#0d1011" stroke="#6a4436"/>
+        <path d="M11 .5H357" stroke="#d16e4c" stroke-width="1.5"/>
+        <text x="12" y="29" class="label">Giocatore 4</text>
+        <rect x="314" y="7" width="44" height="44" rx="9" fill="#151b1c" stroke="#374947"/>
+        <text x="336" y="27" class="buttonText" font-size="17">•••</text>
+        <g transform="translate(48 79)">
+          <rect width="44" height="44" rx="9" fill="#151b1c" stroke="#374947"/><text x="22" y="23" class="buttonText">−5</text>
+          <rect x="48" width="44" height="44" rx="9" fill="#321f1a" stroke="#d16e4c"/><text x="70" y="23" class="buttonText">−1</text>
+          <text x="136" y="23" class="life">100</text>
+          <rect x="180" width="44" height="44" rx="9" fill="#321f1a" stroke="#d16e4c"/><text x="202" y="23" class="buttonText">+1</text>
+          <rect x="228" width="44" height="44" rx="9" fill="#151b1c" stroke="#374947"/><text x="250" y="23" class="buttonText">+5</text>
+        </g>
+      </g>
+    </g>
+
+    <text x="856" y="52" class="boardTitle">Rules sheet · one reading surface</text>
+    <text x="856" y="76" class="boardNote">Same shell language as player details — opaque, calm, typographic</text>
+
+    <!-- Rules sheet artboard -->
+    <g transform="translate(856 104)">
+      <rect width="760" height="351" rx="18" fill="#050607" stroke="#2d3d3c"/>
+      <g opacity="0.28">
+        <rect x="8" y="8" width="744" height="47" rx="11" fill="#0f1314" stroke="#344543"/>
+        <rect x="8" y="63" width="368" height="136" rx="11" fill="#0d1011" stroke="#3d5653"/>
+        <rect x="384" y="63" width="368" height="136" rx="11" fill="#0d1011" stroke="#665b31"/>
+        <rect x="8" y="207" width="368" height="136" rx="11" fill="#0d1011" stroke="#554467"/>
+        <rect x="384" y="207" width="368" height="136" rx="11" fill="#0d1011" stroke="#6a4436"/>
+      </g>
+      <rect width="760" height="351" rx="18" fill="#060708" opacity="0.72"/>
+      <g transform="translate(318 8)">
+        <rect width="434" height="335" rx="12" fill="#101415" stroke="#3b4c4a"/>
+        <rect width="434" height="52" rx="12" fill="#121718"/>
+        <path d="M0 52H434" stroke="#354542"/>
+        <text x="18" y="32" fill="#eef5f4" font-size="17" font-weight="750">Regole Commander</text>
+        <rect x="380" y="4" width="44" height="44" rx="9" fill="#171e1f" stroke="#3b4c4a"/>
+        <text x="402" y="27" class="buttonText" font-size="18">×</text>
+
+        <g transform="translate(18 74)">
+          <text class="ruleBody">Queste sono le regole che spiegano i punteggi mostrati</text>
+          <text y="16" class="ruleBody">da Commander Companion.</text>
+
+          <text y="48" class="ruleTitle" font-size="14">Soglie della partita</text>
+          <path d="M0 60H398" stroke="#2e3b39"/>
+
+          <text y="82" class="ruleRef">R1</text>
+          <text x="30" y="82" class="ruleTitle">Vita iniziale</text>
+          <text x="30" y="99" class="ruleBody">Ogni giocatore inizia la partita con <tspan font-weight="750" fill="#eef5f4">40</tspan> punti vita.</text>
+          <text x="30" y="115" class="ruleRef">Regola 903.7</text>
+
+          <path d="M30 128H398" stroke="#2e3b39"/>
+          <text y="150" class="ruleRef">R2</text>
+          <text x="30" y="150" class="ruleTitle">Vita a zero</text>
+          <text x="30" y="167" class="ruleBody">Un giocatore con <tspan font-weight="750" fill="#eef5f4">0 o meno</tspan> punti vita perde.</text>
+          <text x="30" y="183" class="ruleRef">Regola 704.5a</text>
+
+          <text y="218" class="ruleTitle" font-size="14">Danni Commander</text>
+          <path d="M0 230H398" stroke="#2e3b39"/>
+          <text y="252" class="ruleRef">R4</text>
+          <text x="30" y="252" class="ruleTitle">Danni Commander</text>
+          <text x="30" y="269" class="ruleBody">Perdi dopo <tspan font-weight="750" fill="#eef5f4">21 o più</tspan> dallo stesso comandante.</text>
+        </g>
+      </g>
+    </g>
+
+    <!-- Motion storyboard -->
+    <text x="48" y="522" class="boardTitle">Motion language · state, locality, causality</text>
+    <text x="48" y="546" class="boardNote">No entrance choreography, no bounce, no animated reflow</text>
+
+    <g transform="translate(48 582)">
+      <g>
+        <rect width="360" height="230" rx="16" fill="#0d1011" stroke="#2e3d3b"/>
+        <text x="20" y="32" class="label">01 · Score feedback</text>
+        <text x="20" y="54" class="muted">140ms · opacity + 2px settle</text>
+        <rect x="42" y="105" width="54" height="54" rx="10" fill="#17302f" stroke="#57b9b3"/>
+        <text x="69" y="133" class="buttonText">+1</text>
+        <text x="180" y="132" class="life" font-size="56">41</text>
+        <rect x="214" y="84" width="44" height="24" rx="12" fill="#171e1f" stroke="#4a5c59"/>
+        <text x="236" y="97" class="buttonText" font-size="10">+1</text>
+        <path d="M113 132H143" stroke="#57b9b3" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <text x="20" y="204" class="muted">Feedback stays attached to the changed value.</text>
+      </g>
+
+      <g transform="translate(384)">
+        <rect width="360" height="230" rx="16" fill="#0d1011" stroke="#2e3d3b"/>
+        <text x="20" y="32" class="label">02 · Popover</text>
+        <text x="20" y="54" class="muted">140ms · −4px to rest</text>
+        <rect x="220" y="71" width="112" height="42" rx="9" fill="#182020" stroke="#57b9b3"/>
+        <text x="276" y="92" class="buttonText">Partita⌄</text>
+        <path d="M276 117V131" stroke="#57b9b3" stroke-dasharray="3 3"/>
+        <rect x="100" y="132" width="232" height="72" rx="11" fill="#151b1c" stroke="#40514f"/>
+        <text x="118" y="158" class="ruleTitle">Gestione partita</text>
+        <text x="118" y="179" class="muted">Opaque top-layer surface</text>
+      </g>
+
+      <g transform="translate(768)">
+        <rect width="360" height="230" rx="16" fill="#0d1011" stroke="#2e3d3b"/>
+        <text x="20" y="32" class="label">03 · Side sheet</text>
+        <text x="20" y="54" class="muted">220ms in · 140ms out · 12px travel</text>
+        <rect x="20" y="72" width="320" height="132" rx="12" fill="#070809" stroke="#263432"/>
+        <rect x="20" y="72" width="320" height="132" rx="12" fill="#050607" opacity="0.58"/>
+        <rect x="150" y="80" width="182" height="116" rx="10" fill="#14191a" stroke="#435350"/>
+        <path d="M150 112H332" stroke="#364542"/>
+        <text x="164" y="101" class="ruleTitle">Regole Commander</text>
+        <path d="M137 138H119" stroke="#57b9b3" stroke-dasharray="3 3"/>
+        <text x="20" y="222" class="muted">Short edge arrival; never a full-screen sweep.</text>
+      </g>
+
+      <g transform="translate(1152)">
+        <rect width="360" height="230" rx="16" fill="#0d1011" stroke="#2e3d3b"/>
+        <text x="20" y="32" class="label">04 · Reduced motion</text>
+        <text x="20" y="54" class="muted">0.01ms · state-equivalent</text>
+        <circle cx="180" cy="126" r="54" fill="none" stroke="#3d5653"/>
+        <circle cx="180" cy="126" r="8" fill="#d6ae47"/>
+        <path d="M180 72V180M126 126H234M142 88L218 164M218 88L142 164" stroke="#57b9b3" opacity="0.55"/>
+        <path d="M141 173L219 79" stroke="#d6ae47" stroke-width="3"/>
+        <text x="20" y="204" class="muted">No rotation, transform or delayed focus.</text>
+      </g>
+    </g>
+  </g>
+</svg>
