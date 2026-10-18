@@ -119,7 +119,8 @@ export function ModalSideSheet({
         onClose()
       }}
     >
-      {open && content}
+      {/* Kept mounted while closed so the exit transition has content (D-023). */}
+      {content}
     </dialog>
   )
 }

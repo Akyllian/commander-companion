@@ -530,7 +530,8 @@ button:disabled {
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
-  *::after {
+  *::after,
+  ::backdrop {
     scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
@@ -699,11 +700,6 @@ input[type='checkbox'] {
   margin-left: var(--space-2);
 }
 
-@keyframes delta-in {
-  from {
-    opacity: 0;
-  }
-}
 
 .summary-value {
   color: var(--color-text-muted);
@@ -1119,7 +1115,8 @@ input[type='checkbox'] {
 .score-rail {
   container-type: inline-size;
   display: grid;
-  grid-template-columns: repeat(2, minmax(var(--button-height), 1fr)) minmax(3.5ch, 1.4fr) repeat(
+  /* Fixed tracks: buttons never move between "9", "100" or "-999"; the life cell is ≥ 64px. */
+  grid-template-columns: repeat(2, minmax(var(--button-height), 1fr)) minmax(4rem, 2fr) repeat(
       2,
       minmax(var(--button-height), 1fr)
     );
@@ -1145,18 +1142,17 @@ input[type='checkbox'] {
 }
 
 .score-rail .life-total {
-  /* Shrinks only when the rail is narrow, so "-999" never collides with the buttons. */
-  font-size: clamp(1.5rem, 9cqi, 2.25rem);
-  line-height: 1;
+  /* 40–48px from a 340px rail (844px viewport); shrinks only on narrow rails so "-999" fits. */
+  font-size: clamp(1.5rem, 12cqi, 3rem);
+  line-height: 0.9;
 }
 
-/* The delta overlays the value: it never changes row dimensions. */
+/* The delta overlays the life cell's upper-right corner: it never changes row dimensions. */
 .score-rail .life-value .delta-badge {
-  top: auto;
-  bottom: 100%;
-  left: 50%;
+  top: -0.5rem;
+  right: -0.75rem;
+  left: auto;
   margin: 0;
-  transform: translateX(-50%);
 }
 
 .app-shell[data-compact-landscape='true'] .undo-bar {
@@ -1178,58 +1174,301 @@ input[type='checkbox'] {
 
 .rules-sheet .side-sheet__body {
   gap: var(--space-4);
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 .rules-sheet .side-sheet__body > * {
   max-width: 65ch;
 }
 
-.rules-intro,
+.rules-intro {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 480;
+  line-height: 1.375rem;
+}
+
 .rules-footer {
   margin: 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
   color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.125rem;
 }
 
 .rules-group {
   display: grid;
-  gap: var(--space-3);
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-6);
 }
 
 .rules-group h3 {
-  margin: 0;
-  font-size: 1rem;
+  margin: 0 0 var(--space-2);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.25rem;
 }
 
+/* One continuous document: 1px dividers between rules, no cards. */
 .rule-item {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: var(--space-2);
+  padding-block: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.rule-id {
+  padding-top: 0.0625rem;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  line-height: 1.25rem;
+}
+
+.rule-content {
   display: grid;
   gap: var(--space-1);
 }
 
-.rule-item h4 {
-  margin: 0;
-  font-size: 0.95rem;
+.rule-content h4 {
+  margin: 0 0 var(--space-2);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.25rem;
 }
 
-.rule-item p {
+.rule-content p {
   margin: 0;
+  font-weight: 450;
+  line-height: 1.3125rem;
 }
 
 .rule-reference {
   color: var(--color-text-muted);
-  font-size: 0.82rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.125rem;
 }
 
+/* A capability boundary, not an error: neutral fill, gold outline, never red. */
 .rule-status {
   justify-self: start;
+  margin-bottom: var(--space-1);
   padding: 0 var(--space-2);
   border: 1px solid var(--color-accent);
   border-radius: var(--radius-round);
-  font-size: 0.78rem;
+  background: var(--color-surface-raised);
+  font-size: 0.75rem;
+  line-height: 1.25rem;
 }
 
+/* Textual mana notation: 24px token, neutral fill, gold outline. */
 .mana-cost {
+  display: inline-grid;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  place-items: center;
+  margin-inline: 0.125rem;
+  padding-inline: 0.25rem;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-round);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
+  line-height: 1;
+  vertical-align: middle;
   white-space: nowrap;
+}
+
+/* ---- Art-direction pass P2 (docs/ART_DIRECTION_REVIEW_2026-10-18.md, D-023) ---- */
+
+/* Shared sheet title (both sheets). */
+.side-sheet__header {
+  min-height: 3.25rem;
+}
+
+.side-sheet__header h2 {
+  font-size: 1.125rem;
+  font-weight: 720;
+  line-height: 1.5rem;
+}
+
+/* Compact shape and depth: 12px radius, lighter shadow; standard layout unchanged. */
+.app-shell[data-compact-landscape='true'] .app-header,
+.app-shell[data-compact-landscape='true'] .player-panel,
+.app-shell[data-compact-landscape='true'] .undo-bar,
+.app-shell[data-compact-landscape='true'] .side-sheet {
+  border-radius: var(--radius-md);
+}
+
+.app-shell[data-compact-landscape='true'] .player-panel {
+  box-shadow: var(--shadow-panel-compact);
+}
+
+.app-shell[data-compact-landscape='true'] .app-header {
+  gap: var(--space-1);
+  box-shadow: var(--shadow-panel-compact);
+}
+
+.app-shell[data-compact-landscape='true'] .table-controls,
+.app-shell[data-compact-landscape='true'] .history-controls {
+  gap: var(--space-1);
+}
+
+/* 8px before the Regole/Partita group, 4px between controls. */
+.app-shell[data-compact-landscape='true'] .match-controls {
+  gap: var(--space-1);
+  margin-left: var(--space-2);
+}
+
+/* Brand mark: 36px inside a 44px non-interactive slot, half the standard glow. */
+.app-shell[data-compact-landscape='true'] .brand {
+  display: inline-grid;
+  width: var(--button-height);
+  height: var(--button-height);
+  place-items: center;
+}
+
+.app-shell[data-compact-landscape='true'] .brand-mark {
+  filter: drop-shadow(0 0 0.275rem oklch(0.72 0.1 188 / 48%));
+}
+
+/* Only a very low-chroma ambient lift behind the compact grid. */
+body:has(.app-shell[data-compact-landscape='true']) {
+  background:
+    radial-gradient(circle at 50% 0%, oklch(0.43 0.09 188 / 6%), transparent 30rem),
+    var(--color-background);
+}
+
+.player-panel[data-compact] .player-name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.125rem;
+}
+
+.player-panel[data-compact] .status-badge {
+  font-size: 0.6875rem;
+  line-height: 0.875rem;
+}
+
+.player-details-sheet .player-details summary {
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+/* ---- Motion recipes: only --duration-fast/normal and --ease-out; never geometry ---- */
+
+/* Life delta: local to the changed number, no layout movement. */
+.delta-badge {
+  animation: delta-in var(--duration-fast) var(--ease-out);
+}
+
+@keyframes delta-in {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+}
+
+/* Defeat: appears once, never pulses; the border follows with the same timing. */
+.status-badge {
+  animation: fade-in var(--duration-fast) var(--ease-out);
+}
+
+.player-panel {
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+/* Inline Undo bar replaces a panel: opacity only, grid geometry changes immediately. */
+.undo-bar {
+  animation: fade-in var(--duration-fast) var(--ease-out);
+}
+
+/* Disclosure content: a short opacity settle, no height animation. */
+details[open] > :not(summary) {
+  animation: fade-in var(--duration-fast) var(--ease-out);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Popovers (Partita, Stato app, Preferenze): 140ms local reveal; ≤140ms fade on close.
+   Exit uses allow-discrete so dismissal and focus return are never delayed. */
+.popover-panel[popover] {
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out),
+    overlay var(--duration-fast) allow-discrete,
+    display var(--duration-fast) allow-discrete;
+}
+
+.popover-panel[popover]:popover-open {
+  opacity: 1;
+  transform: none;
+}
+
+@starting-style {
+  .popover-panel[popover]:popover-open {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* Side sheets: 220ms arrival from the owning edge, faster 140ms exit; scrim in step. */
+.side-sheet {
+  opacity: 0;
+  transform: translateX(8px);
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out),
+    overlay var(--duration-fast) allow-discrete,
+    display var(--duration-fast) allow-discrete;
+}
+
+.side-sheet[open],
+.side-sheet[data-fallback] {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--duration-normal) var(--ease-out),
+    transform var(--duration-normal) var(--ease-out),
+    overlay var(--duration-normal) allow-discrete,
+    display var(--duration-normal) allow-discrete;
+}
+
+@starting-style {
+  .side-sheet[open] {
+    opacity: 0.92;
+    transform: translateX(12px);
+  }
+}
+
+.side-sheet::backdrop {
+  opacity: 0;
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    overlay var(--duration-fast) allow-discrete,
+    display var(--duration-fast) allow-discrete;
+}
+
+.side-sheet[open]::backdrop {
+  opacity: 1;
+  transition-duration: var(--duration-normal);
+}
+
+@starting-style {
+  .side-sheet[open]::backdrop {
+    opacity: 0;
+  }
 }
