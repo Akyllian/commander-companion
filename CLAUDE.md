@@ -12,6 +12,7 @@ Continue Commander Companion as a calm, accessible scoring tool for in-person Co
 4. `docs/ARCHITECTURE.md`
 5. `docs/DESIGN_SYSTEM.md`
 6. `docs/DECISIONS.md`
+7. `docs/ROADMAP.md` — current phase, working rules and what waits on design
 
 ## Commands
 
@@ -48,10 +49,15 @@ npm run verify   # must pass before any commit
 - Every animation needs a reduced-motion behavior.
 - Avoid gradient text, parchment backgrounds, ornate fonts in controls, decorative glass cards and gesture-only actions.
 
+## Workflow
+
+- One branch per phase, pushed with a pull request; merge only with green CI. Deployment to GitHub Pages follows automatically from `main`.
+- UI work starts from a design brief and ends with a review summary for the design owner.
+
 ## Definition of done
 
 - `npm run verify` passes.
-- The change works at 320px, 768px and 1440px widths.
+- The change works at 320px, 768px and 1440px widths and at 844×390 landscape.
 - Keyboard-only and reduced-motion use remain viable.
 - Documentation changes when behavior, schema or design tokens change.
 

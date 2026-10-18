@@ -112,3 +112,10 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 - **Stato:** Attiva dal 2026-10-17. Repository **pubblico** `Akyllian/commander-companion` (scelta del product owner per usare Pages con GitHub Free); sito https://akyllian.github.io/commander-companion/. Primo giro: CI verde su Node 22 e 24, deploy riuscito, service worker attivo in HTTPS.
 - **Deploy:** `.github/workflows/deploy.yml` pubblica su Pages solo dopo che il workflow CI è riuscito su `main` (`workflow_run`), costruendo esattamente il commit verificato, con `BASE_PATH=/<nome-repo>/`. Deploy mai annullati a metà. Avvio manuale possibile (`workflow_dispatch`).
 - **Vincoli GitHub** (documentazione ufficiale): con GitHub Free il repository deve essere **pubblico** per usare Pages; un repository privato richiede un piano a pagamento (es. Pro). In ogni caso il **sito** Pages è pubblico su internet anche se il repository è privato (salvo il controllo d'accesso di Enterprise Cloud). L'app non contiene dati personali: i punteggi restano sul dispositivo.
+
+## D-019 — Perimetro del prodotto e flusso di lavoro (2026-10-18)
+- **Stato:** Accettata (product owner), con la roadmap in `docs/ROADMAP.md`.
+- **Pubblico:** il gruppo di gioco del product owner. Niente app store, analitiche o account. **Lingua:** solo italiano (nessun sistema di traduzioni).
+- **Fase 2:** tutte e quattro le funzioni (riferimento regole, cronologia partite, immagini giocatori, vista tavolo per tablet), nell'ordine 2a → 2b → 2c → 2d, dopo o in parallelo alla Fase 1.6 (orizzontale).
+- **Flusso Git:** da ora ogni fase vive su un branch e arriva su `main` con una pull request, unita solo con la CI verde. Il push diretto su `main` del 2026-10-18 è l'ultimo.
+- **Definizione di fatto:** aggiunta la verifica a 844×390 in orizzontale.

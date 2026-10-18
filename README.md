@@ -59,6 +59,7 @@ src/
   styles/           three-layer tokens and component CSS
   test/             test environment setup
 docs/
+  ROADMAP.md         phases, status and working rules
   ARCHITECTURE.md    boundaries, rules, schema and extension paths
   DECISIONS.md       architectural decision log
   PLAN_FASE_0_1.md   phase 0–1 technical plan
@@ -71,11 +72,9 @@ PRODUCT.md           product context
 DESIGN.md            visual direction
 ```
 
-## Suggested next milestones
+## Roadmap
 
-1. Add player media with image safety, cropping and contrast controls.
-2. Add a small rules-reference drawer for common Commander thresholds.
-4. Add optional match history only after its privacy and deletion UX are defined.
+Next phases, dependencies and working rules are in [`docs/ROADMAP.md`](docs/ROADMAP.md): compact landscape layout, rules reference, match history, player images and a tablet table view.
 
 This is an independent fan project scaffold. Magic: The Gathering and Commander are trademarks of Wizards of the Coast; no card art or trademark assets are bundled.
 
