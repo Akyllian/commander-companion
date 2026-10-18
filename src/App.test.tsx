@@ -580,3 +580,15 @@ describe('rules reference (Phase 2a)', () => {
     expect(within(screen.getByRole('dialog')).getByText(helper)).toBeInTheDocument()
   })
 })
+
+describe('canonical one-shot light (D-024)', () => {
+  it('blooms only the life total that changed, never on first render', () => {
+    render(<App />)
+    expect(document.querySelectorAll('.life-total[data-bloom]')).toHaveLength(0)
+
+    click(panel(/giocatore 2/i), /aumenta di 1 la vita/i)
+    const bloomed = Array.from(document.querySelectorAll('.life-total[data-bloom]'))
+    expect(bloomed).toHaveLength(1)
+    expect(bloomed[0]).toBe(life(/giocatore 2/i))
+  })
+})

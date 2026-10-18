@@ -85,3 +85,17 @@ New semantic tokens: `--color-scrim` (dialog backdrop); `--color-danger-hover`, 
 | Reference | `.rule-reference` | muted text, always visible |
 | Untracked status | `.rule-status` | text "Non tracciata dall'app", outlined, not red |
 | Mana cost | `.mana-cost` | `{2}` text, spoken "due mana generici" |
+
+## Canonical material (D-024)
+
+| Role | Token | Use |
+| --- | --- | --- |
+| Ink | `--color-ink`, `--color-ink-raised` | canvas, panels, sheets, controls |
+| Depth | `--color-depth` | rules band, atmospheric lift |
+| Arcane teal | `--color-arcane` | selected state, guides, sigil ring |
+| Antique gold | `--color-gold`, `--color-gold-bright` | headings, numbering, hover, ignition |
+| Gold lines | `--color-gold-line`, `--color-gold-hairline` | frames, button borders, dividers |
+| Ivory | `--color-ivory` | life totals, names, important reading text |
+| Display serif | `--font-display` | brand, life, resting names, sheet/group headings, rule numbers |
+
+Icon family: 24×24 viewBox, rounded 1.75px stroke, `currentColor` (muted ivory → gold on hover → teal when selected).

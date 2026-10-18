@@ -1338,12 +1338,6 @@ input[type='checkbox'] {
   filter: drop-shadow(0 0 0.275rem oklch(0.72 0.1 188 / 48%));
 }
 
-/* Only a very low-chroma ambient lift behind the compact grid. */
-body:has(.app-shell[data-compact-landscape='true']) {
-  background:
-    radial-gradient(circle at 50% 0%, oklch(0.43 0.09 188 / 6%), transparent 30rem),
-    var(--color-background);
-}
 
 .player-panel[data-compact] .player-name {
   font-size: 0.875rem;
@@ -1471,4 +1465,408 @@ details[open] > :not(summary) {
   .side-sheet[open]::backdrop {
     opacity: 0;
   }
+}
+
+/* ==== Canonical visual layer (D-024, docs/CANONICAL_VISUAL_GAP_REVIEW.md) ====
+   Material only: typography, atmosphere, framing, icon states and one-shot light.
+   Geometry, targets and reading order are unchanged. */
+
+:root {
+  /* Constellation tile: faint gold paths and stars (arcane layer). */
+  --arcane-stars: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='168' height='124'%3E%3Cg fill='none' stroke='%23e0bd6a' stroke-opacity='.09' stroke-width='.6'%3E%3Cpath d='M18 24 58 50 96 38 140 70'/%3E%3Cpath d='M58 50 70 98 122 108'/%3E%3C/g%3E%3Cg%3E%3Ccircle cx='18' cy='24' r='1' fill='%23dceeed' fill-opacity='.2'/%3E%3Ccircle cx='58' cy='50' r='.9' fill='%23f0ce83' fill-opacity='.22'/%3E%3Ccircle cx='96' cy='38' r='.7' fill='%235ce1d4' fill-opacity='.18'/%3E%3Ccircle cx='140' cy='70' r='.9' fill='%23f0ce83' fill-opacity='.18'/%3E%3Ccircle cx='70' cy='98' r='.6' fill='%23dceeed' fill-opacity='.16'/%3E%3Ccircle cx='122' cy='108' r='.8' fill='%235ce1d4' fill-opacity='.14'/%3E%3Ccircle cx='150' cy='14' r='.6' fill='%23dceeed' fill-opacity='.14'/%3E%3C/g%3E%3C/svg%3E");
+  /* One-corner sigil for compact panels (the standard layout keeps its rotating sigil). */
+  --arcane-corner: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23e0bd6a' stroke-opacity='.13' stroke-width='.8'%3E%3Ccircle cx='60' cy='60' r='44'/%3E%3Ccircle cx='60' cy='60' r='28'/%3E%3Cpath d='M60 10v100M10 60h100M25 25l70 70M95 25 25 95'/%3E%3C/g%3E%3C/svg%3E");
+  /* Rules header band: a horizontal arcane line with gold and teal nodes. */
+  --arcane-band: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='56' viewBox='0 0 240 56'%3E%3Cg fill='none' stroke-width='.8'%3E%3Cpath d='M0 34h240' stroke='%23e0bd6a' stroke-opacity='.28'/%3E%3Cpath d='M40 34a24 24 0 0 1 48 0M152 34a24 24 0 0 0 48 0' stroke='%235ce1d4' stroke-opacity='.3'/%3E%3Cpath d='M120 12l8 22-8 14-8-14z' stroke='%23f0ce83' stroke-opacity='.45'/%3E%3C/g%3E%3Cg fill='%23f0ce83' fill-opacity='.55'%3E%3Ccircle cx='64' cy='34' r='1.6'/%3E%3Ccircle cx='176' cy='34' r='1.6'/%3E%3Ccircle cx='120' cy='34' r='2'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+html {
+  background: var(--color-ink);
+}
+
+/* Canvas: ink and deep blue-green with a teal and a gold aura, plus faint constellations. */
+body {
+  background:
+    radial-gradient(ellipse at 12% 0%, oklch(0.794 0.132 184 / 10%), transparent 34rem),
+    radial-gradient(ellipse at 92% 100%, oklch(0.812 0.11 87 / 7%), transparent 30rem),
+    var(--arcane-stars),
+    linear-gradient(160deg, var(--color-ink-raised), var(--color-ink) 55%);
+  background-attachment: fixed;
+}
+
+/* Compact: less spectacle, same world. */
+body:has(.app-shell[data-compact-landscape='true']) {
+  background:
+    radial-gradient(ellipse at 20% 0%, oklch(0.794 0.132 184 / 7%), transparent 26rem),
+    var(--arcane-stars),
+    var(--color-ink);
+}
+
+/* ---- Header and brand ---- */
+.app-header {
+  border-color: var(--color-gold-line);
+  background: color-mix(in oklch, var(--color-ink) 90%, transparent);
+}
+
+.brand strong {
+  color: var(--color-ivory);
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.brand small {
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.brand-mark {
+  color: var(--color-gold);
+  filter: drop-shadow(0 0 0.5rem oklch(0.812 0.11 87 / 35%));
+}
+
+.brand-mark__ring {
+  stroke: var(--color-arcane);
+  stroke-opacity: 0.7;
+}
+
+.brand-mark__star {
+  fill: oklch(0.812 0.11 87 / 18%);
+}
+
+.brand-mark .brand-mark__heart {
+  fill: var(--color-gold-bright);
+}
+
+.app-shell[data-compact-landscape='true'] .brand-mark {
+  filter: drop-shadow(0 0 0.25rem oklch(0.812 0.11 87 / 35%));
+}
+
+/* ---- Controls: familiar shapes, gold/teal line material instead of gray rectangles ---- */
+button {
+  border-color: var(--color-gold-hairline);
+  background: color-mix(in oklch, var(--color-ink-raised) 92%, transparent);
+  color: var(--color-ivory);
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--color-gold);
+  background: color-mix(in oklch, var(--color-gold) 8%, var(--color-ink-raised));
+  color: var(--color-gold-bright);
+}
+
+.quiet-button {
+  border-color: var(--color-gold-hairline);
+  background: transparent;
+}
+
+.match-controls select,
+.match-menu select {
+  border-color: var(--color-gold-hairline);
+  background: var(--color-ink-raised);
+}
+
+.button-icon--small {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Selected header action (open menu): teal edge and a gold underline that draws in 140ms. */
+.popover-menu > button {
+  position: relative;
+}
+
+.popover-menu > button::after {
+  position: absolute;
+  right: 22%;
+  bottom: 0.3rem;
+  left: 22%;
+  height: 1px;
+  background: var(--color-gold-bright);
+  content: '';
+  transform: scaleX(0);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.popover-menu > button[data-open] {
+  border-color: var(--color-arcane);
+  color: var(--color-ivory);
+}
+
+.popover-menu > button[data-open]::after {
+  transform: scaleX(1);
+}
+
+/* ---- Player panels: dark atmospheric field, fine gold frame, player energy line ---- */
+.player-panel {
+  border-color: var(--color-gold-line);
+  border-top-color: var(--color-gold-line);
+  background:
+    radial-gradient(circle at 88% 0%, color-mix(in oklch, var(--player-accent) 16%, transparent), transparent 58%),
+    linear-gradient(150deg, color-mix(in oklch, var(--player-accent) 13%, var(--color-ink)), var(--color-ink) 62%);
+}
+
+/* Inner energy line in the player colour: two short segments, never a fill. */
+.player-panel::before {
+  position: absolute;
+  top: 0;
+  right: var(--space-3);
+  left: var(--space-3);
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--player-accent) 0 26%,
+    transparent 26% 76%,
+    var(--player-accent) 76% 100%
+  );
+  content: '';
+  opacity: 0.75;
+  pointer-events: none;
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    filter var(--duration-fast) var(--ease-out);
+}
+
+.player-panel:focus-within::before {
+  opacity: 1;
+  filter: drop-shadow(0 0 3px var(--player-accent));
+}
+
+.player-panel[data-compact] {
+  background:
+    var(--arcane-corner) right -2.5rem top -2.5rem / 7.5rem no-repeat,
+    radial-gradient(circle at 88% 0%, color-mix(in oklch, var(--player-accent) 16%, transparent), transparent 58%),
+    linear-gradient(150deg, color-mix(in oklch, var(--player-accent) 13%, var(--color-ink)), var(--color-ink) 62%);
+}
+
+/* Defeat: red frame arrives once from the gold frame — no pulse, status still in text. */
+.player-panel[data-defeated] {
+  animation: defeat-handoff var(--duration-normal) var(--ease-out);
+}
+
+@keyframes defeat-handoff {
+  from {
+    border-color: var(--color-gold-bright);
+  }
+}
+
+/* Names: display serif at rest, utility face while editing. */
+.player-name:not(:focus) {
+  color: var(--color-ivory);
+  font-family: var(--font-display);
+  font-variant-numeric: lining-nums;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.player-panel[data-compact] .player-name:not(:focus) {
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+/* Life: warm ivory display serif with a restrained gold edge; still the strongest datum. */
+.life-total {
+  color: var(--color-ivory);
+  font-family: var(--font-display);
+  font-size: clamp(5.25rem, 11.5vw, 9rem);
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-shadow:
+    0 0 1.5rem oklch(0.812 0.11 87 / 22%),
+    0 1px 0 oklch(0 0 0 / 60%);
+}
+
+@media (max-width: 46rem) {
+  .life-total {
+    font-size: 6.25rem;
+  }
+}
+
+.score-rail .life-total {
+  /* Cormorant's numerals are lighter than a sans: a larger size keeps life the strongest datum. */
+  font-size: clamp(1.75rem, 16cqi, 4rem);
+}
+
+/* Narrow rails (e.g. iPhone SE landscape): leave room around four-character totals like "-999". */
+@container (max-width: 20rem) {
+  .score-rail .life-total {
+    font-size: 13.5cqi;
+  }
+}
+
+/* One-shot local light bloom when the value changes (never scales the numeral). */
+.life-total[data-bloom] {
+  animation: life-bloom var(--duration-fast) var(--ease-out);
+}
+
+@keyframes life-bloom {
+  from {
+    text-shadow:
+      0 0 0.9rem oklch(0.864 0.101 86 / 70%),
+      0 0 2.4rem oklch(0.812 0.11 87 / 40%);
+  }
+}
+
+.life-label {
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.score-button {
+  border-color: var(--color-gold-hairline);
+  background: color-mix(in oklch, var(--color-ink) 70%, transparent);
+}
+
+.score-button--primary {
+  border-color: color-mix(in oklch, var(--player-accent) 70%, var(--color-gold-line));
+  background: color-mix(in oklch, var(--player-accent) 22%, var(--color-ink));
+}
+
+.delta-badge {
+  border-color: var(--color-gold-line);
+  background: var(--color-ink-raised);
+  color: var(--color-gold-bright);
+}
+
+.partner-badge {
+  border-color: var(--color-gold-line);
+  color: var(--color-gold);
+}
+
+.undo-bar {
+  border-color: var(--color-gold-line);
+  background: color-mix(in oklch, var(--color-ink) 92%, transparent);
+}
+
+/* ---- Menus and sheets: opaque ink, gold frame, one-shot edge ignition ---- */
+.popover-panel {
+  border-color: var(--color-gold-line);
+  background: var(--color-ink-raised);
+}
+
+.popover-panel[popover]:popover-open {
+  animation: edge-ignite var(--duration-normal) var(--ease-out);
+}
+
+@keyframes edge-ignite {
+  from {
+    border-color: var(--color-gold-bright);
+  }
+}
+
+.side-sheet {
+  border-color: var(--color-gold-line);
+  background:
+    radial-gradient(ellipse at 100% 0%, oklch(0.794 0.132 184 / 6%), transparent 22rem),
+    var(--color-ink);
+}
+
+.side-sheet__header {
+  position: relative;
+  border-bottom-color: transparent;
+}
+
+.side-sheet__header::after {
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--color-gold-hairline), var(--color-gold-bright), var(--color-gold-hairline));
+  content: '';
+}
+
+/* The header line illuminates once as the sheet arrives. */
+.side-sheet[open] .side-sheet__header::after {
+  animation: line-ignite var(--duration-normal) var(--ease-out);
+}
+
+@keyframes line-ignite {
+  from {
+    opacity: 0;
+    transform: scaleX(0.2);
+  }
+}
+
+.side-sheet__header h2 {
+  color: var(--color-ivory);
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* ---- Rules: illustrated editorial reference on an opaque reading veil ---- */
+.rules-band {
+  height: 3.5rem;
+  margin: calc(-1 * var(--space-3)) calc(-1 * var(--space-4)) 0;
+  border-bottom: 1px solid var(--color-gold-hairline);
+  background:
+    var(--arcane-band) center / auto 100% repeat-x,
+    linear-gradient(180deg, color-mix(in oklch, var(--color-depth) 80%, transparent), transparent);
+}
+
+.rules-sheet .side-sheet__body > .rules-band {
+  max-width: none;
+}
+
+.rules-intro {
+  color: var(--color-ivory);
+}
+
+.rules-group h3 {
+  color: var(--color-gold-bright);
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.rule-item {
+  position: relative;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  border-top-color: var(--color-gold-hairline);
+}
+
+/* Gold numbered nodes linked by a fine teal/gold guide within each group. */
+.rule-id {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--color-gold-line);
+  border-radius: var(--radius-round);
+  background: var(--color-ink-raised);
+  color: var(--color-gold);
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-variant-numeric: lining-nums;
+  font-weight: 700;
+}
+
+.rule-item::before {
+  position: absolute;
+  top: calc(var(--space-4) + 2rem);
+  bottom: calc(-1 * (var(--space-4) + 1px));
+  left: 1rem;
+  width: 1px;
+  background: linear-gradient(var(--color-gold-line), oklch(0.794 0.132 184 / 45%));
+  content: '';
+}
+
+.rule-item:last-child::before {
+  display: none;
+}
+
+.rules-footer {
+  border-top-color: var(--color-gold-hairline);
 }
