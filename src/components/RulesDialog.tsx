@@ -32,16 +32,20 @@ export function RulesDialog({ open, onClose }: RulesDialogProps) {
           <h3 id={`rules-${group.id}`}>{group.title}</h3>
           {RULE_ITEMS.filter((item) => item.group === group.id).map((item) => (
             <article key={item.id} className="rule-item" aria-labelledby={`rule-${item.id}`}>
-              <h4 id={`rule-${item.id}`}>{item.title}</h4>
-              {item.status === 'not-tracked' && <p className="rule-status">Non tracciata dall’app</p>}
-              <p>
-                {item.body.map((part, index) => (
-                  <Fragment key={index}>
-                    <RuleText part={part} />
-                  </Fragment>
-                ))}
-              </p>
-              <p className="rule-reference">{item.references.join(', ')}</p>
+              {/* Scanning aid for table discussions: a muted column, never a badge. */}
+              <span className="rule-id">{item.id}</span>
+              <div className="rule-content">
+                <h4 id={`rule-${item.id}`}>{item.title}</h4>
+                {item.status === 'not-tracked' && <p className="rule-status">Non tracciata dall’app</p>}
+                <p>
+                  {item.body.map((part, index) => (
+                    <Fragment key={index}>
+                      <RuleText part={part} />
+                    </Fragment>
+                  ))}
+                </p>
+                <p className="rule-reference">{item.references.join(', ')}</p>
+              </div>
             </article>
           ))}
         </section>

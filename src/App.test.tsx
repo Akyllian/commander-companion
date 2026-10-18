@@ -8,7 +8,8 @@ import { installMatchMedia } from './test/matchMedia'
 let clock = 0
 const panel = (name: RegExp) => screen.getByRole('region', { name })
 const life = (name: RegExp) => within(panel(name)).getByTestId('life-total')
-const badgeOf = (scope: HTMLElement) => within(scope).getByText('Sconfitto').closest('.status-badge') as HTMLElement
+// The first badge in DOM order is the visible one (a closed details sheet may hold another).
+const badgeOf = (scope: HTMLElement) => within(scope).getAllByText('Sconfitto')[0].closest('.status-badge') as HTMLElement
 const click = (scope: HTMLElement, name: RegExp) => fireEvent.click(within(scope).getByRole('button', { name }))
 
 afterEach(() => {
@@ -432,7 +433,7 @@ describe('compact landscape (Phase 1.6)', () => {
     expect(within(rail).getAllByRole('button').map((button) => button.textContent)).toEqual(['-5', '-1', '+1', '+5'])
     expect(rail.children[2]).toContainElement(within(player).getByTestId('life-total'))
     expect(within(player).queryByRole('button', { name: /rimuovi/i })).not.toBeInTheDocument()
-    expect(within(player).queryByText('Danni Commander')).not.toBeInTheDocument()
+    expect(within(player).getByText('Danni Commander')).not.toBeVisible()
 
     const details = within(player).getByRole('button', { name: 'Dettagli di Giocatore 1' })
     details.focus()

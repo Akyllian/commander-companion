@@ -147,3 +147,18 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 - **Correzione (solo CSS):** i due gruppi, Annulla/Ripeti e gestione partita, vanno a capo come blocchi interi (`flex-wrap` su `.table-controls` e `.match-controls`). Il testo dei pulsanti non si spezza mai (D-016) e le etichette restano visibili.
 - **Verifica:** 320, 736, 768, 900, 993, 1100 e 1440 px → nessun overflow, nessun controllo fuori dall'header, nessun testo spezzato, target ≥ 44 px, «Nuova partita» e «Azzera punteggi» sulla stessa riga da 46rem in su. Layout compatto invariato (844×330: header 52 px, 4 pannelli senza scroll).
 - **Regola di processo:** ogni nuovo controllo nell'header richiede di rimisurare l'header su tutta la fascia 320–1440 px, non solo sui tre punti 320, 768 e 1440.
+
+## D-023 — Art direction P2: misure compatte, struttura delle Regole e animazioni
+- **Stato:** Accettata e implementata. Fonte: `docs/ART_DIRECTION_REVIEW_2026-10-18.md` (P2) e `docs/ART_DIRECTION_AND_MOTION.md`.
+- **Perimetro (scelta del product owner, 2026-10-18):** solo animazioni e misure. **Font, colori della nuova identità e illustrazioni** del riferimento canonico (`docs/art-direction/CANONICAL_ART_DIRECTION.md`) sono rimandati a una fase dedicata, dopo che il design avrà indicato il font (con licenza libera e incluso per l'uso offline) e la fonte delle illustrazioni (nessuna arte delle carte Wizards). La tipografia delle Regole ha ora le dimensioni e i pesi richiesti, ma usa ancora il font di sistema.
+- **Misure compatte:** raggio 12 px su header, pannelli, barra Annulla e sheet; nuovo token `--shadow-panel-compact`, circa un terzo più leggero; gap di 4 px nell'header e 8 px prima di Regole/Partita; simbolo da 36 px in uno spazio da 44 px con alone dimezzato; sfondo con un alone appena percettibile; nome 14/18 px peso 700; badge 11/14 px. Vita a 40–48 px (46 px a 844 px) con cella ≥ 64 px e colonne fisse, così i pulsanti restano fermi con −10, 9, 100, 999 e −999.
+- **Regole:** colonna R1–R7 attenuata, divisori da 1 px tra le regole e prima della nota finale, gettone `{2}` da 24 px con bordo oro, pastiglia «Non tracciata» con bordo oro e mai rossa, scala tipografica della revisione (titolo 18/24, gruppi 15/20, regole 14/21, riferimenti 12/18).
+- **Animazioni** (solo `--duration-fast`, `--duration-normal`, `--ease-out`):
+  - delta vita: 140 ms, opacità e 2 px di spostamento;
+  - badge di sconfitta e bordo del pannello: 140 ms, senza pulsazioni;
+  - barra Annulla e contenuto delle sezioni: dissolvenza da 140 ms;
+  - menu: 140 ms con 4 px di spostamento in entrata, dissolvenza in uscita;
+  - sheet: 220 ms in entrata con 12 px di scorrimento, 140 ms in uscita con 8 px; lo sfondo scuro segue gli stessi tempi.
+- **Tecnica:** entrata e uscita sono animate con `@starting-style` e `transition-behavior: allow-discrete` su `display`/`overlay`, così chiusura e ritorno del focus non vengono mai ritardati (verificato: il focus torna subito). Dove non è supportato, la comparsa è istantanea. Il contenuto degli sheet resta montato quando sono chiusi (`display: none`, fuori dall'albero di accessibilità), così l'uscita ha qualcosa da animare.
+- **Movimento ridotto:** la regola globale ora copre anche `::backdrop`. Durate quasi nulle, quindi nessuna trasformazione resta a metà.
+- **Non incluso:** il P3 (freccia su Partita, divisori nei menu, contrasto dei comandi distruttivi poco visibili), che può seguire senza bloccare.

@@ -38,6 +38,15 @@ describe('RulesDialog', () => {
       'Tassa del comandante',
     ])
     expect(within(dialog).getByText('Regole 903.10a e 704.6c')).toBeInTheDocument()
+    expect(Array.from(dialog.querySelectorAll('.rule-id')).map((node) => node.textContent)).toEqual([
+      'R1',
+      'R2',
+      'R3',
+      'R4',
+      'R5',
+      'R6',
+      'R7',
+    ])
     expect(within(dialog).getByText(/25 settembre 2026/)).toBeInTheDocument()
     expect(dialog.querySelectorAll('details, [role="tab"], input[type="search"]')).toHaveLength(0)
 
