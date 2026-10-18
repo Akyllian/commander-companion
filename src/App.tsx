@@ -2,6 +2,7 @@ import { useEffect, useReducer, useState } from 'react'
 import { AppNotices } from './components/AppNotices'
 import { ConfirmDialog } from './components/ConfirmDialog'
 import { PlayerPanel } from './components/PlayerPanel'
+import { RulesDialog } from './components/RulesDialog'
 import { TableControls } from './components/TableControls'
 import { UndoBar } from './components/UndoBar'
 import { canRemovePartner, createGame } from './game/game'
@@ -42,6 +43,8 @@ export default function App() {
   const [preferences, setPreferences] = useState(loadPreferences)
   const [pending, setPending] = useState<PendingConfirmation>(null)
   const [removal, setRemoval] = useState<Removal | null>(null)
+  // Presentation state only: never dispatched, persisted or part of history.
+  const [rulesOpen, setRulesOpen] = useState(false)
   const compact = useCompactLandscape()
   const game = history.present
   const groupDelta = getGroupDelta(history)
@@ -172,6 +175,7 @@ export default function App() {
           onRedo={() => dispatchHistory({ type: 'redo' })}
           onReset={() => setPending({ kind: 'reset' })}
           onNewGame={(playerCount) => setPending({ kind: 'new-game', playerCount })}
+          onOpenRules={() => setRulesOpen(true)}
         />
       </header>
 
@@ -184,6 +188,8 @@ export default function App() {
       <footer className="app-footer">
         <p>I punteggi restano su questo dispositivo. Commander Companion non sostituisce le regole ufficiali.</p>
       </footer>
+
+      <RulesDialog open={rulesOpen} onClose={() => setRulesOpen(false)} />
 
       <ConfirmDialog
         open={pending?.kind === 'new-game'}

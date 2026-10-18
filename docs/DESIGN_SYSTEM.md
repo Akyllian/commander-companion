@@ -74,3 +74,14 @@ New semantic tokens: `--color-scrim` (dialog backdrop); `--color-danger-hover`, 
 | Side sheet | `.side-sheet`, `__header`, `__body` | 8px inset, 28rem max, inner scroll |
 | Popover menu | `.popover-menu`, `.popover-panel` | Preferenze, Partita, Stato app |
 | Status button | `.status-button`, `__marker` | "!" marker + text, count in the description |
+
+## Rules reference (D-021) — structure final, visuals pending art direction
+
+| Element | Class | Notes |
+| --- | --- | --- |
+| Trigger | `.rules-button` | book icon + "Regole", accessible name "Regole Commander" |
+| Sheet | `.side-sheet.rules-sheet` | max 36rem, 65ch measure, one scroll region |
+| Group / item | `.rules-group` (h3), `.rule-item` (h4) | dividers between groups, no cards |
+| Reference | `.rule-reference` | muted text, always visible |
+| Untracked status | `.rule-status` | text "Non tracciata dall'app", outlined, not red |
+| Mana cost | `.mana-cost` | `{2}` text, spoken "due mana generici" |

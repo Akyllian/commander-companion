@@ -132,3 +132,11 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
   3. la riga vita è limitata a 24rem nelle celle larghe (2 giocatori e terzo pannello a tutta larghezza), così i pulsanti non si ingrandiscono;
   4. «21 danni Commander» diventa «21 Commander» solo nel badge compatto, come da spec; il layout standard resta invariato.
 - **Verifica:** a 844×390, 844×330 e 568×320 i 4 pannelli e i 16 pulsanti vita sono visibili senza scroll, l'header è alto 52 px e tutti i target sono ≥ 44 px; 2 e 3 giocatori come da spec; valori −999 e 999 e nomi lunghi senza sovrapposizioni; zoom 200% simulato senza scroll orizzontale e senza controlli tagliati; layout standard invariato a 390, 768 e 1440 px.
+
+## D-021 — Riferimento rapido alle regole (Fase 2a)
+- **Stato:** Accettata. Spec e piano di ChatGPT: `docs/superpowers/specs/2026-10-18-rules-reference-design.md`, `docs/superpowers/plans/2026-10-18-rules-reference.md`.
+- **Contenuto statico e tipizzato** in `src/content/rules.ts`, incluso nella build, quindi disponibile offline. Ogni soglia è letta dalle costanti del dominio (`STARTING_LIFE`, `LIFE_DEFEAT_LIMIT`, aggiunta ora senza cambiare comportamento, `POISON_LIMIT`, `COMMANDER_DAMAGE_LIMIT`), così il riferimento non può contraddire le regole applicate. Testi e numeri di regola verificati sulle Comprehensive Rules in vigore dal 25/09/2026.
+- **Un solo documento** in `ModalSideSheet` (lo stesso dei dettagli giocatore): niente schede, ricerca o fisarmoniche. Aprirlo o chiuderlo non tocca partita, history o storage (testato).
+- **Accesso:** «Regole» è un pulsante di primo livello (nome accessibile «Regole Commander»): nell'header standard dopo «Azzera punteggi», in quello compatto subito prima di «Partita».
+- **Correttezza:** il testo d'aiuto dei danni Commander ora dice che contano solo i danni da combattimento, sia nel pannello standard sia nello sheet compatto.
+- **Art direction in sospeso:** badge «Non tracciata dall'app», simbolo `{2}`, tipografia dello sheet. Ora c'è solo struttura con i token esistenti.

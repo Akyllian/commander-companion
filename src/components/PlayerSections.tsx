@@ -116,7 +116,9 @@ export function CommanderSection({ player, opponents, delta, open, onToggle, dis
           massimo {maxDamage}/{COMMANDER_DAMAGE_LIMIT}
         </span>
       </summary>
-      <p className="commander-damage__hint">Ogni danno Commander riduce anche i punti vita.</p>
+      <p className="commander-damage__hint">
+        Registra qui solo i danni da combattimento del comandante: riducono anche i punti vita.
+      </p>
       {sources.map(({ opponent, index, label }) => {
         const value = player.commanderDamage[opponent.id]?.[index] ?? 0
         return (

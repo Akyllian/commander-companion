@@ -1147,3 +1147,73 @@ input[type='checkbox'] {
   align-self: stretch;
   align-content: center;
 }
+
+/* ---- Rules reference (Phase 2a) — structure only; visuals pending art direction ---- */
+
+.rules-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.rules-sheet {
+  width: min(36rem, calc(100vw - 2 * var(--space-2)));
+}
+
+.rules-sheet .side-sheet__body {
+  gap: var(--space-4);
+}
+
+.rules-sheet .side-sheet__body > * {
+  max-width: 65ch;
+}
+
+.rules-intro,
+.rules-footer {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.rules-group {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.rules-group h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.rule-item {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.rule-item h4 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.rule-item p {
+  margin: 0;
+}
+
+.rule-reference {
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+.rule-status {
+  justify-self: start;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-round);
+  font-size: 0.78rem;
+}
+
+.mana-cost {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
