@@ -76,6 +76,12 @@ Una riga per problema. **Tipo**: *T* = tecnico (lo correggo io), *UX* = esperien
 
 | ID | Dispositivo | Passo | Cosa è successo | Cosa ti aspettavi | Tipo | Gravità (alta/media/bassa) |
 | --- | --- | --- | --- | --- | --- | --- |
-| | | | | | | |
+| *T* | iPhone | 4.4 | Quando giro lo schermo devo scorrere per trovare gli altri due giocatori | Che tutti e 4 le tabelle dei giocatori fossero visibili senza dover scorrere lo schermo | Affidabilità | *media* |
 
 Gravità **alta** = punteggio sbagliato o perso, app che non si apre, regola applicata male. Questi bloccano la Fase 2.
+
+## 7. Esito della prova (2026-10-18)
+
+Tutti i passi superati tranne uno. Nessun problema di gravità alta, quindi la Fase 2 non è bloccata.
+
+- **Problema 1 (iPhone, passo 4.4, gravità media):** in orizzontale con 4 giocatori bisogna scorrere. Misurato a 844×390: header 138 px, pannello 472 px, 0 pannelli su 4 interamente visibili. Classificato come **UX/layout**, non tecnico: i dati restano corretti alla rotazione, ma per farli stare in una schermata va deciso cosa togliere dal pannello. Brief per il design: `docs/UX_BRIEF_ORIZZONTALE.md`.
