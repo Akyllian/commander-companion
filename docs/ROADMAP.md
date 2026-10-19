@@ -1,6 +1,6 @@
 # Roadmap
 
-Documento vivo: si aggiorna alla fine di ogni fase. Ultimo aggiornamento: 2026-10-18.
+Documento vivo: si aggiorna alla fine di ogni fase. Ultimo aggiornamento: 2026-10-19.
 
 ## Stato
 
@@ -14,7 +14,8 @@ Documento vivo: si aggiorna alla fine di ogni fase. Ultimo aggiornamento: 2026-1
 | 2.v | Identità visiva canonica: font serif, palette, illustrazioni ([riferimento](art-direction/CANONICAL_ART_DIRECTION.md)) | ✅ implementata (D-024), tranne le strisce illustrate: attendono immagini originali |
 | 2b | Cronologia partite | da iniziare |
 | 2c | Arte del comandante da Scryfall (C2.1) | ✅ implementata (D-026), revisione D-027 implementata (D-028); strisce delle Regole rimandate |
-| 2d | Vista tavolo per tablet | da iniziare (serve prima una prova su tablet) |
+| 2d | Layout manuale a 4 giocatori | design approvato (D-034), da implementare |
+| 2e | Dock diretto per punteggi frequenti | design approvato (D-033), da implementare |
 
 Sito: https://akyllian.github.io/commander-companion/
 
@@ -80,11 +81,18 @@ App per il **proprio gruppo di gioco**, solo in **italiano**: niente store, nien
 - **Rischi:** quota di storage su iOS; foto HEIC; memoria su dispositivi lenti; immagini che sbagliano il contrasto.
 - **Uscita:** caricamento, riavvio e uso offline con 4 immagini su iPhone; nessuna perdita di dati se lo spazio si esaurisce (errore mostrato e partita intatta).
 
-### Fase 2d — Vista tavolo per tablet *(per ultima: il design l'ha rimandata a dopo test reali)*
-- **Prerequisito:** una prova su un tablet vero con la vista attuale, per raccogliere i problemi concreti.
-- **Tecnica:** è un'impostazione opzionale in Preferenze (`src/settings/preferences.ts`, nuovo campo validato); rotazione dei pannelli via CSS; nessun cambiamento al dominio.
-- **Rischi:** lettori di schermo e focus con contenuti ruotati; dialog e popover devono restare dritti.
-- **Uscita:** prova a 4 giocatori seduti intorno a un tablet.
+### Fase 2d — Layout manuale a quattro giocatori
+- **Specifica:** [selettore manuale del layout](superpowers/specs/2026-10-19-four-player-layout-selector-design.md), D-034.
+- **Tecnica:** preferenza persistente separata dalla partita; `Griglia`, `Fronte a fronte`, `Tavolo`; densità responsive distinta dalla disposizione scelta.
+- **Rischi:** pannelli a 90°/180°, ordine del focus, dimensionamento dei wrapper, overlay che devono restare dritti e reflow al 200%.
+- **Uscita:** scelta invariata a rotazione/reload e prova con quattro persone attorno al dispositivo.
+
+### Fase 2e — Dock diretto per punteggi frequenti
+- **Specifica:** [accesso diretto ai punteggi secondari](superpowers/specs/2026-10-19-direct-scoring-design.md), D-033.
+- **Contenuto:** danni Commander, veleno, energia, esperienza, radiazioni e tassa; Monarca e Iniziativa come stati del tavolo.
+- **Tecnica:** nuova versione dello schema partita; migrazione pura, persistenza e cronologia; dock in-place senza overlay e Partner separato per danni/tassa.
+- **Rischi:** densità compatta, controlli da 44 px, unicità degli stati e aggiornamento della regola R7 sulla tassa.
+- **Uscita:** tutti i valori approvati modificabili dalla schermata principale, verificati a 320, 768, 1440, 844×390 e zoom 200%.
 
 ### Ordine e dipendenze
-`1.6 → 2a → 2b → 2c → 2d`. La 2a non dipende dalla 1.6 e può partire mentre si aspetta il design della 1.6. La 2b viene prima della 2c perché fissa il pattern di migrazione dello schema (v3) che la 2c riusa.
+Ordine proposto per il nuovo lavoro: `2e (accesso diretto) → 2d (layout manuale) → 2b (cronologia)`. Il dock risponde al problema di gioco più frequente; il layout usa poi il dock definitivo nei pannelli ruotati. Le due specifiche restano implementabili e verificabili separatamente.

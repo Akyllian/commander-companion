@@ -275,3 +275,17 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 - **Azzera punteggi** (menu Partita e controlli standard): resta secondario, con sfondo trasparente e mai rosso, ma con testo chiaro (`--color-text`) e bordo `--color-gold-line` al posto del grigio attenuato, così non sembra disattivato.
 - **Rimuovi giocatore** (scheda dettagli): sta in una zona separata da un divisore, 24 px di margine e 24 px di padding sopra (32 px misurati dal contenuto precedente). Testo e icona usano `--color-danger-foreground` con un bordo al 45%; il rosso pieno resta solo nel dialogo di conferma.
 - Nessuna nuova animazione: stati e durate restano quelli definiti, reduced motion compreso.
+
+## D-033 — Dock diretto per punteggi e stati frequenti
+- **Stato:** Approvata dal product owner (2026-10-19), da implementare.
+- **Decisione:** vita, danni Commander, veleno, energia, esperienza, radiazioni e tassa del comandante diventano raggiungibili dalla superficie principale di ogni pannello, senza `<details>` o overlay. Monarca e Iniziativa sono stati unici del tavolo assegnabili direttamente ai giocatori.
+- **Gerarchia:** la vita resta dominante; gli altri valori condividono un dock in-place. Commander e tassa distinguono i due comandanti Partner. Il set curato esclude per ora contatori delle permanenti e contatori personalizzati.
+- **Art e motion:** fascia continua dark-fantasy con hairline oro e selezione teal/oro; icone a tratto, niente emoji definitive. Cambio modo 120 ms, trasferimento stato 140 ms, nessun movimento di layout; immediato con reduced motion.
+- **Specifica:** [`docs/superpowers/specs/2026-10-19-direct-scoring-design.md`](superpowers/specs/2026-10-19-direct-scoring-design.md).
+
+## D-034 — Layout manuale per quattro giocatori
+- **Stato:** Approvata dal product owner (2026-10-19), da implementare.
+- **Decisione:** con quattro giocatori si sceglie manualmente fra `Griglia`, `Fronte a fronte` e `Tavolo`. La scelta è una preferenza persistente, separata dallo stato partita e da Annulla/Ripeti.
+- **Rotazione:** ruotare il dispositivo può cambiare soltanto densità e reflow responsive; non cambia mai il layout scelto. Overlay e ordine del focus restano dritti/logici anche quando i pannelli sono orientati verso i posti al tavolo.
+- **Art e motion:** anteprime schematiche nel linguaggio oro/teal canonico, senza verde neon. Cambio tramite crossfade/assestamento di 140 ms, mai rotazione animata; immediato con reduced motion.
+- **Specifica:** [`docs/superpowers/specs/2026-10-19-four-player-layout-selector-design.md`](superpowers/specs/2026-10-19-four-player-layout-selector-design.md).
