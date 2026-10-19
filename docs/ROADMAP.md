@@ -15,7 +15,7 @@ Documento vivo: si aggiorna alla fine di ogni fase. Ultimo aggiornamento: 2026-1
 | 2b | Cronologia partite | da iniziare |
 | 2c | Arte del comandante da Scryfall (C2.1) | ✅ implementata (D-026), revisione D-027 implementata (D-028); strisce delle Regole rimandate |
 | 2d | Layout manuale a 4 giocatori | design approvato (D-034), da implementare |
-| 2e | Dock diretto per punteggi frequenti | design approvato (D-033), da implementare |
+| 2e | Dock diretto per punteggi frequenti | implementato (D-033), in revisione design; prova al tavolo da fare |
 
 Sito: https://akyllian.github.io/commander-companion/
 

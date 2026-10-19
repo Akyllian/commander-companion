@@ -7,7 +7,6 @@ import type {
   GameAction,
   GameState,
   PlayerState,
-  TableRole,
 } from './types'
 
 export const MIN_PLAYERS = 2
@@ -114,10 +113,6 @@ export function canRemovePartner(state: GameState, playerId: string): boolean {
 
 const TABLE_ROLE_KEYS = { monarch: 'monarchPlayerId', initiative: 'initiativePlayerId' } as const
 
-/** The player holding a table role, or null. */
-export function tableRoleOwner(state: GameState, role: TableRole): string | null {
-  return state[TABLE_ROLE_KEYS[role]]
-}
 
 function updatePlayer(
   state: GameState,

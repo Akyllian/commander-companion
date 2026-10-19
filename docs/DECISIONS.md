@@ -277,11 +277,18 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 - Nessuna nuova animazione: stati e durate restano quelli definiti, reduced motion compreso.
 
 ## D-033 — Dock diretto per punteggi e stati frequenti
-- **Stato:** Approvata dal product owner (2026-10-19), da implementare.
+- **Stato:** Approvata dal product owner (2026-10-19). Implementata da Claude (2026-10-20), in attesa della revisione di ChatGPT prima del merge.
 - **Decisione:** vita, danni Commander, veleno, energia, esperienza, radiazioni e tassa del comandante diventano raggiungibili dalla superficie principale di ogni pannello, senza `<details>` o overlay. Monarca e Iniziativa sono stati unici del tavolo assegnabili direttamente ai giocatori.
 - **Gerarchia:** la vita resta dominante; gli altri valori condividono un dock in-place. Commander e tassa distinguono i due comandanti Partner. Il set curato esclude per ora contatori delle permanenti e contatori personalizzati.
 - **Art e motion:** fascia continua dark-fantasy con hairline oro e selezione teal/oro; icone a tratto, niente emoji definitive. Cambio modo 120 ms, trasferimento stato 140 ms, nessun movimento di layout; immediato con reduced motion.
 - **Specifica:** [`docs/superpowers/specs/2026-10-19-direct-scoring-design.md`](superpowers/specs/2026-10-19-direct-scoring-design.md).
+- **Implementazione:**
+  - **Schema v5:** `rad`, `commanderTax: [n, n]` (sempre pari, slot 2 a zero senza Partner), `monarchPlayerId` e `initiativePlayerId`, che si riferiscono solo a giocatori presenti. La migrazione pura `migrateV4` porta le v1–v4 alla v5 senza perdere nulla; è verificata anche su un salvataggio reale nel browser.
+  - **Azioni:** `adjust-commander-tax` (passi di 2) e `set-table-role` (un possessore o `null`). Partner non si toglie finché danni o tassa del Comandante 2 non sono a zero.
+  - **Undo:** la tassa si raggruppa per slot e direzione. I trasferimenti di Monarca e Iniziativa sono passi singoli.
+  - **Interfaccia:** `QuickScoreDock`. La vita resta visibile in ogni modo. I danni Commander e i segnalini non sono più nello sheet dei dettagli né nei `<details>` del pannello standard. L'aiuto «solo danni da combattimento» della Fase 2a diventa la descrizione del gruppo delle fonti.
+  - **R7:** non dice più «Non tracciata» e spiega la tassa nell'app.
+- **Verifica:** 293 test. Controllo nel browser a 320×568, 390×844, 768, 1440, 844×390, 844×330 e 640×400 (≈200%): nessuno scroll orizzontale di pagina, nessun pulsante del dock sotto 44 px. La prova su telefono e al tavolo (checklist §11) è ancora da fare.
 
 ## D-034 — Layout manuale per quattro giocatori
 - **Stato:** Approvata dal product owner (2026-10-19), da implementare.

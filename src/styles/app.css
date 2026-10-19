@@ -1283,16 +1283,6 @@ input[type='checkbox'] {
 }
 
 /* A capability boundary, not an error: neutral fill, gold outline, never red. */
-.rule-status {
-  justify-self: start;
-  margin-bottom: var(--space-1);
-  padding: 0 var(--space-2);
-  border: 1px solid var(--color-accent);
-  border-radius: var(--radius-round);
-  background: var(--color-surface-raised);
-  font-size: 0.75rem;
-  line-height: 1.25rem;
-}
 
 /* Textual mana notation: 24px token, neutral fill, gold outline. */
 .mana-cost {

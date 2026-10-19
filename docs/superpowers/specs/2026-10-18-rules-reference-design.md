@@ -82,7 +82,7 @@ Each item has:
 
 Use dividers and spacing to create rhythm instead of placing every rule in a separate card. Numerical thresholds are bold, but color is not required to understand them.
 
-Only the Commander-tax item receives a status badge: `Non tracciata dall’app`. Repeating `Applicata dall’app` on all other items would add noise; the introduction explains that the preceding thresholds are the ones the app uses.
+*(Superseded by D-033, 2026-10-19: the app now tracks Commander tax, so no item carries a status badge.)* Only the Commander-tax item received a status badge: `Non tracciata dall’app`. Repeating `Applicata dall’app` on all other items would add noise; the introduction explains that the preceding thresholds are the ones the app uses.
 
 ## Final Italian copy
 
@@ -130,9 +130,9 @@ Secondary reference: `Regole 702.124 e 903.10a`
 
 ### R7 — Tassa del comandante
 
-Status: `Non tracciata dall’app`
+Status: none since D-033 (2026-10-19); previously `Non tracciata dall’app`.
 
-> Lanciare un comandante dalla zona di comando costa **{2} in più** per ogni volta precedente in cui è stato lanciato da lì.
+> Lanciare un comandante dalla zona di comando costa **{2} in più** per ogni volta precedente in cui è stato lanciato da lì. Nell’app la segni con «Tassa»: ogni tocco aggiunge **{2}**; con Partner ogni comandante ha la sua tassa.
 
 Secondary reference: `Regola 903.8`
 
@@ -207,7 +207,7 @@ The content model may contain presentation-neutral emphasis markers, but it must
 - The active game remains visible behind the modal and is unchanged after closing it.
 - R1–R7 appear in the groups and order specified above.
 - Rule numbers and the effective date are visible.
-- R7 is clearly marked as not tracked by the app.
+- ~~R7 is clearly marked as not tracked by the app.~~ Since D-033, R7 explains how the app tracks the tax, Partner included.
 - The Commander-damage helper uses the corrected combat-damage wording everywhere.
 - Numerical copy is derived from domain constants and covered by tests.
 - The dialog works at 320px portrait, 768px, 1440px, 844×390 and 844×330.
