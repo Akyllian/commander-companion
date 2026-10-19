@@ -4,7 +4,7 @@ import { MatchMenu } from './MatchMenu'
 const setup = ({ showKeepScreenOn = true, supportsPopover = false, currentPlayerCount = 4 } = {}) => {
   const props = {
     currentPlayerCount,
-    preferences: { keepScreenOn: true },
+    preferences: { keepScreenOn: true, fourPlayerLayout: 'table' as const },
     onPreferencesChange: vi.fn(),
     showKeepScreenOn,
     onNewGame: vi.fn(),
@@ -24,7 +24,7 @@ describe('MatchMenu', () => {
     expect(select).toHaveFocus()
     fireEvent.change(select, { target: { value: '3' } })
     fireEvent.click(screen.getByRole('checkbox', { name: /mantieni lo schermo acceso/i }))
-    expect(onPreferencesChange).toHaveBeenCalledWith({ keepScreenOn: false })
+    expect(onPreferencesChange).toHaveBeenCalledWith({ keepScreenOn: false, fourPlayerLayout: 'table' })
 
     fireEvent.click(screen.getByRole('button', { name: 'Nuova partita' }))
     expect(onNewGame).toHaveBeenCalledWith(3)
