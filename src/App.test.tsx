@@ -446,7 +446,7 @@ describe('compact landscape (Phase 1.6)', () => {
     expect(headings.map((text) => text?.split(/massimo|\d/)[0].trim())).toEqual([
       'Danni Commander',
       'Altri segnalini',
-      'Configurazione mazzo',
+      'Comandante e mazzo',
       'Rimuovi giocatore',
     ])
 

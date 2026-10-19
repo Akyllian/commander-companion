@@ -1,5 +1,5 @@
 import { GAME_SCHEMA_VERSION, PLAYER_ACCENTS } from './types'
-import type { CommanderArt, CommanderDamageBySource, GameAction, GameState, PlayerState } from './types'
+import type { CommanderArt, CommanderDamageBySource, CommanderSlots, GameAction, GameState, PlayerState } from './types'
 
 export const MIN_PLAYERS = 2
 export const MAX_PLAYERS = 4
@@ -66,7 +66,7 @@ export function createGame(playerCount = DEFAULT_PLAYERS): GameState {
       accent: PLAYER_ACCENTS[index],
       hasPartner: false,
       commanderDamage: {},
-      commander: null,
+      commanders: [null, null],
     })),
   }
 }
@@ -158,21 +158,31 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'set-partner': {
       if (!action.hasPartner && !canRemovePartner(state, action.playerId)) return state
-      return updatePlayer(state, action.playerId, (player) =>
-        player.hasPartner === action.hasPartner ? player : { ...player, hasPartner: action.hasPartner },
-      )
+      return updatePlayer(state, action.playerId, (player) => {
+        if (player.hasPartner === action.hasPartner) return player
+        // Without a partner the second commander slot no longer exists (D-027).
+        const commanders: CommanderSlots = action.hasPartner ? player.commanders : [player.commanders[0], null]
+        return { ...player, hasPartner: action.hasPartner, commanders }
+      })
     }
 
     case 'set-commander': {
       const commander = action.commander && normalizeCommander(action.commander)
       if (action.commander && !commander) return state
-      return updatePlayer(state, action.playerId, (player) =>
-        player.commander?.cardId === commander?.cardId &&
-        player.commander?.name === commander?.name &&
-        player.commander?.artist === commander?.artist
-          ? player
-          : { ...player, commander },
-      )
+      return updatePlayer(state, action.playerId, (player) => {
+        if (action.slot === 1 && !player.hasPartner) return player
+        const current = player.commanders[action.slot]
+        if (
+          current?.cardId === commander?.cardId &&
+          current?.name === commander?.name &&
+          current?.artist === commander?.artist
+        ) {
+          return player
+        }
+        const commanders: CommanderSlots = [player.commanders[0], player.commanders[1]]
+        commanders[action.slot] = commander
+        return { ...player, commanders }
+      })
     }
 
     case 'rename-player': {

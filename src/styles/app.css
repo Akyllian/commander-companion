@@ -1899,9 +1899,8 @@ button:hover:not(:disabled) {
   object-position: var(--art-focus-x, 50%) var(--art-focus-y, 32%);
 }
 
-/* Layered deep-ink/teal veil, composed without hard seams:
-   top-edge safety (radial, behind name and details), per-art local reinforcement,
-   vertical protection 24% → 46% (44%) → 88%, and a 34% global tint. */
+/* Base C2.1 veil only (D-027): top-edge safety behind name and details, vertical protection
+   24% → 46% (44%) → 88%, and a 34% global tint. Per-art reinforcement is local (below). */
 .player-art::after {
   position: absolute;
   inset: 0;
@@ -1910,24 +1909,129 @@ button:hover:not(:disabled) {
     radial-gradient(ellipse 32% 55% at 100% 0%, oklch(0.07 0.012 188 / 28%), transparent),
     linear-gradient(
       180deg,
-      oklch(0.07 0.012 188 / var(--art-veil-name, 0)) 0%,
-      oklch(0.07 0.012 188 / var(--art-veil-name, 0)) 30%,
-      transparent 52%
-    ),
-    linear-gradient(
-      180deg,
-      transparent 18%,
-      oklch(0.07 0.012 188 / var(--art-veil-life, 0)) 40%,
-      oklch(0.07 0.012 188 / var(--art-veil-life, 0)) 100%
-    ),
-    linear-gradient(
-      180deg,
       oklch(0.07 0.012 188 / 24%) 0%,
       oklch(0.07 0.012 188 / 46%) 44%,
       oklch(0.07 0.012 188 / 88%) 100%
     ),
     oklch(0.07 0.012 188 / 34%);
   content: '';
+}
+
+/* Partner split (D-027): static 50/50 with a slight diagonal seam (48% top → 52% bottom),
+   each half its own cover crop, and a gold hairline above the veil. */
+.player-art[data-split] .player-art__half {
+  position: absolute;
+  inset: 0;
+}
+
+.player-art[data-split] .player-art__half img {
+  position: absolute;
+  top: 0;
+  width: 52%;
+}
+
+.player-art__half--1 {
+  clip-path: polygon(0 0, 48% 0, 52% 100%, 0 100%);
+}
+
+.player-art__half--1 img {
+  left: 0;
+}
+
+.player-art__half--2 {
+  clip-path: polygon(48% 0, 100% 0, 100% 100%, 52% 100%);
+}
+
+.player-art__half--2 img {
+  right: 0;
+}
+
+.player-art[data-split]::before {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: color-mix(in oklch, var(--color-gold) 75%, transparent);
+  clip-path: polygon(calc(48% - 0.5px) 0, calc(48% + 0.5px) 0, calc(52% + 0.5px) 100%, calc(52% - 0.5px) 100%);
+  content: '';
+}
+
+/* Local reinforcement (D-027, option b): soft masks only behind name, credit and life —
+   solid 16px beyond the content, feathered over the next 28px. Art elsewhere keeps the base veil. */
+.name-field {
+  position: relative;
+  display: flex;
+  flex: 1 1 8rem;
+  min-width: 0;
+}
+
+.name-field .player-name {
+  width: 100%;
+}
+
+.commander-lines {
+  display: grid;
+  justify-items: start;
+}
+
+.commander-line {
+  position: relative;
+}
+
+.player-panel[data-has-art] .name-field::before,
+.player-panel[data-has-art] .commander-line::before,
+.player-panel[data-has-art] .life-value::before {
+  position: absolute;
+  z-index: -1;
+  background: oklch(0.07 0.012 188 / var(--local-veil, 0));
+  content: '';
+  pointer-events: none;
+  -webkit-mask-image:
+    linear-gradient(90deg, transparent, #000 1.75rem, #000 calc(100% - 1.75rem), transparent),
+    linear-gradient(180deg, transparent, #000 1.75rem, #000 calc(100% - 1.75rem), transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(90deg, transparent, #000 1.75rem, #000 calc(100% - 1.75rem), transparent),
+    linear-gradient(180deg, transparent, #000 1.75rem, #000 calc(100% - 1.75rem), transparent);
+  mask-composite: intersect;
+}
+
+/* The name veil is sized by the name itself (same face and size as the resting name). */
+.player-panel[data-has-art] .name-field::before {
+  --local-veil: var(--art-veil-name);
+  top: 50%;
+  left: calc(var(--space-2) - 2.75rem);
+  max-width: calc(100% + 5.5rem);
+  padding: 2.75rem;
+  overflow: hidden;
+  color: transparent;
+  content: attr(data-text);
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  transform: translateY(-50%);
+  white-space: nowrap;
+}
+
+.player-panel[data-compact][data-has-art] .name-field::before {
+  font-size: 1rem;
+}
+
+.player-panel[data-has-art] .commander-line::before {
+  --local-veil: var(--art-veil-name);
+  inset: -2.75rem;
+}
+
+.player-panel[data-has-art] .life-value::before {
+  --local-veil: var(--art-veil-life);
+  inset: -2.75rem;
+}
+
+/* The details sheet is an opaque surface inside the panel: no artwork, so no veil there. */
+.player-panel[data-has-art] .side-sheet .commander-line::before {
+  content: none;
 }
 
 /* With art, the illustration replaces the atmospheric fill; the frame and energy line stay. */
@@ -1960,8 +2064,9 @@ button:hover:not(:disabled) {
   text-transform: none;
 }
 
-/* Picker — functional placeholder pending design. */
+/* Commander picker (D-027): continuous list, full-width rows ≥ 64px, 48px art thumbnails. */
 .commander-picker {
+  container-type: inline-size;
   display: grid;
   gap: var(--space-2);
   margin-top: var(--space-2);
@@ -1971,17 +2076,55 @@ button:hover:not(:disabled) {
 
 .commander-current {
   display: grid;
-  gap: var(--space-2);
+  gap: var(--space-1);
 }
 
-.commander-current p,
-.commander-status,
-.commander-source {
-  margin: 0;
+.commander-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 4rem;
+  padding: var(--space-2);
+  text-align: left;
 }
 
-.commander-current p {
+.commander-thumb {
+  flex: none;
+  /* 48px image inside a 1px frame. */
+  width: calc(3rem + 2px);
+  height: calc(3rem + 2px);
+  overflow: hidden;
+  border: 1px solid var(--color-gold-hairline);
+  border-radius: var(--radius-sm);
+  background: var(--color-ink-raised);
+}
+
+.commander-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 32%;
+}
+
+.commander-row__text {
   display: grid;
+  min-width: 0;
+}
+
+.commander-row__name {
+  overflow: hidden;
+  color: var(--color-ivory);
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.remove-commander {
+  justify-self: start;
+  padding-inline: var(--space-4);
+  color: var(--color-danger-foreground);
 }
 
 .commander-search {
@@ -1989,9 +2132,16 @@ button:hover:not(:disabled) {
   gap: var(--space-1);
 }
 
+/* Field and "Cerca" stay on one row; they stack only below 360px. */
 .commander-search__row {
   display: flex;
   gap: var(--space-2);
+}
+
+@container (max-width: 22.5rem) {
+  .commander-search__row {
+    flex-direction: column;
+  }
 }
 
 .commander-search input {
@@ -2016,26 +2166,39 @@ button:hover:not(:disabled) {
 }
 
 .commander-status {
+  margin: 0;
   color: var(--color-text-muted);
   font-size: 0.82rem;
 }
 
+/* Results arrive with 140ms opacity + 2px settle, no stagger (instant with reduced motion). */
 .commander-results {
   display: grid;
-  gap: var(--space-1);
   margin: 0;
   padding: 0;
   list-style: none;
+  animation: results-in var(--duration-fast) var(--ease-out);
 }
 
-.commander-results button {
-  display: grid;
-  width: 100%;
-  padding: var(--space-2) var(--space-3);
-  text-align: left;
+.commander-results li + li {
+  border-top: 1px solid var(--color-gold-hairline);
+}
+
+.commander-results .commander-row {
+  border-color: transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+}
+
+@keyframes results-in {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
 }
 
 .commander-source {
+  margin: var(--space-1) 0 0;
   color: var(--color-text-muted);
   font-size: 0.6875rem;
 }

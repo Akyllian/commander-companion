@@ -70,14 +70,14 @@ describe('loadGame', () => {
     const result = loadGame()
 
     expect(result.status).toBe('migrated')
-    expect(result.game.version).toBe(3)
+    expect(result.game.version).toBe(4)
     expect(result.game.players[0]).toMatchObject({
       name: 'Atraxa',
       life: 31,
       poison: 2,
       experience: 1,
       hasPartner: false,
-      commander: null,
+      commanders: [null, null],
       commanderDamage: { 'player-2': [9, 0] },
     })
   })
@@ -101,7 +101,7 @@ describe('loadGame', () => {
   })
 
   it('backs up a payload written by a newer app version', () => {
-    const future = JSON.stringify({ ...createGame(2), version: 4 })
+    const future = JSON.stringify({ ...createGame(2), version: 5 })
     localStorage.setItem(STORAGE_KEY, future)
 
     expect(loadGame().status).toBe('recovered')
@@ -152,7 +152,7 @@ describe('parseStoredGame rejects corrupted data', () => {
     expect(parseStoredGame(game)).toBeNull()
   })
 
-  it.each([null, 42, 'game', [], { version: 3 }, { version: 3, players: {} }, { version: 2, players: {} }])(
+  it.each([null, 42, 'game', [], { version: 4 }, { version: 4, players: {} }, { version: 3, players: {} }, { version: 2, players: {} }])(
     'rejects non-game value %j',
     (value) => {
       expect(parseStoredGame(value)).toBeNull()
@@ -236,37 +236,70 @@ describe('requestPersistentStorage', () => {
   })
 })
 
-describe('schema v3: commander art (D-026)', () => {
+describe('schema v4: two commander slots (D-026/D-027)', () => {
   const zimone = { cardId: 'ca09bb5f-feab-4754-ac6b-3f06327d3fe9', name: 'Zimone, All-Questioning', artist: 'Ekaterina Burmak' }
+  const dina = { cardId: '0f6d9a0e-1111-4c55-9d1e-2c4b4a6b7c8d', name: 'Dina, Soul Steeper', artist: 'Someone' }
 
-  it('round-trips a player commander', () => {
-    const game = gameReducer(createGame(2), { type: 'set-commander', playerId: 'player-1', commander: zimone })
+  it('round-trips both commanders of a partner deck', () => {
+    let game = gameReducer(createGame(2), { type: 'set-partner', playerId: 'player-1', hasPartner: true })
+    game = gameReducer(game, { type: 'set-commander', playerId: 'player-1', slot: 0, commander: zimone })
+    game = gameReducer(game, { type: 'set-commander', playerId: 'player-1', slot: 1, commander: dina })
     saveGame(game)
     expect(loadGame()).toEqual({ status: 'restored', game })
   })
 
-  it('migrates a version 2 game, adding no commander', () => {
-    const v2 = structuredClone(createGame(2)) as unknown as { version: number; players: Array<Record<string, unknown>> }
-    v2.version = 2
-    v2.players.forEach((player) => delete player.commander)
-    store(v2)
+  it('migrates a version 3 game, keeping its commander in the first slot', () => {
+    const v3 = structuredClone(createGame(2)) as unknown as { version: number; players: Array<Record<string, unknown>> }
+    v3.version = 3
+    v3.players.forEach((player) => {
+      delete player.commanders
+      player.commander = null
+    })
+    v3.players[0].commander = zimone
+    store(v3)
     const result = loadGame()
     expect(result.status).toBe('migrated')
-    expect(result.game).toEqual(createGame(2))
+    expect(result.game.players.map((player) => player.commanders)).toEqual([
+      [zimone, null],
+      [null, null],
+    ])
   })
 
-  it('rejects a version 2 game with invalid structure', () => {
-    expect(parseStoredGame({ version: 2, players: [{ id: 'x' }, { id: 'y' }] })).toBeNull()
+  it('migrates a version 2 game with empty slots', () => {
+    const v2 = structuredClone(createGame(2)) as unknown as { version: number; players: Array<Record<string, unknown>> }
+    v2.version = 2
+    v2.players.forEach((player) => delete player.commanders)
+    store(v2)
+    expect(loadGame()).toEqual({ status: 'migrated', game: createGame(2) })
   })
 
   it.each([
-    ['a non-object commander', 'Zimone'],
-    ['a malformed card id', { ...zimone, cardId: '../evil' }],
-    ['a missing artist', { cardId: zimone.cardId, name: zimone.name }],
-    ['an untrimmed name', { ...zimone, name: ' Zimone ' }],
-  ])('rejects %s', (_label, commander) => {
+    ['version 2', 2],
+    ['version 3', 3],
+  ])('rejects a %s game with invalid structure', (_label, version) => {
+    expect(parseStoredGame({ version, players: [{ id: 'x' }, { id: 'y' }] })).toBeNull()
+  })
+
+  it('rejects a version 3 game with an invalid commander', () => {
+    const v3 = structuredClone(createGame(2)) as unknown as { version: number; players: Array<Record<string, unknown>> }
+    v3.version = 3
+    v3.players.forEach((player) => {
+      delete player.commanders
+      player.commander = 'Zimone'
+    })
+    expect(parseStoredGame(v3)).toBeNull()
+  })
+
+  it.each([
+    ['a non-array slot list', 'Zimone'],
+    ['one slot', [null]],
+    ['a malformed card id', [{ ...zimone, cardId: '../evil' }, null]],
+    ['a missing artist', [{ cardId: zimone.cardId, name: zimone.name }, null]],
+    ['an untrimmed name', [{ ...zimone, name: ' Zimone ' }, null]],
+    ['a second commander without partner', [zimone, dina]],
+  ])('rejects %s', (_label, commanders) => {
     const game = structuredClone(createGame(2)) as unknown as { players: Array<Record<string, unknown>> }
-    game.players[0].commander = commander
+    game.players[0].commanders = commanders
     expect(parseStoredGame(game)).toBeNull()
   })
 })

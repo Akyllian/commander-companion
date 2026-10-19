@@ -1,7 +1,7 @@
 import { COMMANDER_DAMAGE_LIMIT } from '../game/game'
 import type { DefeatReason } from '../game/game'
 import type { CommanderIndex, CounterKey, GameAction, PlayerState } from '../game/types'
-import { CommanderPicker } from './CommanderPicker'
+import { CommanderSlotPicker, commanderSlotLabel } from './CommanderPicker'
 import { deltaFor } from './DeltaBadge'
 import type { PanelDelta } from './DeltaBadge'
 
@@ -64,10 +64,13 @@ interface DeckConfigSectionProps extends SectionProps {
   canRemovePartner: boolean
 }
 
+/** "Comandante e mazzo" (D-027): commander slots first, then the partner toggle, Scryfall note last. */
 export function DeckConfigSection({ player, dispatch, canRemovePartner }: DeckConfigSectionProps) {
   return (
     <details className="deck-config">
-      <summary>Configurazione mazzo</summary>
+      <summary>Comandante e mazzo</summary>
+      <CommanderSlotPicker player={player} slot={0} dispatch={dispatch} />
+      {player.hasPartner && <CommanderSlotPicker player={player} slot={1} dispatch={dispatch} />}
       <label className="check-option">
         <input
           type="checkbox"
@@ -85,7 +88,7 @@ export function DeckConfigSection({ player, dispatch, canRemovePartner }: DeckCo
           ? 'Azzera prima i danni del Comandante 2.'
           : 'I danni dei due comandanti si contano separatamente.'}
       </p>
-      <CommanderPicker player={player} dispatch={dispatch} />
+      <p className="commander-source">Dati e illustrazioni da Scryfall; scaricati una volta e salvati sul dispositivo.</p>
     </details>
   )
 }
@@ -194,13 +197,21 @@ export function OtherCountersSection({ player, delta, dispatch }: CountersSectio
   )
 }
 
-/** Commander name and artist credit (Fan Content Policy: the artist is always credited). */
+/** Commander names and artist credits (Fan Content Policy: the artist is always credited). */
 export function CommanderLine({ player }: { player: PlayerState }) {
-  if (!player.commander) return null
+  const slots = player.commanders.flatMap((commander, index) =>
+    commander ? [{ commander, label: commanderSlotLabel(player, index as CommanderIndex) }] : [],
+  )
+  if (slots.length === 0) return null
   return (
-    <p className="commander-line">
-      <span className="commander-line__name">{player.commander.name}</span>
-      <span className="commander-credit">Illustrazione di {player.commander.artist}</span>
-    </p>
+    <div className="commander-lines">
+      {slots.map(({ commander, label }) => (
+        <p className="commander-line" key={label}>
+          {player.hasPartner && <span className="sr-only">{label}: </span>}
+          <span className="commander-line__name">{commander.name}</span>
+          <span className="commander-credit">Illustrazione di {commander.artist}</span>
+        </p>
+      ))}
+    </div>
   )
 }

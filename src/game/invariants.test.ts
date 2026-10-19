@@ -31,6 +31,7 @@ const action: fc.Arbitrary<GameAction> = fc.oneof(
   fc.record({
     type: fc.constant('set-commander' as const),
     playerId,
+    slot: fc.constantFrom(0 as const, 1 as const),
     commander: fc.option(
       fc.record({
         cardId: fc.oneof(fc.uuid(), fc.string({ maxLength: 40 })),

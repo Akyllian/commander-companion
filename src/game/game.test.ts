@@ -322,32 +322,50 @@ describe('reset and removal', () => {
   })
 })
 
-describe('commander art (Phase 2c, D-026)', () => {
+describe('commander art (Phase 2c, D-026/D-027)', () => {
   const zimone = {
     cardId: 'ca09bb5f-feab-4754-ac6b-3f06327d3fe9',
     name: 'Zimone, All-Questioning',
     artist: 'Ekaterina Burmak',
   }
-  const setCommander = (state: GameState, commander: typeof zimone | null, playerId = 'player-1') =>
-    gameReducer(state, { type: 'set-commander', playerId, commander })
+  const dina = { cardId: '0f6d9a0e-1111-4c55-9d1e-2c4b4a6b7c8d', name: 'Dina, Soul Steeper', artist: 'Someone' }
+  const setCommander = (state: GameState, commander: typeof zimone | null, slot: 0 | 1 = 0, playerId = 'player-1') =>
+    gameReducer(state, { type: 'set-commander', playerId, slot, commander })
+  const withPartner = (state: GameState) => gameReducer(state, { type: 'set-partner', playerId: 'player-1', hasPartner: true })
 
-  it('starts every player without a commander', () => {
-    expect(createGame(2).players.map((player) => player.commander)).toEqual([null, null])
+  it('starts every player with two empty commander slots', () => {
+    expect(createGame(2).players.map((player) => player.commanders)).toEqual([
+      [null, null],
+      [null, null],
+    ])
   })
 
-  it('sets, keeps through reset and clears the commander', () => {
+  it('sets, keeps through reset and clears the first commander', () => {
     const set = setCommander(createGame(2), zimone)
-    expect(set.players[0].commander).toEqual(zimone)
-    expect(gameReducer(set, { type: 'reset-game' }).players[0].commander).toEqual(zimone)
-    expect(setCommander(set, null).players[0].commander).toBeNull()
+    expect(set.players[0].commanders).toEqual([zimone, null])
+    expect(gameReducer(set, { type: 'reset-game' }).players[0].commanders).toEqual([zimone, null])
+    expect(setCommander(set, null).players[0].commanders).toEqual([null, null])
+  })
+
+  it('accepts a second commander only for partner decks', () => {
+    const initial = createGame(2)
+    expect(setCommander(initial, dina, 1)).toBe(initial)
+    const both = setCommander(setCommander(withPartner(initial), zimone), dina, 1)
+    expect(both.players[0].commanders).toEqual([zimone, dina])
+  })
+
+  it('drops the second commander when the partner is removed', () => {
+    const both = setCommander(setCommander(withPartner(createGame(2)), zimone), dina, 1)
+    const single = gameReducer(both, { type: 'set-partner', playerId: 'player-1', hasPartner: false })
+    expect(single.players[0]).toMatchObject({ hasPartner: false, commanders: [zimone, null] })
   })
 
   it('trims text and records no change for the same commander', () => {
     const set = setCommander(createGame(2), { ...zimone, name: `  ${zimone.name}  ` })
-    expect(set.players[0].commander?.name).toBe(zimone.name)
+    expect(set.players[0].commanders[0]?.name).toBe(zimone.name)
     expect(setCommander(set, zimone)).toBe(set)
-    const cleared = setCommander(createGame(2), null)
-    expect(cleared.players[0].commander).toBeNull()
+    const initial = createGame(2)
+    expect(setCommander(initial, null)).toBe(initial)
   })
 
   it.each([
@@ -362,6 +380,6 @@ describe('commander art (Phase 2c, D-026)', () => {
 
   it('ignores unknown players', () => {
     const initial = createGame(2)
-    expect(setCommander(initial, zimone, 'ghost')).toBe(initial)
+    expect(setCommander(initial, zimone, 0, 'ghost')).toBe(initial)
   })
 })

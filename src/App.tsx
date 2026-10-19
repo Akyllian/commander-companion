@@ -59,7 +59,7 @@ export default function App() {
   // Drop cached art no current player uses (undo history does not survive a reload).
   useEffect(() => {
     const store = getArtStore()
-    const keep = new Set(initial.game.players.flatMap((player) => (player.commander ? [player.commander.cardId] : [])))
+    const keep = new Set(initial.game.players.flatMap((player) => player.commanders.flatMap((slot) => (slot ? [slot.cardId] : []))))
     if (store) void pruneArt(store, keep).catch(() => undefined)
   }, [initial])
 

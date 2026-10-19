@@ -35,7 +35,7 @@ afterEach(() => {
 
 const openDeckConfig = () => {
   const panel = screen.getByRole('region', { name: /giocatore 1/i })
-  const details = within(panel).getByText('Configurazione mazzo').closest('details') as HTMLDetailsElement
+  const details = within(panel).getByText('Comandante e mazzo').closest('details') as HTMLDetailsElement
   details.open = true
   return panel
 }
@@ -46,15 +46,16 @@ describe('commander picker (Phase 2c)', () => {
     render(<App />)
     const panel = openDeckConfig()
 
-    const search = within(panel).getByRole('searchbox', { name: 'Cerca il comandante' })
+    const search = within(panel).getByRole('searchbox', { name: 'Cerca comandante' })
     fireEvent.change(search, { target: { value: 'zimone' } })
     fireEvent.click(within(panel).getByRole('button', { name: 'Cerca' }))
 
-    const result = await within(panel).findByRole('button', { name: /Zimone, All-Questioning/ })
+    const result = await within(panel).findByRole('button', { name: 'Zimone, All-Questioning, illustrazione di Ekaterina Burmak' })
+    expect(result.querySelector('img')).toHaveAttribute('src', card.image_uris.art_crop)
     expect(within(panel).getByText('1 risultato')).toBeInTheDocument()
 
     await act(async () => fireEvent.click(result))
-    await waitFor(() => expect(panel.querySelector('.player-art img')).toHaveAttribute('src', 'blob:art'))
+    await waitFor(() => expect(panel.querySelector('.player-art > img')).toHaveAttribute('src', 'blob:art'))
 
     expect(fetchMock).toHaveBeenCalledTimes(2)
     expect(within(panel).getAllByText('Illustrazione di Ekaterina Burmak').length).toBeGreaterThan(0)
@@ -80,7 +81,7 @@ describe('commander picker (Phase 2c)', () => {
     localStorage.setItem(
       'commander-companion.game.v1',
       JSON.stringify({
-        version: 3,
+        version: 4,
         players: [1, 2].map((n) => ({
           id: `player-${n}`,
           name: `Giocatore ${n}`,
@@ -91,7 +92,7 @@ describe('commander picker (Phase 2c)', () => {
           accent: n === 1 ? 'verdigris' : 'gold',
           hasPartner: false,
           commanderDamage: {},
-          commander: n === 1 ? { cardId: card.id, name: card.name, artist: card.artist } : null,
+          commanders: [n === 1 ? { cardId: card.id, name: card.name, artist: card.artist } : null, null],
         })),
       }),
     )
@@ -100,5 +101,44 @@ describe('commander picker (Phase 2c)', () => {
     expect(within(panel).getAllByText(card.name).length).toBeGreaterThan(0)
     fireEvent.click(within(panel).getByRole('button', { name: 'Rimuovi comandante' }))
     expect(within(panel).queryByText(card.name)).not.toBeInTheDocument()
+  })
+
+  it('offers a second slot for partners and splits the panel when both have art', async () => {
+    stubNetwork('ok')
+    const commander = { cardId: card.id, name: card.name, artist: card.artist }
+    localStorage.setItem(
+      'commander-companion.game.v1',
+      JSON.stringify({
+        version: 4,
+        players: [1, 2].map((n) => ({
+          id: `player-${n}`,
+          name: `Giocatore ${n}`,
+          life: 40,
+          poison: 0,
+          energy: 0,
+          experience: 0,
+          accent: n === 1 ? 'verdigris' : 'gold',
+          hasPartner: n === 1,
+          commanderDamage: {},
+          commanders: n === 1 ? [commander, { ...commander, cardId: '0f6d9a0e-1111-4c55-9d1e-2c4b4a6b7c8d', name: 'Dina' }] : [null, null],
+        })),
+      }),
+    )
+    const store = createIndexedDbArtStore(new IDBFactory())
+    const stored = { bytes: new Uint8Array([1]).buffer, type: 'image/jpeg', veil: { name: 0.2, life: 0.5 } }
+    await store.put(card.id, stored)
+    await store.put('0f6d9a0e-1111-4c55-9d1e-2c4b4a6b7c8d', { ...stored, veil: { name: 0.6, life: 0.1 } })
+    setArtStoreForTests(store)
+
+    render(<App />)
+    const panel = openDeckConfig()
+    expect(within(panel).getByRole('group', { name: 'Comandante 1' })).toBeInTheDocument()
+    expect(within(panel).getByRole('group', { name: 'Comandante 2' })).toBeInTheDocument()
+    await waitFor(() => expect(panel.querySelector('.player-art[data-split]')).not.toBeNull())
+    expect(panel.querySelectorAll('.player-art__half img')).toHaveLength(2)
+    // The shared text veils take the stronger reinforcement of the two arts.
+    expect(panel.style.getPropertyValue('--art-veil-name')).toBe('0.6')
+    expect(panel.style.getPropertyValue('--art-veil-life')).toBe('0.5')
+    expect(within(panel).getAllByText('Illustrazione di Ekaterina Burmak').length).toBeGreaterThan(1)
   })
 })
