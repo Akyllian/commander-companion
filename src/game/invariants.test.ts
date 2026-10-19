@@ -87,7 +87,7 @@ describe('reducer invariants (property-based)', () => {
             expect(Number.isSafeInteger(value) && value >= 0 && value <= COUNTER_MAX).toBe(true)
           }
           expect(player.commanderTax.every((value) => value % 2 === 0)).toBe(true)
-          if (!player.hasPartner) expect(player.commanderTax[1]).toBe(0)
+          expect(player.hasPartner || player.commanderTax[1] === 0).toBe(true)
         }
       }),
       { numRuns: 1000 },
