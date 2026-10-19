@@ -18,7 +18,7 @@ Platform adapters live outside the domain:
 - `src/settings/preferences.ts` stores validated device preferences (`keepScreenOn`).
 - `src/content/rules.ts` is the static, versioned rules reference; its numbers come from the domain constants.
 - `src/media/` holds the only network code (Scryfall commander search, art download), the IndexedDB art cache and the contrast analysis that strengthens the artwork veil (D-026).
-- `src/platform/useCompactLandscape.ts` is the single source of the compact-landscape condition.
+- `src/platform/useCompactDensity.ts` is the single source of the compact-density condition (`(max-height: 30rem)`, no orientation; D-034). The four-player layout is a separate preference in `src/settings/preferences.ts` (`fourPlayerLayout`), outside the game, its storage and its history.
 - `src/pwa/` registers the service worker (`register.ts`, production only) and exposes update state through a tiny external store (`updates.ts`).
 
 `game.ts` contains all scoring rules and never touches the DOM. Components dispatch actions and render state; they do not recalculate rule thresholds (`getDefeatReasons`, `canRemovePartner` are exported for the UI). Every action that would not change the game returns the same state reference, so history never records an empty step.

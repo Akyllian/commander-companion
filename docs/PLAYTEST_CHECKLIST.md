@@ -139,3 +139,16 @@ Tutti i passi superati tranne uno. Nessun problema di gravità alta, quindi la F
 | 11.11 | In orizzontale (4 giocatori) | icone dei modi nella riga del nome, nome leggibile; i controlli restano ≥44 px; nessuna sovrapposizione | | |
 | 11.12 | Ruota il telefono e torna indietro | ogni pannello ricorda il modo e l'avversario scelti | | |
 | 11.13 | Riduci movimento attivo | i cambi di modo sono immediati | | |
+
+## 12. Layout a quattro giocatori (Fase 2d, D-034)
+
+| # | Passi | Risultato atteso | iPhone | Android |
+| --- | --- | --- | --- | --- |
+| 12.1 | Con 4 giocatori tocca «Layout» | si apre «Layout dei giocatori» con Griglia, Fronte a fronte, Tavolo; quella attuale dice «Selezionato» | | |
+| 12.2 | Scegli «Fronte a fronte» | il foglio si chiude; i giocatori 1 e 2 sono capovolti verso il lato opposto; punteggi invariati; Annulla non tocca il layout | | |
+| 12.3 | Scegli «Tavolo», appoggia il telefono al centro, 4 persone ai 4 lati | ognuno legge il proprio pannello dal proprio lato (1 in basso, 2 a sinistra, 3 in alto, 4 a destra) | | |
+| 12.4 | Ruota il telefono più volte | il layout scelto non cambia; cambia solo la densità | | |
+| 12.5 | Chiudi e riapri l'app | il layout resta quello scelto | | |
+| 12.6 | Da un pannello ruotato apri «Dettagli» | il foglio è dritto; chiudendolo il focus torna al pannello | | |
+| 12.7 | Rimuovi un giocatore in Tavolo | la barra «Annulla» occupa il suo posto con lo stesso verso; il comando «Layout» sparisce; Annulla lo riporta con la scelta salvata | | |
+| 12.8 | Riduci movimento attivo, cambia layout | il cambio è immediato | | |

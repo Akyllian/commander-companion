@@ -64,11 +64,11 @@ New semantic tokens: `--color-scrim` (dialog backdrop); `--color-danger-hover`, 
 | Destructive confirm | filled `--color-danger` | `--color-danger-hover` | gold ring | `--color-danger-active` |
 | Remove player | muted icon | `--color-danger-foreground` | gold ring + red icon | red icon |
 
-## Compact landscape components (D-020) — structure final, visuals pending art direction
+## Compact density components (D-020; renamed by D-034) — structure final, visuals pending art direction
 
 | Component | Class / hook | Notes |
 | --- | --- | --- |
-| Compact shell | `.app-shell[data-compact-landscape='true']` | 52px header, footer hidden, safe-area padding |
+| Compact shell | `.app-shell[data-compact-density='true']` | 52px header, footer hidden, safe-area padding |
 | Score rail | `.score-rail` | `[−5] [−1] LIFE [+1] [+5]`, max 24rem, life `clamp(1.5rem, 9cqi, 2.25rem)` |
 | Details button | `.details-button` | ⋯ icon, 44px, `Dettagli di <nome>` |
 | Side sheet | `.side-sheet`, `__header`, `__body` | 8px inset, 28rem max, inner scroll |
@@ -123,3 +123,14 @@ Icon family: 24×24 viewBox, rounded 1.75px stroke, `currentColor` (muted ivory 
 - **Overflow:** only the strip and the source row scroll sideways. A partial last item signals more content, and scrollbars are hidden. The page never scrolls horizontally. In compact, Commander/Tax add one row, so 844×390 may scroll vertically when both grid rows use those modes.
 - **Motion:** `--duration-mode` is 120 ms. A new mode fades the value and settles it 2px; a new source only fades it. Role transfer fades the icon in over 140 ms. No layout motion. The global reduced-motion rule makes all of these immediate.
 - **Manual check:** 320×568, 390×844, 768, 1440, 844×390, 844×330 and ≈200% zoom (640×400), with no art, bright art, Partner art and long names. Verified in the browser for this PR: no page-level horizontal scroll and no dock button under 44px.
+
+## Four-player layouts (D-034) — implemented, awaiting design review
+
+- **Access:** `Layout` (`.layout-button`, four-square icon, name `Layout dei quattro giocatori`) appears only with four players: after `Regole`, before `Preferenze` (standard) or `Partita` (compact). Below 52rem and in compact density the label hides and the icon stays.
+- **Selector:** `ModalSideSheet` titled `Layout dei giocatori`. It holds a `radiogroup` of three `.layout-option` buttons (`role="radio"`, `aria-checked`, ≥ 88px; 111px measured). Each shows a schematic SVG board, the name in Cormorant, a UI-face description and the text `Selezionato` on the current option. Two columns from 44rem when the viewport is not short.
+- **Material:** teal-depth table (`--color-depth`) with a gold hairline, ink seats with gold lines, and the player tint only on the short orientation mark. Selected: brighter gold border, 9% teal fill, inset gold line, plus the `Selezionato` pill. No neon green, photos or light shadows.
+- **Seats:** every cell is `.player-seat[data-seat][data-orientation] > .player-seat__content`, always rendered, so a layout change never remounts a panel. Grid seats are `top-start…bottom-end`; Tavolo seats are `bottom`, `left`, `top`, `right`. Orientations: grid `0,0,0,0`; facing `180,180,0,0`; Tavolo `0,90,180,−90`. DOM and tab order stay 1→4. `main[data-layout]` carries the effective layout. Below four cells it is `grid`; a removed player's Undo bar counts as the fourth cell and keeps that seat.
+- **Tavolo geometry:** areas `top top top / left centre right / bottom bottom bottom`. Columns `minmax(8.5rem,1fr) minmax(0,1.2fr) minmax(8.5rem,1fr)`, middle row `clamp(18rem, 50dvh, 40rem)` (the compact rail needs ~272px). Side seats are size containers, and their content is `100cqh × 100cqw`, centred and turned ±90°, so geometry is reserved rather than overflowing. Tavolo always uses compact panels; the centre stays empty. Short screens scroll rather than fall back to the grid.
+- **Overlays:** Dettagli, Regole, Partita, Preferenze and Layout use the top layer or a portal and stay upright. Focus returns to the turned opener (checked from a 90° seat).
+- **Motion:** a layout change runs one 140 ms Web Animations crossfade with a 2px settle on `main` (no remount, no animated rotation), skipped under reduced motion.
+- **Verified in the browser for this PR:** Tavolo at 768×1024 and 390×844; Fronte a fronte at 844×390; Griglia at 1440. No page-level horizontal scroll and no target under 44px.
