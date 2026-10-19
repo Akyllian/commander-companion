@@ -1,6 +1,7 @@
 import {
   COUNTER_MAX,
   createGame,
+  isCommanderArt,
   LIFE_MAX,
   LIFE_MIN,
   MAX_PLAYERS,
@@ -50,7 +51,13 @@ function isPlayerList(value: unknown): value is unknown[] {
   return Array.isArray(value) && value.length >= MIN_PLAYERS && value.length <= MAX_PLAYERS
 }
 
-function isPlayerV2(value: unknown): value is PlayerState {
+function isPlayerV3(value: unknown): value is PlayerState {
+  if (!isPlayerV2(value)) return false
+  const { commander } = value as unknown as Record<string, unknown>
+  return commander === null || isCommanderArt(commander)
+}
+
+function isPlayerV2(value: unknown): value is Omit<PlayerState, 'commander'> {
   if (!isRecord(value) || !isRecord(value.commanderDamage)) return false
 
   return (
@@ -69,8 +76,8 @@ function isPlayerV2(value: unknown): value is PlayerState {
   )
 }
 
-function parseV2(value: Record<string, unknown>): GameState | null {
-  if (!isPlayerList(value.players) || !value.players.every(isPlayerV2)) return null
+function parseV3(value: Record<string, unknown>): GameState | null {
+  if (!isPlayerList(value.players) || !value.players.every(isPlayerV3)) return null
 
   const players = value.players
   if (!hasValidPlayerIds(players)) return null
@@ -132,6 +139,7 @@ function migrateV1(value: Record<string, unknown>): GameState | null {
         experience: clampInt(player.experience, 0, COUNTER_MAX),
         accent: player.accent,
         hasPartner: false,
+        commander: null,
         commanderDamage: Object.fromEntries(
           Object.entries(player.commanderDamage).map(([sourceId, damage]) => [
             sourceId,
@@ -143,7 +151,13 @@ function migrateV1(value: Record<string, unknown>): GameState | null {
   }
 
   // Re-validate the result with the current rules (unique ids, known sources, no self damage).
-  return parseV2(migrated)
+  return parseV3(migrated)
+}
+
+/** Schema v2 → v3: players gain `commander: null` (Phase 2c). */
+function migrateV2(value: Record<string, unknown>): GameState | null {
+  if (!isPlayerList(value.players) || !value.players.every(isPlayerV2)) return null
+  return parseV3({ ...value, version: GAME_SCHEMA_VERSION, players: value.players.map((player) => ({ ...player, commander: null })) })
 }
 
 /** Validates unknown stored data and migrates older schemas to the current one. */
@@ -151,8 +165,13 @@ export function parseStoredGame(value: unknown): { game: GameState; migrated: bo
   if (!isRecord(value)) return null
 
   if (value.version === GAME_SCHEMA_VERSION) {
-    const game = parseV2(value)
+    const game = parseV3(value)
     return game && { game, migrated: false }
+  }
+
+  if (value.version === 2) {
+    const game = migrateV2(value)
+    return game && { game, migrated: true }
   }
 
   if (value.version === 1) {

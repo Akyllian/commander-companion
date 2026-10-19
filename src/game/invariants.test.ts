@@ -28,6 +28,18 @@ const action: fc.Arbitrary<GameAction> = fc.oneof(
     amount,
   }),
   fc.record({ type: fc.constant('set-partner' as const), playerId, hasPartner: fc.boolean() }),
+  fc.record({
+    type: fc.constant('set-commander' as const),
+    playerId,
+    commander: fc.option(
+      fc.record({
+        cardId: fc.oneof(fc.uuid(), fc.string({ maxLength: 40 })),
+        name: fc.string({ maxLength: 210 }),
+        artist: fc.string({ maxLength: 30 }),
+      }),
+      { nil: null },
+    ),
+  }),
   fc.record({ type: fc.constant('rename-player' as const), playerId, name: fc.string({ maxLength: 40 }) }),
   fc.record({ type: fc.constant('remove-player' as const), playerId }),
   fc.constant({ type: 'reset-game' as const }),

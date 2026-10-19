@@ -70,13 +70,14 @@ describe('loadGame', () => {
     const result = loadGame()
 
     expect(result.status).toBe('migrated')
-    expect(result.game.version).toBe(2)
+    expect(result.game.version).toBe(3)
     expect(result.game.players[0]).toMatchObject({
       name: 'Atraxa',
       life: 31,
       poison: 2,
       experience: 1,
       hasPartner: false,
+      commander: null,
       commanderDamage: { 'player-2': [9, 0] },
     })
   })
@@ -100,7 +101,7 @@ describe('loadGame', () => {
   })
 
   it('backs up a payload written by a newer app version', () => {
-    const future = JSON.stringify({ ...createGame(2), version: 3 })
+    const future = JSON.stringify({ ...createGame(2), version: 4 })
     localStorage.setItem(STORAGE_KEY, future)
 
     expect(loadGame().status).toBe('recovered')
@@ -151,7 +152,7 @@ describe('parseStoredGame rejects corrupted data', () => {
     expect(parseStoredGame(game)).toBeNull()
   })
 
-  it.each([null, 42, 'game', [], { version: 2 }, { version: 2, players: {} }])(
+  it.each([null, 42, 'game', [], { version: 3 }, { version: 3, players: {} }, { version: 2, players: {} }])(
     'rejects non-game value %j',
     (value) => {
       expect(parseStoredGame(value)).toBeNull()
@@ -232,5 +233,40 @@ describe('requestPersistentStorage', () => {
     vi.stubGlobal('navigator', { storage: { persisted: vi.fn().mockRejectedValue(new Error('x')), persist: vi.fn() } })
     await expect(requestPersistentStorage()).resolves.toBe(false)
     vi.unstubAllGlobals()
+  })
+})
+
+describe('schema v3: commander art (D-026)', () => {
+  const zimone = { cardId: 'ca09bb5f-feab-4754-ac6b-3f06327d3fe9', name: 'Zimone, All-Questioning', artist: 'Ekaterina Burmak' }
+
+  it('round-trips a player commander', () => {
+    const game = gameReducer(createGame(2), { type: 'set-commander', playerId: 'player-1', commander: zimone })
+    saveGame(game)
+    expect(loadGame()).toEqual({ status: 'restored', game })
+  })
+
+  it('migrates a version 2 game, adding no commander', () => {
+    const v2 = structuredClone(createGame(2)) as unknown as { version: number; players: Array<Record<string, unknown>> }
+    v2.version = 2
+    v2.players.forEach((player) => delete player.commander)
+    store(v2)
+    const result = loadGame()
+    expect(result.status).toBe('migrated')
+    expect(result.game).toEqual(createGame(2))
+  })
+
+  it('rejects a version 2 game with invalid structure', () => {
+    expect(parseStoredGame({ version: 2, players: [{ id: 'x' }, { id: 'y' }] })).toBeNull()
+  })
+
+  it.each([
+    ['a non-object commander', 'Zimone'],
+    ['a malformed card id', { ...zimone, cardId: '../evil' }],
+    ['a missing artist', { cardId: zimone.cardId, name: zimone.name }],
+    ['an untrimmed name', { ...zimone, name: ' Zimone ' }],
+  ])('rejects %s', (_label, commander) => {
+    const game = structuredClone(createGame(2)) as unknown as { players: Array<Record<string, unknown>> }
+    game.players[0].commander = commander
+    expect(parseStoredGame(game)).toBeNull()
   })
 })

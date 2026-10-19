@@ -1,5 +1,5 @@
 import { GAME_SCHEMA_VERSION, PLAYER_ACCENTS } from './types'
-import type { CommanderDamageBySource, GameAction, GameState, PlayerState } from './types'
+import type { CommanderArt, CommanderDamageBySource, GameAction, GameState, PlayerState } from './types'
 
 export const MIN_PLAYERS = 2
 export const MAX_PLAYERS = 4
@@ -27,6 +27,25 @@ const isValidAmount = (amount: number) => Number.isSafeInteger(amount) && amount
 const clampPlayerCount = (count: number) =>
   Number.isFinite(count) ? clamp(Math.round(count), MIN_PLAYERS, MAX_PLAYERS) : DEFAULT_PLAYERS
 
+export const COMMANDER_TEXT_MAX_LENGTH = 200
+const CARD_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+
+const isCommanderText = (value: unknown): value is string =>
+  typeof value === 'string' && value.length > 0 && value === value.trim() && Array.from(value).length <= COMMANDER_TEXT_MAX_LENGTH
+
+/** True for a stored commander: canonical UUID and already-trimmed, bounded text. */
+export function isCommanderArt(value: unknown): value is CommanderArt {
+  if (typeof value !== 'object' || value === null) return false
+  const { cardId, name, artist } = value as Record<string, unknown>
+  return typeof cardId === 'string' && CARD_ID_PATTERN.test(cardId) && isCommanderText(name) && isCommanderText(artist)
+}
+
+/** Trims input from the picker; returns null when it cannot be stored. */
+export function normalizeCommander(commander: CommanderArt): CommanderArt | null {
+  const normalized = { cardId: commander.cardId, name: commander.name.trim(), artist: commander.artist.trim() }
+  return isCommanderArt(normalized) ? normalized : null
+}
+
 /** Trims and truncates by code point, so an emoji is never split in half. */
 export function normalizePlayerName(name: string): string {
   return Array.from(name.trim()).slice(0, NAME_MAX_LENGTH).join('').trim()
@@ -47,6 +66,7 @@ export function createGame(playerCount = DEFAULT_PLAYERS): GameState {
       accent: PLAYER_ACCENTS[index],
       hasPartner: false,
       commanderDamage: {},
+      commander: null,
     })),
   }
 }
@@ -140,6 +160,18 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (!action.hasPartner && !canRemovePartner(state, action.playerId)) return state
       return updatePlayer(state, action.playerId, (player) =>
         player.hasPartner === action.hasPartner ? player : { ...player, hasPartner: action.hasPartner },
+      )
+    }
+
+    case 'set-commander': {
+      const commander = action.commander && normalizeCommander(action.commander)
+      if (action.commander && !commander) return state
+      return updatePlayer(state, action.playerId, (player) =>
+        player.commander?.cardId === commander?.cardId &&
+        player.commander?.name === commander?.name &&
+        player.commander?.artist === commander?.artist
+          ? player
+          : { ...player, commander },
       )
     }
 

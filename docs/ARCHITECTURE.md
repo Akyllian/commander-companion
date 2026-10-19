@@ -17,6 +17,7 @@ Platform adapters live outside the domain:
 - `src/platform/useWakeLock.ts` keeps the screen on during play.
 - `src/settings/preferences.ts` stores validated device preferences (`keepScreenOn`).
 - `src/content/rules.ts` is the static, versioned rules reference; its numbers come from the domain constants.
+- `src/media/` holds the only network code (Scryfall commander search, art download), the IndexedDB art cache and the contrast analysis that strengthens the artwork veil (D-026).
 - `src/platform/useCompactLandscape.ts` is the single source of the compact-landscape condition.
 - `src/pwa/` registers the service worker (`register.ts`, production only) and exposes update state through a tiny external store (`updates.ts`).
 
@@ -34,13 +35,14 @@ Platform adapters live outside the domain:
 | Commander damage is also life loss | `adjust-commander-damage` moves life by the applied amount (D-006) |
 | Partner commanders count separately | `hasPartner` + `[number, number]` per source (D-007) |
 
-## Schema (version 2)
+## Schema (version 3)
 
 ```ts
 PlayerState {
   id, name, life, poison, energy, experience, accent,
   hasPartner: boolean,
-  commanderDamage: Record<sourcePlayerId, [commander1, commander2]>
+  commanderDamage: Record<sourcePlayerId, [commander1, commander2]>,
+  commander: { cardId, name, artist } | null   // art bytes live in IndexedDB
 }
 ```
 
@@ -49,7 +51,7 @@ Invariants enforced by `parseStoredGame`: 2–4 players, unique ids, names 1–2
 ## Storage
 
 - Key `commander-companion.game.v1` (historical name; the payload `version` drives parsing).
-- Version 1 payloads are migrated to version 2, clamping out-of-range values.
+- Version 1 and 2 payloads are migrated to version 3 (v1 values are clamped; v2 gains `commander: null`).
 - Unreadable or future-version payloads are copied to `commander-companion.game.backup` before a new game starts; the UI says so.
 - Writes are synchronous on every change; a failed write is surfaced in the UI.
 - `navigator.storage.persist()` is requested once.

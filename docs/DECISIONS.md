@@ -193,3 +193,22 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
   - «Commander» compare nel nome dell'app;
   - Wizards può chiedere di rimuovere il materiale in qualsiasi momento.
 - **Regola di processo:** qualsiasi vendita, sponsorizzazione, pubblicazione negli store o cambio di licenza richiede di fermarsi e chiedere al product owner prima di procedere.
+
+## D-026 — Arte del comandante da Scryfall (Fase 2c)
+- **Stato:** Accettata e implementata. Fonte di design: C2.1 di `docs/CANONICAL_VISUAL_GAP_REVIEW.md` (ritaglio e velo). Fonte dell'arte scelta dal product owner (2026-10-19): **il comandante del giocatore, cercato su Scryfall**. Strisce illustrate delle Regole rimandate.
+- **Schema v3:** `PlayerState.commander: { cardId, name, artist } | null`. Migrazione pura v2 → v3 (`commander: null`) e v1 → v3, con test. La validazione accetta solo UUID canonici e testi già puliti (≤ 200 caratteri). Nuova azione `set-commander`, annullabile; il reset la conserva.
+- **Rete isolata in `src/media/`** (CLAUDE.md: niente rete nel reducer né nei componenti): `scryfall.ts` fa una richiesta per ricerca inviata (mai a ogni tasto), con header `Accept`. Usa solo i ritagli `art_crop` di `cards.scryfall.io` (mai la carta intera, quindi niente proxy, D-025). Limite di 2 MB e verifica del tipo immagine.
+- **Offline:** l'immagine viene scaricata una volta e salvata in IndexedDB (`commander-companion-art`) come `ArrayBuffer` + tipo, compatibile con Safari. All'avvio vengono eliminate le immagini che nessun giocatore usa. Verificato: a server spento le illustrazioni compaiono.
+- **Ritaglio (C2.1):** `object-fit: cover` a tutta superficie, `object-position: var(--art-focus-x, 50%) var(--art-focus-y, 32%)`, nessuna parallasse. Scryfall non fornisce punti focali, quindi per ora valgono quelli predefiniti.
+- **Velo (C2.1):**
+  - tinta globale 34%;
+  - velo verticale 24% → 46% (44%) → 88%;
+  - protezione in alto 42% dietro il nome e 28% dietro il pulsante dettagli, con gradienti radiali (nessuna giuntura visibile);
+  - **rinforzo per singola illustrazione**: al download l'app misura una volta il 98° percentile di luminosità nelle zone del nome e della vita, e aumenta il velo localmente per puntare a 5:1.
+- **Contratto 4.5:1 verificato nel browser sul pixel peggiore:** l'illustrazione viene ricostruita col ritaglio reale e tutti gli strati del velo. Con Zimone e con Giada (arte molto chiara), nomi lunghi, layout standard e compatto, il minimo è 4,84:1. Due iterazioni dalle misure reali: con il 90° percentile Giada scendeva a 3,4:1; con una stima di trasmissione di 0,40 un nome lungo scendeva a 3,5:1.
+- **Credito all'artista:** sempre visibile accanto al nome del comandante (pannello standard, sheet dei dettagli, selettore), in avorio corsivo perché il grigio attenuato non reggerebbe 4,5:1 sopra l'arte. **Nel pannello compatto il credito è solo nello sheet dei dettagli** (non c'è spazio), da confermare con il design.
+- **Da rivedere con il design:**
+  - il selettore è provvisorio («Configurazione mazzo»: ricerca, risultati, «Rimuovi comandante»);
+  - sulle illustrazioni chiare il rinforzo rende l'arte molto velata: la C2.1 dà priorità alla leggibilità;
+  - con i comandanti partner l'arte è quella del primo comandante.
+- **Dipendenze:** `fake-indexeddb` (Apache-2.0) solo nei test. Il rinforzo è calcolato al download: se in futuro cambia la formula, le immagini già salvate andranno rianalizzate.

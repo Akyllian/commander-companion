@@ -5,6 +5,7 @@ import { ConfirmDialog } from './components/ConfirmDialog'
 import { PlayerPanel } from './components/PlayerPanel'
 import { RulesDialog } from './components/RulesDialog'
 import { FAN_CONTENT_NOTICE } from './content/legal'
+import { getArtStore, pruneArt } from './media/artStore'
 import { TableControls } from './components/TableControls'
 import { UndoBar } from './components/UndoBar'
 import { canRemovePartner, createGame } from './game/game'
@@ -54,6 +55,13 @@ export default function App() {
   // Persist every change synchronously so a closed tab never loses the last action.
   // oxlint-disable-next-line react/set-state-in-effect -- the result comes from an external system (storage).
   useEffect(() => setSaveFailed(!saveGame(game)), [game])
+
+  // Drop cached art no current player uses (undo history does not survive a reload).
+  useEffect(() => {
+    const store = getArtStore()
+    const keep = new Set(initial.game.players.flatMap((player) => (player.commander ? [player.commander.cardId] : [])))
+    if (store) void pruneArt(store, keep).catch(() => undefined)
+  }, [initial])
 
   useEffect(() => {
     void requestPersistentStorage()
