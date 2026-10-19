@@ -383,3 +383,108 @@ describe('commander art (Phase 2c, D-026/D-027)', () => {
     expect(setCommander(initial, zimone, 0, 'ghost')).toBe(initial)
   })
 })
+
+describe('frequent scores (D-033)', () => {
+  const tax = (state: GameState, player: number, amount: number, commander: 0 | 1 = 0): GameState =>
+    gameReducer(state, { type: 'adjust-commander-tax', playerId: state.players[player].id, commander, amount })
+  const role = (state: GameState, which: 'monarch' | 'initiative', playerId: string | null): GameState =>
+    gameReducer(state, { type: 'set-table-role', role: which, playerId })
+  const withPartner = gameReducer(createGame(3), { type: 'set-partner', playerId: 'player-1', hasPartner: true })
+
+  it('starts every player at zero rad and tax, with no Monarch or Initiative', () => {
+    const game = createGame(4)
+    expect(game.players.every((player) => player.rad === 0)).toBe(true)
+    expect(game.players.every((player) => player.commanderTax[0] === 0 && player.commanderTax[1] === 0)).toBe(true)
+    expect(game.monarchPlayerId).toBeNull()
+    expect(game.initiativePlayerId).toBeNull()
+  })
+
+  it('tracks rad as a nonnegative counter', () => {
+    const initial = createGame(2)
+    expect(gameReducer(initial, { type: 'adjust-counter', playerId: 'player-1', counter: 'rad', amount: -1 })).toBe(initial)
+    const next = gameReducer(initial, { type: 'adjust-counter', playerId: 'player-1', counter: 'rad', amount: 3 })
+    expect(next.players[0].rad).toBe(3)
+    expect(getDefeatReasons(next.players[0])).toEqual([])
+  })
+
+  it('changes Commander tax only in steps of two and never below zero', () => {
+    const initial = createGame(2)
+    expect(tax(initial, 0, -2)).toBe(initial)
+    expect(tax(initial, 0, 1)).toBe(initial)
+    expect(tax(initial, 0, 3)).toBe(initial)
+    expect(tax(initial, 0, 0)).toBe(initial)
+    expect(tax(initial, 0, Number.NaN)).toBe(initial)
+    const twice = tax(tax(initial, 0, 2), 0, 2)
+    expect(twice.players[0].commanderTax).toEqual([4, 0])
+    expect(tax(twice, 0, -6).players[0].commanderTax).toEqual([0, 0])
+  })
+
+  it('clamps Commander tax to an even maximum', () => {
+    const next = tax(createGame(2), 0, COUNTER_MAX * 4)
+    expect(next.players[0].commanderTax[0]).toBe(COUNTER_MAX - 1)
+    expect(next.players[0].commanderTax[0] % 2).toBe(0)
+  })
+
+  it('keeps the two Partner taxes distinct and ignores the second slot without Partner', () => {
+    const initial = createGame(2)
+    expect(tax(initial, 0, 2, 1)).toBe(initial)
+    const next = tax(tax(withPartner, 0, 2, 0), 0, 4, 1)
+    expect(next.players[0].commanderTax).toEqual([2, 4])
+  })
+
+  it('ignores tax for unknown players', () => {
+    const initial = createGame(2)
+    expect(gameReducer(initial, { type: 'adjust-commander-tax', playerId: 'ghost', commander: 0, amount: 2 })).toBe(initial)
+  })
+
+  it('keeps the Partner while its Commander tax is nonzero', () => {
+    const taxed = tax(withPartner, 0, 2, 1)
+    expect(canRemovePartner(taxed, 'player-1')).toBe(false)
+    expect(gameReducer(taxed, { type: 'set-partner', playerId: 'player-1', hasPartner: false })).toBe(taxed)
+    const cleared = tax(taxed, 0, -2, 1)
+    expect(canRemovePartner(cleared, 'player-1')).toBe(true)
+  })
+
+  it('gives Monarch and Initiative to one player at a time', () => {
+    const initial = createGame(3)
+    const crowned = role(initial, 'monarch', 'player-2')
+    expect(crowned.monarchPlayerId).toBe('player-2')
+    expect(role(crowned, 'monarch', 'player-2')).toBe(crowned)
+    expect(role(crowned, 'monarch', 'player-3').monarchPlayerId).toBe('player-3')
+    expect(role(crowned, 'monarch', null).monarchPlayerId).toBeNull()
+    expect(role(initial, 'monarch', null)).toBe(initial)
+  })
+
+  it('lets the same player hold both table roles', () => {
+    const both = role(role(createGame(2), 'monarch', 'player-1'), 'initiative', 'player-1')
+    expect(both.monarchPlayerId).toBe('player-1')
+    expect(both.initiativePlayerId).toBe('player-1')
+  })
+
+  it('ignores table roles for unknown players', () => {
+    const initial = createGame(2)
+    expect(role(initial, 'initiative', 'ghost')).toBe(initial)
+  })
+
+  it('resets rad, tax and table roles but keeps identity and Partner', () => {
+    let state = tax(withPartner, 0, 4, 1)
+    state = gameReducer(state, { type: 'adjust-counter', playerId: 'player-2', counter: 'rad', amount: 5 })
+    state = role(role(state, 'monarch', 'player-2'), 'initiative', 'player-3')
+    const reset = gameReducer(state, { type: 'reset-game' })
+    expect(reset.players.map((player) => [player.rad, ...player.commanderTax])).toEqual([
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ])
+    expect(reset.monarchPlayerId).toBeNull()
+    expect(reset.initiativePlayerId).toBeNull()
+    expect(reset.players[0].hasPartner).toBe(true)
+  })
+
+  it('clears the table roles of a removed player only', () => {
+    let state = role(role(createGame(3), 'monarch', 'player-2'), 'initiative', 'player-3')
+    state = gameReducer(state, { type: 'remove-player', playerId: 'player-2' })
+    expect(state.monarchPlayerId).toBeNull()
+    expect(state.initiativePlayerId).toBe('player-3')
+  })
+})
