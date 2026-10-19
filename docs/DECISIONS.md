@@ -235,3 +235,20 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 - **Testi piccoli sull’arte:** per nome del giocatore e righe comandante/credito è ammesso un alone di contrasto color inchiostro che segue le lettere, con **spread 0**, sfocatura **8–10px** e offset nullo o massimo 1px. È una deroga stretta al divieto C2.1: serve solo a fondere la protezione nell’immagine, non può sembrare un contorno, un’ombra decorativa o un glow. Va applicato solo nella misura necessaria all’illustrazione; vita, pulsanti e azioni non lo usano.
 - **Ordine di correzione:** se una prova resta sotto soglia, prima allargare e ammorbidire la caduta della maschera; poi aumentare localmente la forza. Non aumentare il velo globale e non rendere visibile l’alone tipografico.
 - **Accettazione visuale:** su Zimone, Giada e una coppia Partner chiara, misurare il composito finale sul pixel peggiore in standard e compatto. Tutti i contenuti protetti devono restare ≥4,5:1; osservando il telefono alla normale distanza d’uso non deve essere riconoscibile alcuna toppa, capsula o bordo della protezione. La vita domina, ma volto e cromia dell’illustrazione restano leggibili. Nessuna nuova animazione.
+
+## D-030 — Implementazione della D-029 (maschere radiali + alone sulle lettere)
+- **Stato:** Implementata (Claude, 2026-10-19). Velo di base C2.1 invariato; selettore, giunto Partner e hairline invariati.
+- **Vita:** maschera radiale color inchiostro (`radial-gradient(closest-side)` su un pseudo-elemento esteso 64 px oltre il numero): forza piena fino al 55% del raggio, poi caduta continua (72% → 40% → 14% → 0) senza nessun bordo. Forza: `min(1, rinforzo × 1,3)`.
+- **Nome e righe comandante/credito:** alone che segue le lettere (D-029): `text-shadow` a tre strati, spread 0, blur 9 px, offset 0, intensità `min(1, rinforzo × 1,6)`. È nullo sulle illustrazioni scure. Non si applica a vita, pulsanti o sheet.
+- **Estensione necessaria (da confermare con il design):** misurato nel browser, **l'alone da solo non arriva a 4,5:1** sulle illustrazioni chiare (anche con 8 strati a piena intensità la coppia chiara si ferma a 3,36:1). Seguendo l'ordine della D-029 («prima allargare e ammorbidire la sfumatura locale») ho aggiunto la **stessa maschera radiale morbida** anche dietro il nome (dimensionata dal nome stesso) e dietro il blocco delle righe comandante/credito, con forza `min(1, rinforzo × 1,5)`. Senza bordi né rettangoli.
+- **Misura sul composito finale** (illustrazione ricostruita col ritaglio reale, velo di base, maschere radiali e alone emulato nel canvas con lo stesso blur gaussiano), contrasto sul pixel peggiore nella fascia di 2 px attorno a ogni lettera:
+
+  | Caso | Standard testo / vita | Compatto testo / vita |
+  | --- | --- | --- |
+  | Zimone | 6,84 / 7,20 | 10,07 / 9,25 |
+  | Partner Giada + Thrasios | 11,40 / 7,42 | 9,98 / 9,30 |
+  | Giada (nome lungo) | 9,83 / 5,21 | 8,12 / 8,34 |
+  | Partner chiari (Giada + Giada) | **5,09** / 5,49 | 13,30 / 7,95 |
+
+  Minimo 5,09:1, quindi target 5:1 rispettato ovunque. I moltiplicatori sono i più bassi che lo garantiscono: con la vita a ×1,25 Giada scendeva a 4,91:1.
+- **Verifica visiva:** nessun rettangolo, capsula o bordo riconoscibile nel browser. Nel layout standard su illustrazioni chiare resta un'ombreggiatura morbida attorno a nome e vita: va confermata **sul telefono** come richiede la D-029.

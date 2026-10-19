@@ -1955,8 +1955,9 @@ button:hover:not(:disabled) {
   content: '';
 }
 
-/* Local reinforcement (D-027, option b): soft masks only behind name, credit and life —
-   solid 16px beyond the content, feathered over the next 28px. Art elsewhere keeps the base veil. */
+/* Local reinforcement (D-029, D-030). The base C2.1 veil is unchanged; strength stays adaptive per
+   art. Radial ink masks have no plateau edge: full strength just past the content, then a continuous
+   ~56px fall-off, so no rectangle, capsule or band can be seen. */
 .name-field {
   position: relative;
   display: flex;
@@ -1969,39 +1970,48 @@ button:hover:not(:disabled) {
 }
 
 .commander-lines {
+  position: relative;
   display: grid;
   justify-items: start;
+  width: fit-content;
 }
 
-.commander-line {
-  position: relative;
-}
-
-.player-panel[data-has-art] .name-field::before,
-.player-panel[data-has-art] .commander-line::before,
+.player-panel[data-has-art] > .player-panel__header .name-field::before,
+.player-panel[data-has-art] > .commander-lines::before,
 .player-panel[data-has-art] .life-value::before {
   position: absolute;
   z-index: -1;
-  background: oklch(0.07 0.012 188 / var(--local-veil, 0));
+  background: radial-gradient(
+    closest-side,
+    oklch(0.07 0.012 188 / var(--mask-a)) 0%,
+    oklch(0.07 0.012 188 / var(--mask-a)) 55%,
+    oklch(0.07 0.012 188 / calc(var(--mask-a) * 0.72)) 67%,
+    oklch(0.07 0.012 188 / calc(var(--mask-a) * 0.4)) 81%,
+    oklch(0.07 0.012 188 / calc(var(--mask-a) * 0.14)) 93%,
+    transparent 100%
+  );
   content: '';
   pointer-events: none;
-  -webkit-mask-image:
-    linear-gradient(90deg, transparent, #000 1.75rem, #000 calc(100% - 1.75rem), transparent),
-    linear-gradient(180deg, transparent, #000 1.75rem, #000 calc(100% - 1.75rem), transparent);
-  -webkit-mask-composite: source-in;
-  mask-image:
-    linear-gradient(90deg, transparent, #000 1.75rem, #000 calc(100% - 1.75rem), transparent),
-    linear-gradient(180deg, transparent, #000 1.75rem, #000 calc(100% - 1.75rem), transparent);
-  mask-composite: intersect;
 }
 
-/* The name veil is sized by the name itself (same face and size as the resting name). */
-.player-panel[data-has-art] .name-field::before {
-  --local-veil: var(--art-veil-name);
+/* Strength multipliers measured on bright art (Giada, a bright partner pair) to reach ≥ 4.5:1. */
+.player-panel[data-has-art] .life-value::before {
+  --mask-a: min(1, calc(var(--art-veil-life, 0) * 1.3));
+  inset: -4rem;
+}
+
+.player-panel[data-has-art] > .commander-lines::before {
+  --mask-a: min(1, calc(var(--art-veil-name, 0) * 1.5));
+  inset: -4rem;
+}
+
+/* The name mask is sized by the name itself (same face and size as the resting name). */
+.player-panel[data-has-art] > .player-panel__header .name-field::before {
+  --mask-a: min(1, calc(var(--art-veil-name, 0) * 1.5));
   top: 50%;
-  left: calc(var(--space-2) - 2.75rem);
-  max-width: calc(100% + 5.5rem);
-  padding: 2.75rem;
+  left: calc(var(--space-2) - 4rem);
+  max-width: calc(100% + 8rem);
+  padding: 4rem;
   overflow: hidden;
   color: transparent;
   content: attr(data-text);
@@ -2015,23 +2025,19 @@ button:hover:not(:disabled) {
   white-space: nowrap;
 }
 
-.player-panel[data-compact][data-has-art] .name-field::before {
+.player-panel[data-compact][data-has-art] > .player-panel__header .name-field::before {
   font-size: 1rem;
 }
 
-.player-panel[data-has-art] .commander-line::before {
-  --local-veil: var(--art-veil-name);
-  inset: -2.75rem;
-}
-
-.player-panel[data-has-art] .life-value::before {
-  --local-veil: var(--art-veil-life);
-  inset: -2.75rem;
-}
-
-/* The details sheet is an opaque surface inside the panel: no artwork, so no veil there. */
-.player-panel[data-has-art] .side-sheet .commander-line::before {
-  content: none;
+/* Name and commander/credit lines: an ink halo that follows the letters (D-029 exception to C2.1):
+   spread 0, blur 9px, no offset, three layers. Strength comes from the art; zero on dark art. */
+.player-panel[data-has-art] > .player-panel__header .player-name,
+.player-panel[data-has-art] > .commander-lines .commander-line {
+  --halo: oklch(0.07 0.012 188 / min(1, calc(var(--art-veil-name, 0) * 1.6)));
+  text-shadow:
+    0 0 9px var(--halo),
+    0 0 9px var(--halo),
+    0 0 9px var(--halo);
 }
 
 /* With art, the illustration replaces the atmospheric fill; the frame and energy line stay. */

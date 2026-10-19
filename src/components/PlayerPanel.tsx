@@ -83,7 +83,7 @@ export function PlayerPanel({
       <label className="sr-only" htmlFor={`${player.id}-name`}>
         Nome giocatore
       </label>
-      {/* data-text sizes the local contrast veil to the visible name (D-027). */}
+      {/* data-text sizes the radial contrast mask to the visible name (D-029). */}
       <span className="name-field" data-text={player.name}>
         <input
           key={player.name}
