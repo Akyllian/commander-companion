@@ -20,7 +20,7 @@ Sito: https://akyllian.github.io/commander-companion/
 
 ## Obiettivo
 
-App per il **proprio gruppo di gioco**, solo in **italiano**: niente store, niente analitiche, niente account (D-019).
+App per il **proprio gruppo di gioco**, solo in **italiano**: niente store, niente analitiche, niente account (D-019). Pubblica e gratuita come Fan Content secondo la Fan Content Policy di Wizards (D-025).
 
 ## Regole di lavoro (valgono per ogni fase)
 

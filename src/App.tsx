@@ -4,6 +4,7 @@ import { BrandSigil } from './components/icons'
 import { ConfirmDialog } from './components/ConfirmDialog'
 import { PlayerPanel } from './components/PlayerPanel'
 import { RulesDialog } from './components/RulesDialog'
+import { FAN_CONTENT_NOTICE } from './content/legal'
 import { TableControls } from './components/TableControls'
 import { UndoBar } from './components/UndoBar'
 import { canRemovePartner, createGame } from './game/game'
@@ -184,6 +185,9 @@ export default function App() {
 
       <footer className="app-footer">
         <p>I punteggi restano su questo dispositivo. Commander Companion non sostituisce le regole ufficiali.</p>
+        <p className="fan-content-notice" lang="en">
+          {FAN_CONTENT_NOTICE}
+        </p>
       </footer>
 
       <RulesDialog open={rulesOpen} onClose={() => setRulesOpen(false)} />
