@@ -100,12 +100,13 @@ New semantic tokens: `--color-scrim` (dialog backdrop); `--color-danger-hover`, 
 
 Icon family: 24×24 viewBox, rounded 1.75px stroke, `currentColor` (muted ivory → gold on hover → teal when selected).
 
-## Commander art (D-026, D-027) — C2.1 implemented; refinement approved
+## Commander art (D-026–D-029) — C2.1 implemented; phone refinement approved
 
 | Element | Class / hook | Notes |
 | --- | --- | --- |
 | Art layer | `.player-art`, `img` | `cover`, `--art-focus-x/y` (default 50% / 32%), decorative (`aria-hidden`) |
-| Veil | `.player-art::after` | C2.1 base layers; per-art name/life boosts are local feathered masks, +16px protection and 24–32px falloff |
+| Veil | `.player-art::after` | C2.1 base layers unchanged; life boost is an ink-tinted ellipse with ≤8px full-strength protection and ~56px continuous falloff; never a rectangular plateau |
+| Small text protection | name, commander and credit lines over art | adaptive ink-colored glyph halo only when needed; 0 spread, 8–10px blur, 0–1px offset; never a visible outline or decorative glow |
 | Panel with art | `.player-panel[data-has-art]` | ink base, sigil dimmed, frame and energy line kept |
 | Commander line | `.commander-line`, `.commander-credit` | name + "Illustrazione di …", ivory (4.5:1 on art) |
 | Picker disclosure | `.deck-config` | final label «Comandante e mazzo»; search/current commander before Partner toggle |

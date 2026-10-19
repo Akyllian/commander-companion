@@ -126,13 +126,26 @@ The final commander picker lives in **Comandante e mazzo**. Search/current comma
 
 Artist credit stays off the 123px compact panel and remains visible in Details and the picker. Partner commanders use a static two-art split once both slots are configured: Commander 1 left, Commander 2 right, 48%→52% subtle diagonal seam, no alternation. A single full-bleed art plus Partner badge is only the one-commander fallback.
 
+#### C2.3 — Phone refinement: remove the visible local patch
+
+Phone playtesting approved the picker and Partner seam but rejected the rectangular local mask as a visible black patch. D-029 supersedes only that mask geometry:
+
+- keep the C2.1 base veil and the 5:1 calculation target;
+- protect the life value with an adaptive ink-tinted elliptical mask, no more than 8px of full-strength area beyond the numeral and an approximately 56px continuous feather;
+- for the small player-name and commander/credit text only, permit an adaptive ink-colored glyph-following halo with zero spread, 8–10px blur and at most 1px offset;
+- treat that halo as contrast infrastructure, never as a visible outline, shadow style or decorative glow;
+- if contrast still fails, soften/widen the local falloff before increasing its strength; never increase the global veil first;
+- accept only when the final composite remains ≥4.5:1 and no patch, capsule or protection edge is visible at normal phone distance.
+
+No motion is added. The approved static Partner hairline and picker behavior remain unchanged.
+
 ### C3 — Reframe player panels
 
 - Fine antique-gold outer frame at low/medium contrast.
 - Inner player-color energy line or glow, never a full colored fill.
 - Optional corner/sigil detail on one or two corners only; avoid four-corner ornamental noise.
 - Preserve 12px compact radius and the proven 123px row height.
-- Life numeral becomes warm ivory with a restrained gold edge/glow.
+- Life numeral remains warm ivory and wins through scale and contrast; over commander art it receives no text glow or decorative edge.
 - ±1 keeps the player-energy tint; ±5 stays materially quieter.
 - The details affordance should feel like part of the same line-icon family, not a default ellipsis button dropped on top.
 
