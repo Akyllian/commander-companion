@@ -1,6 +1,7 @@
 import { Fragment } from 'react'
 import { RULE_GROUPS, RULE_ITEMS, RULES_DISCLAIMER, RULES_INTRODUCTION } from '../content/rules'
 import type { RuleTextPart } from '../content/rules'
+import { FAN_CONTENT_NOTICE } from '../content/legal'
 import { ModalSideSheet } from './ModalSideSheet'
 
 interface RulesDialogProps {
@@ -53,6 +54,10 @@ export function RulesDialog({ open, onClose }: RulesDialogProps) {
         </section>
       ))}
       <p className="rules-footer">{RULES_DISCLAIMER}</p>
+      {/* Also here because the app footer is hidden in compact landscape (D-025). */}
+      <p className="fan-content-notice" lang="en">
+        {FAN_CONTENT_NOTICE}
+      </p>
     </ModalSideSheet>
   )
 }

@@ -42,7 +42,7 @@ npm run verify   # must pass before any commit
 ## Design rules
 
 - Visual identity follows the locked canonical reference `docs/art-direction/CANONICAL_ART_DIRECTION.md` (D-024): display serif (`--font-display`) for brand, life totals, resting player names and editorial headings; the utility face for controls, inputs, long copy and references.
-- Atmosphere comes from authored CSS/SVG linework and gradients; never ship Wizards of the Coast card art or unlicensed images.
+- Wizards of the Coast material (card art included) may be used under the Fan Content Policy (D-025): keep the app free with no paywall or registration, keep the required notice visible (`src/content/legal.ts`), never use Wizards logos/trademarks as branding, never render full cards that could work as proxies, and keep artist credit. Stop and ask before any sale, sponsorship, store release or licensing change.
 - Use the primitive → semantic → component token layers in `src/styles/tokens.css`.
 - Use OKLCH for new colors and verify contrast.
 - Keep touch targets at least 44px.

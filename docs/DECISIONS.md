@@ -174,3 +174,22 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 - **Misure invariate:** a 844×330 header 52 px, pannelli 123 px, nessuno scroll; vita 61 px (cifre serif più esili, quindi più grandi), ridotta solo sulle righe strette con una container query (`-999` mantiene ≥ 6 px di spazio a 568×320); 768 px senza overflow; zoom 200% senza controlli tagliati; target ≥ 44 px.
 - **Contrasti** (calcolati): avorio su inchiostro 16,8:1; titoli oro 13,4:1; numeri oro 10,5:1; testo attenuato 7,4:1; testo avorio sui ±1 del giocatore ≥ 5,9:1.
 - **Regole di design aggiornate** in `CLAUDE.md`: le precedenti («nessun font decorativo», «solo font di sistema») sono superate dal riferimento canonico.
+
+## D-025 — Arte e materiale Wizards secondo la Fan Content Policy
+- **Stato:** Accettata dal product owner (2026-10-19). Supera, per questo punto, il divieto di arte Wizards scritto in D-024.
+- **Contesto:** l'app non è in vendita, ma repository e sito sono pubblici (D-018). Il product owner sceglie di restare pubblico e di rispettare la [Fan Content Policy](https://company.wizards.com/en/legal/fancontentpolicy), verificata il 2026-10-19.
+- **Requisiti applicati:**
+  1. **Avviso obbligatorio**, testo esatto in inglese, in `src/content/legal.ts` (con test sulla formulazione esatta). È mostrato nel footer e in fondo alle Regole, che restano raggiungibili anche in orizzontale dove il footer è nascosto, e nel README. È marcato `lang="en"` per gli screen reader.
+  2. **Gratuito per tutti:** niente paywall, registrazione, raccolta di email, abbonamenti o vendita.
+  3. **Niente loghi o marchi Wizards** usati come branding dell'app.
+- **Vincoli per quando aggiungeremo l'arte (Fase 2c e successive):**
+  - non mostrare carte intere che possano fare da proxy: usare solo il ritaglio dell'illustrazione;
+  - non modificare né rimuovere loghi o diciture già presenti nel materiale Wizards;
+  - indicare l'artista;
+  - niente testo ufficiale copiato parola per parola (le Regole restano riassunti nostri);
+  - se le immagini arrivano da servizi terzi (per esempio Scryfall), vanno rispettati anche i loro termini.
+- **Punti di attenzione (da rivalutare prima di qualsiasi uscita più ampia):**
+  - la policy vieta di usare la proprietà intellettuale Wizards «in qualsiasi gioco o componente di gioco»; un contapunti con l'arte delle carte è un caso non esplicitamente coperto;
+  - «Commander» compare nel nome dell'app;
+  - Wizards può chiedere di rimuovere il materiale in qualsiasi momento.
+- **Regola di processo:** qualsiasi vendita, sponsorizzazione, pubblicazione negli store o cambio di licenza richiede di fermarsi e chiedere al product owner prima di procedere.

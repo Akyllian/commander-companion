@@ -76,5 +76,9 @@ DESIGN.md            visual direction
 
 Next phases, dependencies and working rules are in [`docs/ROADMAP.md`](docs/ROADMAP.md): compact landscape layout, rules reference, match history, player images and a tablet table view.
 
-This is an independent fan project scaffold. Magic: The Gathering and Commander are trademarks of Wizards of the Coast; no card art or trademark assets are bundled.
+## Fan Content Policy
+
+Commander Companion is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC.
+
+The app is free for everyone, with no paywall, registration or sale, and uses no Wizards logos or trademarks as branding (D-025). See the [Fan Content Policy](https://company.wizards.com/en/legal/fancontentpolicy).
 

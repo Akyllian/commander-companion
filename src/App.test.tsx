@@ -592,3 +592,24 @@ describe('canonical one-shot light (D-024)', () => {
     expect(bloomed[0]).toBe(life(/giocatore 2/i))
   })
 })
+
+describe('Fan Content Policy (D-025)', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('shows the required notice in English in the footer', () => {
+    render(<App />)
+    const footer = screen.getByRole('contentinfo')
+    const footerNotice = within(footer).getByText(/is unofficial Fan Content permitted under the Fan Content Policy/)
+    expect(footerNotice).toHaveAttribute('lang', 'en')
+    expect(footerNotice).toHaveTextContent('©Wizards of the Coast LLC.')
+  })
+
+  it('keeps the notice reachable in compact landscape through the rules', () => {
+    installMatchMedia(true)
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'Regole Commander' }))
+    expect(
+      within(screen.getByRole('dialog', { name: 'Regole Commander' })).getByText(/unofficial Fan Content/),
+    ).toBeVisible()
+  })
+})
