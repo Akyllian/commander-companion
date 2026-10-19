@@ -120,3 +120,4 @@ Tutti i passi superati tranne uno. Nessun problema di gravità alta, quindi la F
 | 10.8 | Apri «Comandante e mazzo», cerca almeno 2 caratteri | fino a 5 risultati senza scroll annidato; ogni riga mostra thumbnail, nome e artista ed è alta almeno 64px | | |
 | 10.9 | In orizzontale, apri Dettagli → Comandante e mazzo | campo e Cerca restano sulla stessa riga; risultati scorrono con lo sheet, nessun secondo modal | | |
 | 10.10 | Attiva Partner e assegna due comandanti | arte 1 a sinistra e arte 2 a destra, split statico; entrambi i crediti nello sheet; nessuna alternanza | | |
+| 10.11 | Su telefono, prova Zimone, Giada e una coppia Partner chiara; osserva vita e testi alla normale distanza d’uso | composito finale ≥4,5:1; nessuna toppa, capsula, bordo di maschera o alone tipografico riconoscibile; vita dominante e arte ancora leggibile | | |
