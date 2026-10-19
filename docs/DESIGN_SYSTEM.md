@@ -100,12 +100,15 @@ New semantic tokens: `--color-scrim` (dialog backdrop); `--color-danger-hover`, 
 
 Icon family: 24×24 viewBox, rounded 1.75px stroke, `currentColor` (muted ivory → gold on hover → teal when selected).
 
-## Commander art (D-026) — C2.1 implemented; picker visuals pending design
+## Commander art (D-026, D-027) — C2.1 implemented; refinement approved
 
 | Element | Class / hook | Notes |
 | --- | --- | --- |
 | Art layer | `.player-art`, `img` | `cover`, `--art-focus-x/y` (default 50% / 32%), decorative (`aria-hidden`) |
-| Veil | `.player-art::after` | C2.1 layers + per-art `--art-veil-name` / `--art-veil-life` reinforcement |
+| Veil | `.player-art::after` | C2.1 base layers; per-art name/life boosts are local feathered masks, +16px protection and 24–32px falloff |
 | Panel with art | `.player-panel[data-has-art]` | ink base, sigil dimmed, frame and energy line kept |
 | Commander line | `.commander-line`, `.commander-credit` | name + "Illustrazione di …", ivory (4.5:1 on art) |
-| Picker | `.commander-picker`, `.commander-search`, `.commander-results` | provisional, inside "Configurazione mazzo" |
+| Picker disclosure | `.deck-config` | final label «Comandante e mazzo»; search/current commander before Partner toggle |
+| Picker results | `.commander-results` | continuous list, max 5; 48×48 `art_crop`, name, visible credit; no nested scroll |
+| Compact credit | `.player-details-sheet .commander-credit` | visible in Details/picker, intentionally absent from the 123px panel |
+| Partner art | two art slots | static 50/50 split, Commander 1 left / Commander 2 right, subtle 48%→52% diagonal seam; never alternate |

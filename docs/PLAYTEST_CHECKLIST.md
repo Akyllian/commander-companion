@@ -116,3 +116,7 @@ Tutti i passi superati tranne uno. Nessun problema di gravità alta, quindi la F
 | 10.4 | Cerca senza connessione | messaggio «Serve una connessione a internet…» | | |
 | 10.5 | Annulla dopo aver scelto un comandante | l'illustrazione sparisce, punteggi invariati | | |
 | 10.6 | In orizzontale | arte nei 4 pannelli, nessuno scroll, credito dell'artista nei «Dettagli» | | |
+| 10.7 | Illustrazione molto chiara | nome e vita ≥4,5:1; il rinforzo scurisce soltanto le zone protette e il resto dell’arte rimane riconoscibile | | |
+| 10.8 | Apri «Comandante e mazzo», cerca almeno 2 caratteri | fino a 5 risultati senza scroll annidato; ogni riga mostra thumbnail, nome e artista ed è alta almeno 64px | | |
+| 10.9 | In orizzontale, apri Dettagli → Comandante e mazzo | campo e Cerca restano sulla stessa riga; risultati scorrono con lo sheet, nessun secondo modal | | |
+| 10.10 | Attiva Partner e assegna due comandanti | arte 1 a sinistra e arte 2 a destra, split statico; entrambi i crediti nello sheet; nessuna alternanza | | |
