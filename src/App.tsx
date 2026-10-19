@@ -116,6 +116,8 @@ export default function App() {
       canRemovePartner={canRemovePartner(game, player.id)}
       delta={groupDelta?.target.playerId === player.id ? groupDelta : null}
       compact={compact}
+      monarchPlayerId={game.monarchPlayerId}
+      initiativePlayerId={game.initiativePlayerId}
       dispatch={dispatch}
     />
   ))

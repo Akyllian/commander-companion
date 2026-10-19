@@ -1,20 +1,12 @@
-import { COMMANDER_DAMAGE_LIMIT } from '../game/game'
 import type { DefeatReason } from '../game/game'
-import type { CommanderIndex, CounterKey, GameAction, PlayerState } from '../game/types'
+import type { CommanderIndex, GameAction, PlayerState } from '../game/types'
 import { CommanderSlotPicker, commanderSlotLabel } from './CommanderPicker'
-import { deltaFor } from './DeltaBadge'
-import type { PanelDelta } from './DeltaBadge'
 
 /**
  * Secondary player sections, shared by the standard panel (inline) and the compact
- * player-details sheet (spec 2026-10-18). Behavior is identical in both places.
+ * player-details sheet (spec 2026-10-18). Scoring lives in the dock instead (D-033).
  */
 
-const COUNTERS: Array<{ key: CounterKey; label: string; symbol: string }> = [
-  { key: 'poison', label: 'Veleno', symbol: '✦' },
-  { key: 'energy', label: 'Energia', symbol: 'ϟ' },
-  { key: 'experience', label: 'Esperienza', symbol: '◆' },
-]
 
 /** Visible reason (UX decision 6; shorter in compact) and the full sentence for screen readers. */
 const DEFEAT_LABELS: Record<DefeatReason, { short: string; compact: string; full: string }> = {
@@ -85,114 +77,10 @@ export function DeckConfigSection({ player, dispatch, canRemovePartner }: DeckCo
       </label>
       <p className="partner-hint" id={`${player.id}-partner-hint`}>
         {player.hasPartner && !canRemovePartner
-          ? 'Azzera prima i danni del Comandante 2.'
-          : 'I danni dei due comandanti si contano separatamente.'}
+          ? 'Azzera prima danni e tassa del Comandante 2.'
+          : 'Danni e tassa dei due comandanti si contano separatamente.'}
       </p>
       <p className="commander-source">Dati e illustrazioni da Scryfall; scaricati una volta e salvati sul dispositivo.</p>
-    </details>
-  )
-}
-
-interface CommanderSectionProps extends SectionProps {
-  opponents: PlayerState[]
-  delta: PanelDelta | null
-  open: boolean
-  onToggle: (open: boolean) => void
-}
-
-export function CommanderSection({ player, opponents, delta, open, onToggle, dispatch }: CommanderSectionProps) {
-  const sources = opponents.flatMap((opponent) =>
-    (opponent.hasPartner ? [0, 1] : [0]).map((index) => ({
-      opponent,
-      index: index as CommanderIndex,
-      label: opponent.hasPartner ? `${opponent.name}, comandante ${index + 1}` : opponent.name,
-    })),
-  )
-  // The threshold applies to a single commander, so the summary shows the maximum, never the sum.
-  const maxDamage = Math.max(0, ...Object.values(player.commanderDamage).flat())
-  const adjust = (sourcePlayerId: string, commander: CommanderIndex, amount: number) =>
-    dispatch({ type: 'adjust-commander-damage', playerId: player.id, sourcePlayerId, commander, amount })
-
-  return (
-    <details className="player-details commander-damage" open={open} onToggle={(event) => onToggle(event.currentTarget.open)}>
-      <summary>
-        <span>Danni Commander</span>
-        <span className="summary-value">
-          massimo {maxDamage}/{COMMANDER_DAMAGE_LIMIT}
-        </span>
-      </summary>
-      <p className="commander-damage__hint">
-        Registra qui solo i danni da combattimento del comandante: riducono anche i punti vita.
-      </p>
-      {sources.map(({ opponent, index, label }) => {
-        const value = player.commanderDamage[opponent.id]?.[index] ?? 0
-        return (
-          <div className="counter-row" key={`${opponent.id}-${index}`}>
-            <span className="counter-label">da {label}</span>
-            {deltaFor(delta, { kind: 'commander', playerId: player.id, sourcePlayerId: opponent.id, commander: index })}
-            <div className="stepper" role="group" aria-label={`Danni Commander da ${label}`}>
-              <button
-                type="button"
-                aria-label={`Riduci danni Commander da ${label} a ${player.name}`}
-                onClick={() => adjust(opponent.id, index, -1)}
-              >
-                −
-              </button>
-              <output aria-label={`Danni Commander da ${label} a ${player.name}`}>{value}</output>
-              <button
-                type="button"
-                aria-label={`Aumenta danni Commander da ${label} a ${player.name}`}
-                onClick={() => adjust(opponent.id, index, 1)}
-              >
-                +
-              </button>
-            </div>
-          </div>
-        )
-      })}
-    </details>
-  )
-}
-
-interface CountersSectionProps extends SectionProps {
-  delta: PanelDelta | null
-}
-
-export function OtherCountersSection({ player, delta, dispatch }: CountersSectionProps) {
-  return (
-    <details className="player-details other-counters">
-      <summary>
-        <span>Altri segnalini</span>
-        <span className="summary-total">{player.poison + player.energy + player.experience}</span>
-      </summary>
-
-      <div className="counter-list">
-        {COUNTERS.map(({ key, label, symbol }) => (
-          <div className="counter-row" key={key}>
-            <span className="counter-label">
-              <span aria-hidden="true">{symbol}</span> {label}
-            </span>
-            {deltaFor(delta, { kind: 'counter', playerId: player.id, counter: key })}
-            <div className="stepper" role="group" aria-label={`${label} di ${player.name}`}>
-              <button
-                type="button"
-                aria-label={`Riduci ${label.toLowerCase()} di ${player.name}`}
-                onClick={() => dispatch({ type: 'adjust-counter', playerId: player.id, counter: key, amount: -1 })}
-              >
-                −
-              </button>
-              <output aria-label={`${label} di ${player.name}`}>{player[key]}</output>
-              <button
-                type="button"
-                aria-label={`Aumenta ${label.toLowerCase()} di ${player.name}`}
-                onClick={() => dispatch({ type: 'adjust-counter', playerId: player.id, counter: key, amount: 1 })}
-              >
-                +
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
     </details>
   )
 }

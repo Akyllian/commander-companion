@@ -11,6 +11,9 @@ const life = (name: RegExp) => within(panel(name)).getByTestId('life-total')
 // The first badge in DOM order is the visible one (a closed details sheet may hold another).
 const badgeOf = (scope: HTMLElement) => within(scope).getAllByText('Sconfitto')[0].closest('.status-badge') as HTMLElement
 const click = (scope: HTMLElement, name: RegExp) => fireEvent.click(within(scope).getByRole('button', { name }))
+/** Picks a score mode in the panel's dock (D-033). */
+const mode = (scope: HTMLElement, label: RegExp) =>
+  fireEvent.click(within(within(scope).getByRole('group', { name: /^punteggio di/i })).getByRole('button', { name: label }))
 
 afterEach(() => {
   vi.restoreAllMocks()
@@ -44,6 +47,7 @@ describe('scoring', () => {
   it('adjusts counters through the steppers', () => {
     render(<App />)
     const player = panel(/giocatore 1/i)
+    mode(player, /^veleno/i)
     click(player, /aumenta veleno di giocatore 1/i)
     click(player, /aumenta veleno di giocatore 1/i)
     click(player, /riduci veleno di giocatore 1/i)
@@ -53,6 +57,7 @@ describe('scoring', () => {
   it('applies Commander damage to life as one undoable step', () => {
     render(<App />)
     const target = panel(/giocatore 1/i)
+    mode(target, /^commander/i)
 
     click(target, /aumenta danni commander da giocatore 2 a giocatore 1/i)
     click(target, /aumenta danni commander da giocatore 2 a giocatore 1/i)
@@ -69,6 +74,7 @@ describe('scoring', () => {
   it('shows the defeat label with its reason', () => {
     render(<App />)
     const player = panel(/giocatore 1/i)
+    mode(player, /^veleno/i)
     for (let step = 0; step < 10; step += 1) click(player, /aumenta veleno di giocatore 1/i)
     expect(badgeOf(player)).toHaveTextContent('Sconfitto · 10 veleno: 10 segnalini veleno')
   })
@@ -77,7 +83,9 @@ describe('scoring', () => {
     vi.spyOn(performance, 'now').mockImplementation(() => (clock += 1000))
     render(<App />)
     const player = panel(/giocatore 1/i)
+    mode(player, /^veleno/i)
     for (let step = 0; step < 10; step += 1) click(player, /aumenta veleno di giocatore 1/i)
+    mode(player, /^vita/i)
     for (let step = 0; step < 8; step += 1) click(player, /riduci di 5 la vita/i)
     expect(badgeOf(player)).toHaveTextContent(/^Sconfitto · 2 condizioni/)
   })
@@ -85,20 +93,19 @@ describe('scoring', () => {
   it('summarises Commander damage with the maximum from one commander, not the sum', () => {
     render(<App />)
     const target = panel(/giocatore 1/i)
+    mode(target, /^commander/i)
     for (let step = 0; step < 3; step += 1) click(target, /aumenta danni commander da giocatore 2 a giocatore 1/i)
+    click(target, /^giocatore 3/i)
     click(target, /aumenta danni commander da giocatore 3 a giocatore 1/i)
-    expect(within(target).getByText('massimo 3/21')).toBeInTheDocument()
+    expect(within(target).getByRole('button', { name: 'Commander: massimo 3 su 21' })).toHaveTextContent('3/21')
   })
 
-  it('keeps the Commander section open once expanded', () => {
+  it('keeps the chosen mode while the rest of the table keeps scoring', () => {
     render(<App />)
-    const summary = within(panel(/giocatore 1/i)).getByText('Danni Commander')
-    const details = summary.closest('details') as HTMLDetailsElement
-    expect(details.open).toBe(false)
-    details.open = true
-    fireEvent(details, new Event('toggle'))
-    click(panel(/giocatore 1/i), /aumenta.*1.*vita/i)
-    expect(details.open).toBe(true)
+    mode(panel(/giocatore 1/i), /^commander/i)
+    click(panel(/giocatore 2/i), /aumenta.*1.*vita/i)
+    fireEvent.click(screen.getByRole('button', { name: /annulla ultima azione/i }))
+    expect(within(panel(/giocatore 1/i)).getByRole('button', { name: /^commander/i })).toHaveAttribute('aria-pressed', 'true')
   })
 })
 
@@ -109,17 +116,19 @@ describe('partner commanders', () => {
     expect(within(panel(/giocatore 2/i)).getByText('Partner')).toBeInTheDocument()
 
     const target = panel(/giocatore 1/i)
+    mode(target, /^commander/i)
+    click(target, /^giocatore 2, comandante 2/i)
     click(target, /aumenta danni commander da giocatore 2, comandante 2 a giocatore 1/i)
     expect(
       within(target).getByRole('status', { name: /danni commander da giocatore 2, comandante 2/i }),
     ).toHaveTextContent('1')
-    expect(
-      within(target).getByRole('status', { name: /danni commander da giocatore 2, comandante 1/i }),
-    ).toHaveTextContent('0')
+    expect(within(target).getByRole('button', { name: /^giocatore 2, comandante 1/i })).toHaveAccessibleName(
+      'Giocatore 2, Comandante 1: 0 danni',
+    )
 
     const toggle = within(panel(/giocatore 2/i)).getByRole('checkbox', { name: /due comandanti/i })
     expect(toggle).toBeDisabled()
-    expect(within(panel(/giocatore 2/i)).getByText('Azzera prima i danni del Comandante 2.')).toBeInTheDocument()
+    expect(within(panel(/giocatore 2/i)).getByText('Azzera prima danni e tassa del Comandante 2.')).toBeInTheDocument()
   })
 })
 
@@ -303,9 +312,12 @@ describe('rapid taps (UX decision 3)', () => {
     render(<App />)
     const player = panel(/giocatore 1/i)
     click(player, /riduci di 1 la vita/i)
+    mode(player, /^veleno/i)
     click(player, /aumenta veleno di giocatore 1/i)
     click(player, /aumenta veleno di giocatore 1/i)
     expect(within(player).getByTestId('delta-badge')).toHaveTextContent('+2')
+    mode(player, /^commander/i)
+    click(player, /^giocatore 3/i)
     click(player, /aumenta danni commander da giocatore 3 a giocatore 1/i)
     expect(within(player).getByTestId('delta-badge')).toHaveTextContent('+1')
     click(player, /riduci danni commander da giocatore 3 a giocatore 1/i)
@@ -433,7 +445,6 @@ describe('compact landscape (Phase 1.6)', () => {
     expect(within(rail).getAllByRole('button').map((button) => button.textContent)).toEqual(['-5', '-1', '+1', '+5'])
     expect(rail.children[2]).toContainElement(within(player).getByTestId('life-total'))
     expect(within(player).queryByRole('button', { name: /rimuovi/i })).not.toBeInTheDocument()
-    expect(within(player).getByText('Danni Commander')).not.toBeVisible()
 
     const details = within(player).getByRole('button', { name: 'Dettagli di Giocatore 1' })
     details.focus()
@@ -443,36 +454,23 @@ describe('compact landscape (Phase 1.6)', () => {
     const headings = Array.from(sheet.querySelectorAll('summary, .remove-player-action')).map((node) =>
       node.textContent?.replace(/\s+/g, ' ').trim(),
     )
-    expect(headings.map((text) => text?.split(/massimo|\d/)[0].trim())).toEqual([
-      'Danni Commander',
-      'Altri segnalini',
-      'Comandante e mazzo',
-      'Rimuovi giocatore',
-    ])
+    expect(headings).toEqual(['Comandante e mazzo', 'Rimuovi giocatore'])
 
     fireEvent(sheet, new Event('cancel', { cancelable: true }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(details).toHaveFocus()
   })
 
-  it('keeps scores and the Commander section state across close and reopen', () => {
+  it('scores Commander damage on the compact panel, with life still on the rail', () => {
     installMatchMedia(true)
     render(<App />)
-    const open = () => fireEvent.click(within(panel(/giocatore 1/i)).getByRole('button', { name: /dettagli/i }))
-
-    open()
-    let sheet = screen.getByRole('dialog')
-    const commander = within(sheet).getByText('Danni Commander').closest('details') as HTMLDetailsElement
-    commander.open = true
-    fireEvent(commander, new Event('toggle'))
-    fireEvent.click(within(sheet).getByRole('button', { name: /aumenta danni commander da giocatore 2/i }))
-    fireEvent.click(within(sheet).getByRole('button', { name: 'Chiudi' }))
+    const player = panel(/giocatore 1/i)
+    mode(player, /^commander/i)
+    click(player, /aumenta danni commander da giocatore 2 a giocatore 1/i)
     expect(life(/giocatore 1/i)).toHaveTextContent('39')
-
-    open()
-    sheet = screen.getByRole('dialog')
-    expect((within(sheet).getByText('Danni Commander').closest('details') as HTMLDetailsElement).open).toBe(true)
-    expect(within(sheet).getByText('massimo 1/21')).toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    mode(player, /^vita/i)
+    expect(within(player).getByRole('group', { name: 'Punti vita di Giocatore 1' })).toBeInTheDocument()
   })
 
   it('removes from the sheet and leaves a focused Undo bar in that cell', () => {
@@ -493,12 +491,9 @@ describe('compact landscape (Phase 1.6)', () => {
   it('shows the compact defeat label and keeps every reason for screen readers', () => {
     installMatchMedia(true)
     render(<App />)
-    fireEvent.click(within(panel(/giocatore 1/i)).getByRole('button', { name: /dettagli/i }))
-    const sheet = screen.getByRole('dialog')
-    for (let step = 0; step < 21; step += 1) {
-      fireEvent.click(within(sheet).getByRole('button', { name: /aumenta danni commander da giocatore 2/i }))
-    }
-    fireEvent.click(within(sheet).getByRole('button', { name: 'Chiudi' }))
+    const player = panel(/giocatore 1/i)
+    mode(player, /^commander/i)
+    for (let step = 0; step < 21; step += 1) click(player, /aumenta danni commander da giocatore 2/i)
     expect(badgeOf(panel(/giocatore 1/i))).toHaveTextContent(
       'Sconfitto · 21 Commander: 21 danni da un comandante',
     )
@@ -571,13 +566,14 @@ describe('rules reference (Phase 2a)', () => {
   it('uses the combat-damage helper wherever Commander damage is shown', () => {
     const helper = 'Registra qui solo i danni da combattimento del comandante: riducono anche i punti vita.'
     const standard = render(<App />)
-    expect(within(panel(/giocatore 1/i)).getByText(helper)).toBeInTheDocument()
+    mode(panel(/giocatore 1/i), /^commander/i)
+    expect(within(panel(/giocatore 1/i)).getByRole('group', { name: /fonte dei danni commander/i })).toHaveAccessibleDescription(helper)
     standard.unmount()
 
     installMatchMedia(true)
     render(<App />)
-    fireEvent.click(within(panel(/giocatore 1/i)).getByRole('button', { name: /dettagli/i }))
-    expect(within(screen.getByRole('dialog')).getByText(helper)).toBeInTheDocument()
+    mode(panel(/giocatore 1/i), /^commander/i)
+    expect(within(panel(/giocatore 1/i)).getByRole('group', { name: /fonte dei danni commander/i })).toHaveAccessibleDescription(helper)
   })
 })
 

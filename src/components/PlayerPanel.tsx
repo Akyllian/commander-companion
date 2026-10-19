@@ -7,14 +7,8 @@ import { deltaFor } from './DeltaBadge'
 import type { PanelDelta } from './DeltaBadge'
 import { ModalSideSheet } from './ModalSideSheet'
 import { useArtImage } from '../media/useCommanderArt'
-import {
-  CommanderLine,
-  CommanderSection,
-  DeckConfigSection,
-  DefeatBadge,
-  OtherCountersSection,
-  RemoveIcon,
-} from './PlayerSections'
+import { CommanderLine, DeckConfigSection, DefeatBadge, RemoveIcon } from './PlayerSections'
+import { QuickScoreDock, ScoreAdjust, ScoreModeStrip, ScoreSourceRow, useScoreSelection } from './QuickScoreDock'
 
 export type { PanelDelta } from './DeltaBadge'
 
@@ -27,6 +21,8 @@ interface PlayerPanelProps {
   delta: PanelDelta | null
   /** Compact landscape: score rail on the panel, everything else in the details sheet. */
   compact?: boolean
+  monarchPlayerId: string | null
+  initiativePlayerId: string | null
   dispatch: (action: GameAction) => void
 }
 
@@ -58,10 +54,12 @@ export function PlayerPanel({
   canRemovePartner,
   delta,
   compact = false,
+  monarchPlayerId,
+  initiativePlayerId,
   dispatch,
 }: PlayerPanelProps) {
-  // Lives above both presentations, so switching layout or reopening details keeps it.
-  const [commanderOpen, setCommanderOpen] = useState(false)
+  // Lives above both presentations, so switching layout keeps the chosen mode and sources.
+  const selection = useScoreSelection(player, opponents)
   const [detailsOpen, setDetailsOpen] = useState(false)
   // One-shot light bloom on the life total when it changes (never on first render, D-024).
   const [lastLife, setLastLife] = useState(player.life)
@@ -132,17 +130,7 @@ export function PlayerPanel({
     </span>
   )
 
-  const commanderSection = (
-    <CommanderSection
-      player={player}
-      opponents={opponents}
-      delta={delta}
-      open={commanderOpen}
-      onToggle={setCommanderOpen}
-      dispatch={dispatch}
-    />
-  )
-  const countersSection = <OtherCountersSection player={player} delta={delta} dispatch={dispatch} />
+  const dockProps = { player, opponents, selection, delta, monarchPlayerId, initiativePlayerId, dispatch }
   const deckSection = <DeckConfigSection player={player} dispatch={dispatch} canRemovePartner={canRemovePartner} />
 
   const sectionProps = {
@@ -185,6 +173,7 @@ export function PlayerPanel({
         <header className="player-panel__header">
           {nameInput}
           <DefeatBadge reasons={defeatReasons} variant="compact" />
+          <ScoreModeStrip {...dockProps} />
           <button
             type="button"
             className="icon-button details-button"
@@ -196,13 +185,22 @@ export function PlayerPanel({
           </button>
         </header>
 
-        <div className="score-rail" role="group" aria-label={`Punti vita di ${player.name}`}>
-          {lifeButton(-5)}
-          {lifeButton(-1)}
-          {lifeValue}
-          {lifeButton(1)}
-          {lifeButton(5)}
-        </div>
+        <ScoreSourceRow player={player} selection={selection} />
+        {selection.mode === 'life' ? (
+          <div className="score-rail" role="group" aria-label={`Punti vita di ${player.name}`}>
+            {lifeButton(-5)}
+            {lifeButton(-1)}
+            {lifeValue}
+            {lifeButton(1)}
+            {lifeButton(5)}
+          </div>
+        ) : (
+          // Other modes take the controls; life stays on the rail, still the largest value.
+          <div className="score-rail score-rail--mode">
+            <ScoreAdjust {...dockProps} lifeControls={null} />
+            {lifeValue}
+          </div>
+        )}
         {announcement}
 
         <ModalSideSheet
@@ -218,8 +216,6 @@ export function PlayerPanel({
           )}
           <CommanderLine player={player} />
           {player.hasPartner && <span className="partner-badge">Partner</span>}
-          {commanderSection}
-          {countersSection}
           {deckSection}
           {canRemove && (
             <div className="sheet-danger-zone">
@@ -278,12 +274,15 @@ export function PlayerPanel({
         {announcement}
       </div>
 
-      <div className="life-controls" role="group" aria-label={`Controlli vita di ${player.name}`}>
-        {LIFE_STEPS.map(lifeButton)}
-      </div>
+      <QuickScoreDock
+        {...dockProps}
+        lifeControls={
+          <div className="life-controls" role="group" aria-label={`Controlli vita di ${player.name}`}>
+            {LIFE_STEPS.map(lifeButton)}
+          </div>
+        }
+      />
 
-      {commanderSection}
-      {countersSection}
       {deckSection}
     </section>
   )
