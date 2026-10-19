@@ -998,10 +998,10 @@ input[type='checkbox'] {
 }
 
 /* ---- Compact landscape (Phase 1.6, spec 2026-10-18) ----
-   Activated by `data-compact-landscape`, set from COMPACT_LANDSCAPE_QUERY in JS (single source).
+   Activated by `data-compact-density`, set from COMPACT_DENSITY_QUERY in JS (single source).
    Budget at 844×330: 8 + 52 header + 8 + 2 rows of ~123 + 8 gap + 8. */
 
-.app-shell[data-compact-landscape='true'] {
+.app-shell[data-compact-density='true'] {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   gap: var(--space-2);
@@ -1015,11 +1015,11 @@ input[type='checkbox'] {
     max(var(--space-2), env(safe-area-inset-left));
 }
 
-.app-shell[data-compact-landscape='true'] .app-footer {
+.app-shell[data-compact-density='true'] .app-footer {
   display: none;
 }
 
-.app-shell[data-compact-landscape='true'] .app-header {
+.app-shell[data-compact-density='true'] .app-header {
   flex-direction: row;
   align-items: center;
   gap: var(--space-2);
@@ -1028,40 +1028,40 @@ input[type='checkbox'] {
   padding: var(--space-1) var(--space-2);
 }
 
-.app-shell[data-compact-landscape='true'] .brand > span {
+.app-shell[data-compact-density='true'] .brand > span {
   display: none;
 }
 
-.app-shell[data-compact-landscape='true'] .brand-mark {
+.app-shell[data-compact-density='true'] .brand-mark {
   width: 2.25rem;
   height: 2.25rem;
 }
 
-.app-shell[data-compact-landscape='true'] .table-controls {
+.app-shell[data-compact-density='true'] .table-controls {
   flex: 1 1 auto;
   flex-wrap: nowrap;
   justify-content: space-between;
   min-width: 0;
 }
 
-.app-shell[data-compact-landscape='true'] .history-controls,
-.app-shell[data-compact-landscape='true'] .match-controls {
+.app-shell[data-compact-density='true'] .history-controls,
+.app-shell[data-compact-density='true'] .match-controls {
   flex: none;
   flex-wrap: nowrap;
 }
 
-.app-shell[data-compact-landscape='true'] .history-controls button span {
+.app-shell[data-compact-density='true'] .history-controls button span {
   display: none;
 }
 
-.app-shell[data-compact-landscape='true'] .history-controls button {
+.app-shell[data-compact-density='true'] .history-controls button {
   min-width: var(--button-height);
 }
 
 /* Grid: rows fill the height when they fit, and grow (page scrolls vertically) when zoom or
    text size makes the 44px controls unable to fit — accessibility wins over no-scroll. */
-.app-shell[data-compact-landscape='true'] .player-grid,
-.app-shell[data-compact-landscape='true'] .player-grid[data-player-count='2'] {
+.app-shell[data-compact-density='true'] .player-grid,
+.app-shell[data-compact-density='true'] .player-grid[data-player-count='2'] {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-auto-rows: minmax(min-content, 1fr);
   gap: var(--space-2);
@@ -1069,16 +1069,16 @@ input[type='checkbox'] {
 }
 
 /* Three players: three columns from 44rem, otherwise 2 + one spanning panel. */
-.app-shell[data-compact-landscape='true'] .player-grid[data-player-count='3'] > :nth-child(3) {
+.app-shell[data-compact-density='true'] .player-grid[data-player-count='3'] > :nth-child(3) {
   grid-column: 1 / -1;
 }
 
 @media (min-width: 44rem) {
-  .app-shell[data-compact-landscape='true'] .player-grid[data-player-count='3'] {
+  .app-shell[data-compact-density='true'] .player-grid[data-player-count='3'] {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .app-shell[data-compact-landscape='true'] .player-grid[data-player-count='3'] > :nth-child(3) {
+  .app-shell[data-compact-density='true'] .player-grid[data-player-count='3'] > :nth-child(3) {
     grid-column: auto;
   }
 }
@@ -1086,12 +1086,12 @@ input[type='checkbox'] {
 /* Accessible reflow (200% zoom, very narrow CSS viewports): two columns can no longer hold a
    44px rail, so panels stack and the page scrolls vertically instead of clipping controls. */
 @media (max-width: 32rem) {
-  .app-shell[data-compact-landscape='true'] .player-grid,
-  .app-shell[data-compact-landscape='true'] .player-grid[data-player-count] {
+  .app-shell[data-compact-density='true'] .player-grid,
+  .app-shell[data-compact-density='true'] .player-grid[data-player-count] {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .app-shell[data-compact-landscape='true'] .player-grid[data-player-count='3'] > :nth-child(3) {
+  .app-shell[data-compact-density='true'] .player-grid[data-player-count='3'] > :nth-child(3) {
     grid-column: auto;
   }
 }
@@ -1183,7 +1183,7 @@ input[type='checkbox'] {
   margin: 0;
 }
 
-.app-shell[data-compact-landscape='true'] .undo-bar {
+.app-shell[data-compact-density='true'] .undo-bar {
   align-self: stretch;
   align-content: center;
 }
@@ -1317,42 +1317,42 @@ input[type='checkbox'] {
 }
 
 /* Compact shape and depth: 12px radius, lighter shadow; standard layout unchanged. */
-.app-shell[data-compact-landscape='true'] .app-header,
-.app-shell[data-compact-landscape='true'] .player-panel,
-.app-shell[data-compact-landscape='true'] .undo-bar,
-.app-shell[data-compact-landscape='true'] .side-sheet {
+.app-shell[data-compact-density='true'] .app-header,
+.app-shell[data-compact-density='true'] .player-panel,
+.app-shell[data-compact-density='true'] .undo-bar,
+.app-shell[data-compact-density='true'] .side-sheet {
   border-radius: var(--radius-md);
 }
 
-.app-shell[data-compact-landscape='true'] .player-panel {
+.app-shell[data-compact-density='true'] .player-panel {
   box-shadow: var(--shadow-panel-compact);
 }
 
-.app-shell[data-compact-landscape='true'] .app-header {
+.app-shell[data-compact-density='true'] .app-header {
   gap: var(--space-1);
   box-shadow: var(--shadow-panel-compact);
 }
 
-.app-shell[data-compact-landscape='true'] .table-controls,
-.app-shell[data-compact-landscape='true'] .history-controls {
+.app-shell[data-compact-density='true'] .table-controls,
+.app-shell[data-compact-density='true'] .history-controls {
   gap: var(--space-1);
 }
 
 /* 8px before the Regole/Partita group, 4px between controls. */
-.app-shell[data-compact-landscape='true'] .match-controls {
+.app-shell[data-compact-density='true'] .match-controls {
   gap: var(--space-1);
   margin-left: var(--space-2);
 }
 
 /* Brand mark: 36px inside a 44px non-interactive slot, half the standard glow. */
-.app-shell[data-compact-landscape='true'] .brand {
+.app-shell[data-compact-density='true'] .brand {
   display: inline-grid;
   width: var(--button-height);
   height: var(--button-height);
   place-items: center;
 }
 
-.app-shell[data-compact-landscape='true'] .brand-mark {
+.app-shell[data-compact-density='true'] .brand-mark {
   filter: drop-shadow(0 0 0.275rem oklch(0.72 0.1 188 / 48%));
 }
 
@@ -1513,7 +1513,7 @@ body {
 }
 
 /* Compact: less spectacle, same world. */
-body:has(.app-shell[data-compact-landscape='true']) {
+body:has(.app-shell[data-compact-density='true']) {
   background:
     radial-gradient(ellipse at 20% 0%, oklch(0.794 0.132 184 / 7%), transparent 26rem),
     var(--arcane-stars),
@@ -1559,7 +1559,7 @@ body:has(.app-shell[data-compact-landscape='true']) {
   fill: var(--color-gold-bright);
 }
 
-.app-shell[data-compact-landscape='true'] .brand-mark {
+.app-shell[data-compact-density='true'] .brand-mark {
   filter: drop-shadow(0 0 0.25rem oklch(0.812 0.11 87 / 35%));
 }
 

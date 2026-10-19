@@ -18,7 +18,7 @@ import {
 } from './game/storage'
 import type { LoadStatus } from './game/storage'
 import type { GameAction, GameState } from './game/types'
-import { useCompactLandscape } from './platform/useCompactLandscape'
+import { useCompactDensity } from './platform/useCompactDensity'
 import { isWakeLockSupported, useWakeLock } from './platform/useWakeLock'
 import { loadPreferences, savePreferences } from './settings/preferences'
 import type { Preferences } from './settings/preferences'
@@ -48,7 +48,7 @@ export default function App() {
   const [removal, setRemoval] = useState<Removal | null>(null)
   // Presentation state only: never dispatched, persisted or part of history.
   const [rulesOpen, setRulesOpen] = useState(false)
-  const compact = useCompactLandscape()
+  const compact = useCompactDensity()
   const game = history.present
   const groupDelta = getGroupDelta(history)
 
@@ -158,7 +158,7 @@ export default function App() {
   }
 
   return (
-    <div className="app-shell" data-compact-landscape={compact}>
+    <div className="app-shell" data-compact-density={compact}>
       <header className="app-header">
         <a className="brand" href="#main" aria-label="Commander Companion, vai ai punteggi">
           <BrandSigil />

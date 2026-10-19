@@ -16,7 +16,7 @@ interface MatchMenuProps {
 }
 
 /**
- * Compact-landscape "Partita" menu (spec 2026-10-18): infrequent match management
+ * Compact-density "Partita" menu (spec 2026-10-18): infrequent match management
  * grouped behind a text-labelled button. Destructive actions keep their confirmation
  * dialogs; the menu closes first so the dialog returns focus to "Partita".
  */

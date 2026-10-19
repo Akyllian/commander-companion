@@ -412,10 +412,10 @@ describe('compact landscape (Phase 1.6)', () => {
     const media = installMatchMedia(false)
     render(<App />)
     click(panel(/giocatore 1/i), /riduci di 5 la vita/i)
-    expect(shell()).toHaveAttribute('data-compact-landscape', 'false')
+    expect(shell()).toHaveAttribute('data-compact-density', 'false')
 
     act(() => media.set(true))
-    expect(shell()).toHaveAttribute('data-compact-landscape', 'true')
+    expect(shell()).toHaveAttribute('data-compact-density', 'true')
     expect(life(/giocatore 1/i)).toHaveTextContent('35')
 
     act(() => media.set(false))
