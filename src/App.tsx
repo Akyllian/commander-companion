@@ -213,7 +213,7 @@ export default function App() {
       <ConfirmDialog
         open={pending?.kind === 'reset'}
         title="Azzerare tutti i punteggi?"
-        description="Vita, segnalini e danni torneranno ai valori iniziali. I nomi resteranno invariati."
+        description="Vita, danni, segnalini, tassa, Monarca e Iniziativa torneranno ai valori iniziali. Nomi, Partner e comandanti resteranno invariati."
         confirmLabel="Azzera punteggi"
         onConfirm={confirm}
         onCancel={() => setPending(null)}

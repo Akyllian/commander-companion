@@ -577,6 +577,24 @@ describe('rules reference (Phase 2a)', () => {
   })
 })
 
+describe('reset scope (D-033)', () => {
+  it('says that reset also clears tax and table roles, and does so', () => {
+    render(<App />)
+    const player = panel(/giocatore 1/i)
+    mode(player, /^tassa/i)
+    click(player, /^aumenta di 2 mana/i)
+    mode(player, /^monarca/i)
+    fireEvent.click(screen.getByRole('button', { name: 'Azzera punteggi' }))
+    const dialog = screen.getByRole('dialog', { name: /azzerare tutti i punteggi/i })
+    expect(dialog).toHaveTextContent('Vita, danni, segnalini, tassa, Monarca e Iniziativa torneranno ai valori iniziali.')
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Azzera punteggi' }))
+    expect(within(player).getByRole('button', { name: /^monarca/i })).toHaveAttribute('aria-pressed', 'false')
+    expect(within(player).getByRole('status', { name: /tassa del comandante 1/i })).toHaveAccessibleName(
+      'Tassa del Comandante 1 di Giocatore 1: più 0 mana',
+    )
+  })
+})
+
 describe('direct scoring dock structure (D-033)', () => {
   it.each([
     ['standard', false],
