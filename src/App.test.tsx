@@ -429,7 +429,13 @@ describe('compact landscape (Phase 1.6)', () => {
     const names = within(controls)
       .getAllByRole('button')
       .map((button) => button.getAttribute('aria-label') ?? button.textContent)
-    expect(names).toEqual(['Annulla ultima azione', 'Ripeti ultima azione', 'Regole Commander', 'Partita'])
+    expect(names).toEqual([
+      'Annulla ultima azione',
+      'Ripeti ultima azione',
+      'Regole Commander',
+      'Layout dei quattro giocatori',
+      'Partita',
+    ])
 
     fireEvent.click(within(controls).getByRole('button', { name: 'Partita' }))
     fireEvent.click(screen.getByRole('button', { name: 'Azzera punteggi' }))
@@ -525,19 +531,19 @@ describe('rules reference (Phase 2a)', () => {
       .getAllByRole('button')
       .map((button) => button.getAttribute('aria-label') ?? button.textContent)
 
-  it('sits after Azzera punteggi and before Preferenze in the standard header', () => {
+  it('sits after Azzera punteggi and before Layout and Preferenze in the standard header', () => {
     Object.defineProperty(navigator, 'wakeLock', { configurable: true, value: { request: vi.fn(async () => ({ released: false, release: vi.fn(async () => undefined) })) } })
     render(<App />)
     const names = controlNames()
-    expect(names.slice(-3)).toEqual(['Azzera punteggi', 'Regole Commander', 'Preferenze'])
+    expect(names.slice(-4)).toEqual(['Azzera punteggi', 'Regole Commander', 'Layout dei quattro giocatori', 'Preferenze'])
     Reflect.deleteProperty(navigator, 'wakeLock')
   })
 
-  it('sits right before Partita in the compact header, after Stato app', () => {
+  it('sits after Stato app and before Layout and Partita in the compact header', () => {
     installMatchMedia(true)
     localStorage.setItem('commander-companion.game.v1', '{broken')
     render(<App />)
-    expect(controlNames().slice(-3)).toEqual(['Stato app', 'Regole Commander', 'Partita'])
+    expect(controlNames().slice(-4)).toEqual(['Stato app', 'Regole Commander', 'Layout dei quattro giocatori', 'Partita'])
   })
 
   it('opens and closes without changing the game or its history', () => {
@@ -574,6 +580,47 @@ describe('rules reference (Phase 2a)', () => {
     render(<App />)
     mode(panel(/giocatore 1/i), /^commander/i)
     expect(within(panel(/giocatore 1/i)).getByRole('group', { name: /fonte dei danni commander/i })).toHaveAccessibleDescription(helper)
+  })
+})
+
+describe('four-player layout selector (D-034)', () => {
+  const PREFS = 'commander-companion.preferences'
+  const openLayout = () => fireEvent.click(screen.getByRole('button', { name: 'Layout dei quattro giocatori' }))
+
+  it('applies, saves and closes on choice, returning focus to Layout, outside the game history', () => {
+    render(<App />)
+    click(panel(/giocatore 1/i), /riduci di 5 la vita/i)
+    const savedGame = localStorage.getItem(STORAGE_KEY)
+    const trigger = screen.getByRole('button', { name: 'Layout dei quattro giocatori' })
+    trigger.focus()
+    openLayout()
+    fireEvent.click(within(screen.getByRole('dialog', { name: 'Layout dei giocatori' })).getByRole('radio', { name: /^tavolo/i }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(trigger).toHaveFocus()
+    expect(JSON.parse(localStorage.getItem(PREFS) ?? '{}')).toMatchObject({ fourPlayerLayout: 'table' })
+    expect(localStorage.getItem(STORAGE_KEY)).toBe(savedGame)
+    fireEvent.click(screen.getByRole('button', { name: /annulla ultima azione/i }))
+    expect(life(/giocatore 1/i)).toHaveTextContent('40')
+    expect(JSON.parse(localStorage.getItem(PREFS) ?? '{}')).toMatchObject({ fourPlayerLayout: 'table' })
+  })
+
+  it('closes with Escape without changing the layout', () => {
+    render(<App />)
+    openLayout()
+    fireEvent(screen.getByRole('dialog', { name: 'Layout dei giocatori' }), new Event('cancel', { cancelable: true }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(localStorage.getItem(PREFS)).toBeNull()
+  })
+
+  it('hides Layout below four players and restores the saved choice at four', () => {
+    localStorage.setItem(PREFS, JSON.stringify({ keepScreenOn: true, fourPlayerLayout: 'facing' }))
+    render(<App />)
+    click(panel(/giocatore 4/i), /rimuovi giocatore 4/i)
+    expect(screen.queryByRole('button', { name: 'Layout dei quattro giocatori' })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Annulla' }))
+    openLayout()
+    expect(screen.getByRole('radio', { checked: true })).toHaveAccessibleName('Fronte a fronte: Due per lato')
   })
 })
 

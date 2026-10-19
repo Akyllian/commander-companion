@@ -3,6 +3,7 @@ import { AppNotices } from './components/AppNotices'
 import { BrandSigil } from './components/icons'
 import { ConfirmDialog } from './components/ConfirmDialog'
 import { PlayerPanel } from './components/PlayerPanel'
+import { LayoutSelector } from './components/LayoutSelector'
 import { RulesDialog } from './components/RulesDialog'
 import { FAN_CONTENT_NOTICE } from './content/legal'
 import { getArtStore, pruneArt } from './media/artStore'
@@ -48,6 +49,7 @@ export default function App() {
   const [removal, setRemoval] = useState<Removal | null>(null)
   // Presentation state only: never dispatched, persisted or part of history.
   const [rulesOpen, setRulesOpen] = useState(false)
+  const [layoutOpen, setLayoutOpen] = useState(false)
   const compact = useCompactDensity()
   const game = history.present
   const groupDelta = getGroupDelta(history)
@@ -184,6 +186,8 @@ export default function App() {
           onReset={() => setPending({ kind: 'reset' })}
           onNewGame={(playerCount) => setPending({ kind: 'new-game', playerCount })}
           onOpenRules={() => setRulesOpen(true)}
+          showLayout={game.players.length === 4}
+          onOpenLayout={() => setLayoutOpen(true)}
         />
       </header>
 
@@ -201,6 +205,15 @@ export default function App() {
       </footer>
 
       <RulesDialog open={rulesOpen} onClose={() => setRulesOpen(false)} />
+      <LayoutSelector
+        open={layoutOpen}
+        layout={preferences.fourPlayerLayout}
+        onChoose={(fourPlayerLayout) => {
+          updatePreferences({ ...preferences, fourPlayerLayout })
+          setLayoutOpen(false)
+        }}
+        onClose={() => setLayoutOpen(false)}
+      />
 
       <ConfirmDialog
         open={pending?.kind === 'new-game'}
