@@ -577,6 +577,30 @@ describe('rules reference (Phase 2a)', () => {
   })
 })
 
+describe('direct scoring dock structure (D-033)', () => {
+  it.each([
+    ['standard', false],
+    ['compact', true],
+  ])('renders exactly one labelled mode group per panel (%s)', (_label, compact) => {
+    installMatchMedia(compact)
+    render(<App />)
+    for (const region of screen.getAllByRole('region')) {
+      const name = region.getAttribute('aria-label')?.replace('Segnapunti di ', '')
+      expect(within(region).getAllByRole('group', { name: `Punteggio di ${name}` })).toHaveLength(1)
+    }
+  })
+
+  it('keeps the same panel nodes when the mode changes', () => {
+    render(<App />)
+    const player = panel(/giocatore 1/i)
+    const strip = within(player).getByRole('group', { name: /^punteggio di/i })
+    mode(player, /^radiazioni/i)
+    mode(player, /^vita/i)
+    expect(panel(/giocatore 1/i)).toBe(player)
+    expect(within(player).getByRole('group', { name: /^punteggio di/i })).toBe(strip)
+  })
+})
+
 describe('canonical one-shot light (D-024)', () => {
   it('blooms only the life total that changed, never on first render', () => {
     render(<App />)

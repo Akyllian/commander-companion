@@ -100,7 +100,7 @@ export function useScoreSelection(player: PlayerState, opponents: PlayerState[])
 /** Generic mana shown the way it is printed: a number in a circle. */
 function ManaSymbol({ value }: { value: number }) {
   return (
-    <span className="mana-symbol" aria-hidden="true">
+    <span className="mana-cost mana-symbol" aria-hidden="true">
       {value}
     </span>
   )
@@ -351,15 +351,17 @@ export function ScoreAdjust({ player, selection, delta, dispatch, lifeControls }
   if (!stepper) return <p className="score-adjust score-adjust--empty">Nessun avversario</p>
   return (
     <div className="score-adjust" role="group" aria-label={stepper.label} data-mode={selection.mode}>
-      <button type="button" className="score-button" aria-label={stepper.down.label} onClick={() => dispatch(stepper.down.action)}>
+      <button type="button" className="score-button score-button--primary" aria-label={stepper.down.label} onClick={() => dispatch(stepper.down.action)}>
         {stepper.down.text}
       </button>
-      {/* Keyed by mode and source so only the changed value settles in (120 ms, D-033). */}
-      <span className="score-adjust__value" key={stepper.key}>
-        <output aria-label={stepper.output.label}>{stepper.output.text}</output>
-        {deltaFor(delta, stepper.target)}
+      {/* Keyed twice: a new mode fades and settles 2px, a new source only fades (120 ms, D-033). */}
+      <span className="score-adjust__value" key={selection.mode}>
+        <span className="score-adjust__source" key={stepper.key}>
+          <output aria-label={stepper.output.label}>{stepper.output.text}</output>
+          {deltaFor(delta, stepper.target)}
+        </span>
       </span>
-      <button type="button" className="score-button" aria-label={stepper.up.label} onClick={() => dispatch(stepper.up.action)}>
+      <button type="button" className="score-button score-button--primary" aria-label={stepper.up.label} onClick={() => dispatch(stepper.up.action)}>
         {stepper.up.text}
       </button>
     </div>
