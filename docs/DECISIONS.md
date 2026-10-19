@@ -252,3 +252,19 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 
   Minimo 5,09:1, quindi target 5:1 rispettato ovunque. I moltiplicatori sono i più bassi che lo garantiscono: con la vita a ×1,25 Giada scendeva a 4,91:1.
 - **Verifica visiva:** nessun rettangolo, capsula o bordo riconoscibile nel browser. Nel layout standard su illustrazioni chiare resta un'ombreggiatura morbida attorno a nome e vita: va confermata **sul telefono** come richiede la D-029.
+
+## D-031 — Maschere leggere: l'ombra scura diventa un tocco, il contrasto passa all'alone
+- **Stato:** Implementata (Claude, 2026-10-19) su richiesta del product owner dopo la prova su iPhone: con la D-030 l'ombra attorno a nome e vita era «troppo pesante, basta sia una cosa molto leggera». Da confermare con il design.
+- **Maschere radiali (vita, nome, righe comandante):** forza limitata a `--mask-max: 0.45` (`min(0.45, rinforzo × 0,7)`), estensione ridotta da 64 a 32 px oltre il contenuto, sfumatura senza plateau (100% → 85% al 30% del raggio → 45% → 12% → 0).
+- **Alone sulle lettere:** nome e righe comandante passano da 3 a 5 strati (blur 9 px, stessa intensità). Il numero della vita riceve un alone analogo (14 px, 14 px, 6 px; intensità `min(1, rinforzo × 1,6)`) che con le illustrazioni sostituisce il bagliore dorato del numero. Nullo sulle illustrazioni scure.
+- **Soglie:** si passa dal target uniforme 5:1 della D-029 alle soglie WCAG AA per dimensione: ≥ 4,5:1 per le righe comandante/credito (testo piccolo), ≥ 3:1 per nome e vita (testo grande).
+- **Misura sul pixel peggiore** (stesso metodo della D-030), testo piccolo / nome / vita:
+
+  | Caso | Standard | Compatto 844×390 (nome / vita) |
+  | --- | --- | --- |
+  | Zimone | 4,78 / 3,87 / 6,02 | 5,00 / 8,36 |
+  | Partner Giada + Thrasios | 5,35 / 5,35 / 4,89 | 6,13 / 8,29 |
+  | Giada (nome lungo) | 4,88 / 4,88 / 5,33 | 5,19 / 7,82 |
+  | Partner chiari (Giada + Giada) | 4,56 / 4,56 / 4,55 | 5,98 / 8,29 |
+
+  Tutte le soglie AA rispettate. Con le maschere leggere ma senza alone sulla vita, la vita scendeva a 2,56:1.
