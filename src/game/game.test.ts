@@ -321,3 +321,47 @@ describe('reset and removal', () => {
     expect(gameReducer(initial, { type: 'remove-player', playerId: 'player-1' })).toBe(initial)
   })
 })
+
+describe('commander art (Phase 2c, D-026)', () => {
+  const zimone = {
+    cardId: 'ca09bb5f-feab-4754-ac6b-3f06327d3fe9',
+    name: 'Zimone, All-Questioning',
+    artist: 'Ekaterina Burmak',
+  }
+  const setCommander = (state: GameState, commander: typeof zimone | null, playerId = 'player-1') =>
+    gameReducer(state, { type: 'set-commander', playerId, commander })
+
+  it('starts every player without a commander', () => {
+    expect(createGame(2).players.map((player) => player.commander)).toEqual([null, null])
+  })
+
+  it('sets, keeps through reset and clears the commander', () => {
+    const set = setCommander(createGame(2), zimone)
+    expect(set.players[0].commander).toEqual(zimone)
+    expect(gameReducer(set, { type: 'reset-game' }).players[0].commander).toEqual(zimone)
+    expect(setCommander(set, null).players[0].commander).toBeNull()
+  })
+
+  it('trims text and records no change for the same commander', () => {
+    const set = setCommander(createGame(2), { ...zimone, name: `  ${zimone.name}  ` })
+    expect(set.players[0].commander?.name).toBe(zimone.name)
+    expect(setCommander(set, zimone)).toBe(set)
+    const cleared = setCommander(createGame(2), null)
+    expect(cleared.players[0].commander).toBeNull()
+  })
+
+  it.each([
+    ['a malformed card id', { ...zimone, cardId: 'not-a-uuid' }],
+    ['an empty name', { ...zimone, name: '   ' }],
+    ['an empty artist', { ...zimone, artist: '' }],
+    ['an overlong name', { ...zimone, name: 'x'.repeat(201) }],
+  ])('ignores %s', (_label, commander) => {
+    const initial = createGame(2)
+    expect(setCommander(initial, commander)).toBe(initial)
+  })
+
+  it('ignores unknown players', () => {
+    const initial = createGame(2)
+    expect(setCommander(initial, zimone, 'ghost')).toBe(initial)
+  })
+})

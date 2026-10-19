@@ -13,7 +13,7 @@ Documento vivo: si aggiorna alla fine di ogni fase. Ultimo aggiornamento: 2026-1
 | 2a | Riferimento rapido alle regole | ✅ implementata (D-021) — in attesa di revisione visiva |
 | 2.v | Identità visiva canonica: font serif, palette, illustrazioni ([riferimento](art-direction/CANONICAL_ART_DIRECTION.md)) | ✅ implementata (D-024), tranne le strisce illustrate: attendono immagini originali |
 | 2b | Cronologia partite | da iniziare |
-| 2c | Immagini dei giocatori | da iniziare |
+| 2c | Arte del comandante da Scryfall (C2.1) | ✅ implementata (D-026); strisce illustrate delle Regole rimandate |
 | 2d | Vista tavolo per tablet | da iniziare (serve prima una prova su tablet) |
 
 Sito: https://akyllian.github.io/commander-companion/

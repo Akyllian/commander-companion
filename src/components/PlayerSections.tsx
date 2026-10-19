@@ -1,6 +1,7 @@
 import { COMMANDER_DAMAGE_LIMIT } from '../game/game'
 import type { DefeatReason } from '../game/game'
 import type { CommanderIndex, CounterKey, GameAction, PlayerState } from '../game/types'
+import { CommanderPicker } from './CommanderPicker'
 import { deltaFor } from './DeltaBadge'
 import type { PanelDelta } from './DeltaBadge'
 
@@ -84,6 +85,7 @@ export function DeckConfigSection({ player, dispatch, canRemovePartner }: DeckCo
           ? 'Azzera prima i danni del Comandante 2.'
           : 'I danni dei due comandanti si contano separatamente.'}
       </p>
+      <CommanderPicker player={player} dispatch={dispatch} />
     </details>
   )
 }
@@ -189,5 +191,16 @@ export function OtherCountersSection({ player, delta, dispatch }: CountersSectio
         ))}
       </div>
     </details>
+  )
+}
+
+/** Commander name and artist credit (Fan Content Policy: the artist is always credited). */
+export function CommanderLine({ player }: { player: PlayerState }) {
+  if (!player.commander) return null
+  return (
+    <p className="commander-line">
+      <span className="commander-line__name">{player.commander.name}</span>
+      <span className="commander-credit">Illustrazione di {player.commander.artist}</span>
+    </p>
   )
 }

@@ -74,6 +74,43 @@ Introduce three visual layers without changing layout:
 
 Until original player artwork is available, use authored abstract textures and linework rather than generic stock fantasy images. The panel API should remain ready for a future artwork slot, but no placeholder image is required in the MVP.
 
+#### C2.1 — Final decision: artwork crop and contrast veil
+
+This decision is approved and is not left to builder discretion.
+
+**Player artwork crop**
+
+- Artwork is full-bleed inside the panel and uses `object-fit: cover`.
+- Never stretch, letterbox, use `contain`, or reveal an empty background band.
+- Default focal point: `object-position: 50% 32%`.
+- Expose per-art focal coordinates as `--art-focus-x` and `--art-focus-y`; use `50%` and `32%` when no authored focal point exists.
+- Compose/select artwork so the face or primary subject falls inside the central upper safe zone: x 32–68%, y 18–44%.
+- In compact landscape, the lower 45% of the crop is sacrificial: it may be substantially obscured by the control veil. Important faces, hands or symbols must not live there.
+- Do not use parallax or animate `object-position` during play.
+
+**Player-panel contrast veil**
+
+Use a layered deep-ink/teal veil, not neutral black at one uniform opacity:
+
+1. global tint: `oklch(0.07 0.012 188 / 34%)`;
+2. vertical protection: approximately 24% at the top, 46% at 44% height, and 88% at the bottom;
+3. top-edge safety: an additional horizontal veil of roughly 42% behind the name at the left, fading by 40% width, and 28% behind the details control at the right.
+
+The layers may be combined as CSS gradients. They must not create a visible rectangular band or hard seam. Buttons retain their own opaque/near-opaque control surfaces; the life value does not receive a separate card.
+
+**Readability contract**
+
+- Target at least 4.5:1 for player name, life value, button labels and all actionable icons against the final composited background.
+- If an artwork fails contrast, increase the veil locally; do not compensate with a large text glow, outline or brighter player-color fill.
+- Artwork should remain recognizable in the upper half and atmospheric in the lower half. At first glance, the life value must win over the illustration.
+
+**Rules scenic bands**
+
+- Source art may be 16:9, but display it as a shallow panoramic crop around 4.5:1–6:1 and 72–96px high.
+- Use `object-fit: cover` with default `object-position: 50% 45%`; allow the same authored focal-point override.
+- Body copy never overlays artwork. A title may overlay the scenic band only with a 55–70% deep-ink veil beneath it.
+- Do not reuse the player-panel 88% bottom veil on scenic bands; they are anchors, not control surfaces.
+
 ### C3 — Reframe player panels
 
 - Fine antique-gold outer frame at low/medium contrast.
@@ -92,7 +129,7 @@ Preserve the continuous document and internal scrolling. Add:
 - serif sheet and group headings;
 - gold R1–R7 identifiers or gold numbered nodes;
 - a fine teal/gold vertical guide for sequential rules where helpful;
-- selective 16:9 scenic strips only at major group boundaries;
+- selective shallow panoramic scenic strips, displayed around 4.5:1–6:1, only at major group boundaries;
 - utility-sans body copy on an opaque reading veil;
 - thin gold/teal dividers instead of generic gray lines.
 

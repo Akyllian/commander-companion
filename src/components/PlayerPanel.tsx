@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
+import type React from 'react'
 import { getDefeatReasons } from '../game/game'
 import { GROUP_WINDOW_MS } from '../game/history'
 import type { GameAction, PlayerState } from '../game/types'
 import { deltaFor } from './DeltaBadge'
 import type { PanelDelta } from './DeltaBadge'
 import { ModalSideSheet } from './ModalSideSheet'
+import { useArtImage } from '../media/useCommanderArt'
 import {
+  CommanderLine,
   CommanderSection,
   DeckConfigSection,
   DefeatBadge,
@@ -67,6 +70,7 @@ export function PlayerPanel({
     setLastLife(player.life)
     setBloom((count) => count + 1)
   }
+  const art = useArtImage(player.commander?.cardId ?? null)
   const defeatReasons = getDefeatReasons(player)
   const defeated = defeatReasons.length > 0
   const settledLife = useSettledValue(player.life, GROUP_WINDOW_MS)
@@ -141,12 +145,26 @@ export function PlayerPanel({
     className: 'player-panel',
     'data-accent': player.accent,
     'data-defeated': defeated || undefined,
+    'data-has-art': art ? '' : undefined,
     'aria-label': `Segnapunti di ${player.name}`,
   }
+
+  // Full-bleed commander art behind a layered contrast veil (C2.1). Decorative: the
+  // commander name and artist are text elsewhere.
+  const artLayer = art && (
+    <div
+      className="player-art"
+      aria-hidden="true"
+      style={{ '--art-veil-name': art.veil.name, '--art-veil-life': art.veil.life } as React.CSSProperties}
+    >
+      <img src={art.url} alt="" decoding="async" />
+    </div>
+  )
 
   if (compact) {
     return (
       <section {...sectionProps} data-compact="">
+        {artLayer}
         <header className="player-panel__header">
           {nameInput}
           <DefeatBadge reasons={defeatReasons} variant="compact" />
@@ -181,6 +199,7 @@ export function PlayerPanel({
               <DefeatBadge reasons={defeatReasons} />
             </p>
           )}
+          <CommanderLine player={player} />
           {player.hasPartner && <span className="partner-badge">Partner</span>}
           {commanderSection}
           {countersSection}
@@ -205,6 +224,7 @@ export function PlayerPanel({
 
   return (
     <section {...sectionProps}>
+      {artLayer}
       <div className="player-panel__sigil" aria-hidden="true">
         <span />
       </div>
@@ -224,6 +244,8 @@ export function PlayerPanel({
           </button>
         )}
       </header>
+
+      <CommanderLine player={player} />
 
       {defeated && (
         <p className="defeat-line">

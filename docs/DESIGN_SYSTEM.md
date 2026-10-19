@@ -99,3 +99,13 @@ New semantic tokens: `--color-scrim` (dialog backdrop); `--color-danger-hover`, 
 | Display serif | `--font-display` | brand, life, resting names, sheet/group headings, rule numbers |
 
 Icon family: 24×24 viewBox, rounded 1.75px stroke, `currentColor` (muted ivory → gold on hover → teal when selected).
+
+## Commander art (D-026) — C2.1 implemented; picker visuals pending design
+
+| Element | Class / hook | Notes |
+| --- | --- | --- |
+| Art layer | `.player-art`, `img` | `cover`, `--art-focus-x/y` (default 50% / 32%), decorative (`aria-hidden`) |
+| Veil | `.player-art::after` | C2.1 layers + per-art `--art-veil-name` / `--art-veil-life` reinforcement |
+| Panel with art | `.player-panel[data-has-art]` | ink base, sigil dimmed, frame and energy line kept |
+| Commander line | `.commander-line`, `.commander-credit` | name + "Illustrazione di …", ivory (4.5:1 on art) |
+| Picker | `.commander-picker`, `.commander-search`, `.commander-results` | provisional, inside "Configurazione mazzo" |

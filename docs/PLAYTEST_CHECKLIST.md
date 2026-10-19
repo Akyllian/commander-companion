@@ -105,3 +105,14 @@ Tutti i passi superati tranne uno. Nessun problema di gravità alta, quindi la F
 | 9.2 | Chiudi con ✕ (o Esc su tastiera) | la partita è identica, Annulla funziona come prima | | |
 | 9.3 | Modalità aereo, riapri l'app, apri «Regole» | tutto il contenuto disponibile | | |
 | 9.4 | VoiceOver / TalkBack sulla tassa del comandante | legge «due mana generici» e «Non tracciata dall'app» | | |
+
+## 10. Arte del comandante (Fase 2c)
+
+| # | Passi | Risultato atteso | iPhone | Android |
+| --- | --- | --- | --- | --- |
+| 10.1 | Configurazione mazzo → cerca il tuo comandante → sceglilo | l'illustrazione riempie il pannello; sotto il nome compaiono il comandante e «Illustrazione di …» | | |
+| 10.2 | Leggi nome e vita su un'illustrazione chiara, con luce forte | leggibili a colpo d'occhio; la vita vince sull'immagine | | |
+| 10.3 | Modalità aereo, riapri l'app | le illustrazioni compaiono comunque | | |
+| 10.4 | Cerca senza connessione | messaggio «Serve una connessione a internet…» | | |
+| 10.5 | Annulla dopo aver scelto un comandante | l'illustrazione sparisce, punteggi invariati | | |
+| 10.6 | In orizzontale | arte nei 4 pannelli, nessuno scroll, credito dell'artista nei «Dettagli» | | |

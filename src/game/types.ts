@@ -9,6 +9,15 @@ export type CommanderIndex = 0 | 1
 /** Damage received from each of a source player's commanders, indexed by `CommanderIndex`. */
 export type CommanderDamageBySource = [number, number]
 
+/** The player's commander card, used for panel artwork (Phase 2c, D-026). Art bytes live in IndexedDB. */
+export interface CommanderArt {
+  /** Scryfall card id (UUID); also the key of the cached art crop. */
+  cardId: string
+  name: string
+  /** Credited wherever the art is shown (Fan Content Policy, D-025). */
+  artist: string
+}
+
 export interface PlayerState {
   id: string
   name: string
@@ -21,9 +30,11 @@ export interface PlayerState {
   hasPartner: boolean
   /** Commander damage received, keyed by the source player id. */
   commanderDamage: Record<string, CommanderDamageBySource>
+  /** The deck's commander, or null when not chosen. */
+  commander: CommanderArt | null
 }
 
-export const GAME_SCHEMA_VERSION = 2
+export const GAME_SCHEMA_VERSION = 3
 
 export interface GameState {
   version: typeof GAME_SCHEMA_VERSION
@@ -42,6 +53,7 @@ export type GameAction =
       amount: number
     }
   | { type: 'set-partner'; playerId: string; hasPartner: boolean }
+  | { type: 'set-commander'; playerId: string; commander: CommanderArt | null }
   | { type: 'rename-player'; playerId: string; name: string }
   | { type: 'remove-player'; playerId: string }
   | { type: 'reset-game' }

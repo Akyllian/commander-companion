@@ -50,6 +50,17 @@ The intended impression is **mythic, refined, immersive and legible**. Richness 
 - Player colors remain identifiers, not full-panel fills.
 - Utility controls stay compact; the visual richness belongs to the panel atmosphere and hierarchy, not to larger chrome.
 
+Final crop and veil decision:
+
+- player art is full-bleed `cover`, never `contain` or letterboxed;
+- default focal point is 50% x / 32% y, with per-art focal overrides;
+- faces and primary subjects stay in the central upper safe zone;
+- a deep-ink/teal layered veil progresses from approximately 24% at the top to 88% at the bottom, with local top-edge protection behind the name and details control;
+- life, names and actionable controls target at least 4.5:1 after compositing;
+- when contrast fails, strengthen the veil rather than adding heavy text glow.
+
+The complete implementation values and rules-band variant are defined in [`../CANONICAL_VISUAL_GAP_REVIEW.md`](../CANONICAL_VISUAL_GAP_REVIEW.md), section C2.1.
+
 ### Rules and learning surfaces
 
 - Treat rules as an illustrated editorial guide: serif section titles, gold numbering, teal/gold timeline cues and selective scenic imagery.
