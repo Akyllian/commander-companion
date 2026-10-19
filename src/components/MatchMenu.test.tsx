@@ -41,10 +41,17 @@ describe('MatchMenu', () => {
     expect(button).toHaveFocus()
   })
 
-  it('hides the screen-on option when unsupported', () => {
+  it('separates match management from the screen-on option (P3)', () => {
+    const { button } = setup()
+    fireEvent.click(button)
+    expect(screen.getByRole('separator')).toBeInTheDocument()
+  })
+
+  it('hides the screen-on option and its divider when unsupported', () => {
     const { button } = setup({ showKeepScreenOn: false })
     fireEvent.click(button)
     expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
+    expect(screen.queryByRole('separator')).not.toBeInTheDocument()
   })
 
   it('closes with Escape and returns focus', () => {

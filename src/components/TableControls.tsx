@@ -108,7 +108,7 @@ export function TableControls({
         <button type="button" onClick={() => onNewGame(playerCount)}>
           Nuova partita
         </button>
-        <button className="quiet-button" type="button" onClick={onReset}>
+        <button className="quiet-button reset-scores-button" type="button" onClick={onReset}>
           Azzera punteggi
         </button>
         {rules}
