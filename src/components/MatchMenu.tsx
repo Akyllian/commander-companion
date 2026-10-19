@@ -64,7 +64,7 @@ export function MatchMenu({
           </button>
           <button
             type="button"
-            className="quiet-button"
+            className="quiet-button reset-scores-button"
             onClick={() => {
               close()
               onReset()
@@ -72,7 +72,12 @@ export function MatchMenu({
           >
             Azzera punteggi
           </button>
-          {showKeepScreenOn && <KeepScreenOnOption preferences={preferences} onChange={onPreferencesChange} />}
+          {showKeepScreenOn && (
+            <>
+              <hr className="menu-divider" />
+              <KeepScreenOnOption preferences={preferences} onChange={onPreferencesChange} />
+            </>
+          )}
         </div>
       )}
     </PopoverMenu>

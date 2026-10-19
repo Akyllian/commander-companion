@@ -222,17 +222,19 @@ export function PlayerPanel({
           {countersSection}
           {deckSection}
           {canRemove && (
-            <button
-              type="button"
-              className="quiet-button remove-player-action"
-              onClick={() => {
-                // Close first; the Undo bar then takes focus in the removed cell.
-                setDetailsOpen(false)
-                remove()
-              }}
-            >
-              <RemoveIcon /> Rimuovi giocatore
-            </button>
+            <div className="sheet-danger-zone">
+              <button
+                type="button"
+                className="quiet-button remove-player-action"
+                onClick={() => {
+                  // Close first; the Undo bar then takes focus in the removed cell.
+                  setDetailsOpen(false)
+                  remove()
+                }}
+              >
+                <RemoveIcon /> Rimuovi giocatore
+              </button>
+            </div>
           )}
         </ModalSideSheet>
       </section>

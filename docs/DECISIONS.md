@@ -268,3 +268,10 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
   | Partner chiari (Giada + Giada) | 4,56 / 4,56 / 4,55 | 5,98 / 8,29 |
 
   Tutte le soglie AA rispettate. Con le maschere leggere ma senza alone sulla vita, la vita scendeva a 2,56:1.
+
+## D-032 — Rifinitura P3: comandi ad alto rischio più chiari
+- **Stato:** Implementata (Claude, 2026-10-19) secondo le indicazioni del design (P3 della revisione art direction del 2026-10-18). La freccia su «Partita» c'era già.
+- **Menu Partita:** un divisore (`<hr class="menu-divider">`, linea oro sottile) separa la gestione partita da «Mantieni lo schermo acceso»; se il Wake Lock non è supportato spariscono entrambi.
+- **Azzera punteggi** (menu Partita e controlli standard): resta secondario, con sfondo trasparente e mai rosso, ma con testo chiaro (`--color-text`) e bordo `--color-gold-line` al posto del grigio attenuato, così non sembra disattivato.
+- **Rimuovi giocatore** (scheda dettagli): sta in una zona separata da un divisore, 24 px di margine e 24 px di padding sopra (32 px misurati dal contenuto precedente). Testo e icona usano `--color-danger-foreground` con un bordo al 45%; il rosso pieno resta solo nel dialogo di conferma.
+- Nessuna nuova animazione: stati e durate restano quelli definiti, reduced motion compreso.
