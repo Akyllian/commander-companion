@@ -1955,9 +1955,9 @@ button:hover:not(:disabled) {
   content: '';
 }
 
-/* Local reinforcement (D-029, D-030). The base C2.1 veil is unchanged; strength stays adaptive per
-   art. Radial ink masks have no plateau edge: full strength just past the content, then a continuous
-   ~56px fall-off, so no rectangle, capsule or band can be seen. */
+/* Local reinforcement (D-029, D-030, D-031). The base C2.1 veil is unchanged; strength stays adaptive
+   per art. Radial ink masks are a light touch (D-031: capped strength, ~32px reach, no plateau), so
+   they read as shade on the art rather than a dark patch; the letter halo does the rest. */
 .name-field {
   position: relative;
   display: flex;
@@ -1984,34 +1984,37 @@ button:hover:not(:disabled) {
   background: radial-gradient(
     closest-side,
     oklch(0.07 0.012 188 / var(--mask-a)) 0%,
-    oklch(0.07 0.012 188 / var(--mask-a)) 55%,
-    oklch(0.07 0.012 188 / calc(var(--mask-a) * 0.72)) 67%,
-    oklch(0.07 0.012 188 / calc(var(--mask-a) * 0.4)) 81%,
-    oklch(0.07 0.012 188 / calc(var(--mask-a) * 0.14)) 93%,
+    oklch(0.07 0.012 188 / calc(var(--mask-a) * 0.85)) 30%,
+    oklch(0.07 0.012 188 / calc(var(--mask-a) * 0.45)) 60%,
+    oklch(0.07 0.012 188 / calc(var(--mask-a) * 0.12)) 85%,
     transparent 100%
   );
   content: '';
   pointer-events: none;
 }
 
-/* Strength multipliers measured on bright art (Giada, a bright partner pair) to reach ≥ 4.5:1. */
+/* Light by product-owner request (D-031): strength capped at --mask-max, reach 2rem. */
+.player-panel[data-has-art] {
+  --mask-max: 0.45;
+}
+
 .player-panel[data-has-art] .life-value::before {
-  --mask-a: min(1, calc(var(--art-veil-life, 0) * 1.3));
-  inset: -4rem;
+  --mask-a: min(var(--mask-max), calc(var(--art-veil-life, 0) * 0.7));
+  inset: -2rem;
 }
 
 .player-panel[data-has-art] > .commander-lines::before {
-  --mask-a: min(1, calc(var(--art-veil-name, 0) * 1.5));
-  inset: -4rem;
+  --mask-a: min(var(--mask-max), calc(var(--art-veil-name, 0) * 0.7));
+  inset: -2rem;
 }
 
 /* The name mask is sized by the name itself (same face and size as the resting name). */
 .player-panel[data-has-art] > .player-panel__header .name-field::before {
-  --mask-a: min(1, calc(var(--art-veil-name, 0) * 1.5));
+  --mask-a: min(var(--mask-max), calc(var(--art-veil-name, 0) * 0.7));
   top: 50%;
-  left: calc(var(--space-2) - 4rem);
-  max-width: calc(100% + 8rem);
-  padding: 4rem;
+  left: calc(var(--space-2) - 2rem);
+  max-width: calc(100% + 4rem);
+  padding: 2rem;
   overflow: hidden;
   color: transparent;
   content: attr(data-text);
@@ -2029,15 +2032,27 @@ button:hover:not(:disabled) {
   font-size: 1rem;
 }
 
-/* Name and commander/credit lines: an ink halo that follows the letters (D-029 exception to C2.1):
-   spread 0, blur 9px, no offset, three layers. Strength comes from the art; zero on dark art. */
+/* Name and commander/credit lines: an ink halo that follows the letters (D-029 exception to C2.1,
+   D-031): spread 0, blur 9px, no offset, five layers so the light masks can stay light. Strength
+   comes from the art; zero on dark art. */
 .player-panel[data-has-art] > .player-panel__header .player-name,
 .player-panel[data-has-art] > .commander-lines .commander-line {
   --halo: oklch(0.07 0.012 188 / min(1, calc(var(--art-veil-name, 0) * 1.6)));
   text-shadow:
     0 0 9px var(--halo),
     0 0 9px var(--halo),
+    0 0 9px var(--halo),
+    0 0 9px var(--halo),
     0 0 9px var(--halo);
+}
+
+/* Life total: the same letter-following halo replaces most of the old dark patch (D-031). */
+.player-panel[data-has-art] .life-total {
+  --halo-life: oklch(0.07 0.012 188 / min(1, calc(var(--art-veil-life, 0) * 1.6)));
+  text-shadow:
+    0 0 14px var(--halo-life),
+    0 0 14px var(--halo-life),
+    0 0 6px var(--halo-life);
 }
 
 /* With art, the illustration replaces the atmospheric fill; the frame and energy line stay. */
