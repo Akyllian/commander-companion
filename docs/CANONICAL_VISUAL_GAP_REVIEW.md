@@ -111,6 +111,21 @@ The layers may be combined as CSS gradients. They must not create a visible rect
 - Body copy never overlays artwork. A title may overlay the scenic band only with a 55–70% deep-ink veil beneath it.
 - Do not reuse the player-panel 88% bottom veil on scenic bands; they are anchors, not control surfaces.
 
+#### C2.2 — Phase 2c commander-art review
+
+The measured contrast system remains valid, but adaptive reinforcement must be spatially local:
+
+- retain the complete C2.1 base veil;
+- apply the per-art name boost only behind the name/credit block;
+- apply the per-art life boost only behind the life value;
+- extend each mask about 16px beyond its protected content, then feather it to transparent over 24–32px;
+- keep the 5:1 calculation target and the 4.5:1 acceptance threshold;
+- never give the life value a separate card or opaque capsule.
+
+The final commander picker lives in **Comandante e mazzo**. Search/current commander precedes the Partner toggle. Results use one continuous list with 48×48px `art_crop` thumbnails, name and visible artist credit; the sheet is the only scroll container and no more than five results are shown at once. In compact landscape it remains inside the existing Details sheet.
+
+Artist credit stays off the 123px compact panel and remains visible in Details and the picker. Partner commanders use a static two-art split once both slots are configured: Commander 1 left, Commander 2 right, 48%→52% subtle diagonal seam, no alternation. A single full-bleed art plus Partner badge is only the one-commander fallback.
+
 ### C3 — Reframe player panels
 
 - Fine antique-gold outer frame at low/medium contrast.

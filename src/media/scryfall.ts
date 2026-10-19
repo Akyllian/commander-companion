@@ -7,7 +7,8 @@
 
 const API = 'https://api.scryfall.com'
 const ART_HOST = 'https://cards.scryfall.io/'
-const MAX_RESULTS = 8
+/** D-027: at most five results, no inner scrolling. */
+export const MAX_RESULTS = 5
 /** Art crops are ~60 KB; anything far larger is not what we asked for. */
 export const MAX_ART_BYTES = 2 * 1024 * 1024
 

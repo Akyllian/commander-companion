@@ -35,14 +35,14 @@ Platform adapters live outside the domain:
 | Commander damage is also life loss | `adjust-commander-damage` moves life by the applied amount (D-006) |
 | Partner commanders count separately | `hasPartner` + `[number, number]` per source (D-007) |
 
-## Schema (version 3)
+## Schema (version 4)
 
 ```ts
 PlayerState {
   id, name, life, poison, energy, experience, accent,
   hasPartner: boolean,
   commanderDamage: Record<sourcePlayerId, [commander1, commander2]>,
-  commander: { cardId, name, artist } | null   // art bytes live in IndexedDB
+  commanders: [Commander1 | null, Commander2 | null]   // { cardId, name, artist }; slot 2 only with partner; art bytes in IndexedDB
 }
 ```
 
@@ -51,7 +51,7 @@ Invariants enforced by `parseStoredGame`: 2–4 players, unique ids, names 1–2
 ## Storage
 
 - Key `commander-companion.game.v1` (historical name; the payload `version` drives parsing).
-- Version 1 and 2 payloads are migrated to version 3 (v1 values are clamped; v2 gains `commander: null`).
+- Version 1, 2 and 3 payloads are migrated to version 4 (v1 values are clamped; v2 gains empty slots; v3 `commander` becomes slot 1).
 - Unreadable or future-version payloads are copied to `commander-companion.game.backup` before a new game starts; the UI says so.
 - Writes are synchronous on every change; a failed write is surfaced in the UI.
 - `navigator.storage.persist()` is requested once.

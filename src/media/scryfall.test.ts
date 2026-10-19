@@ -60,10 +60,10 @@ describe('searchCommanders', () => {
     expect(fetchImpl).not.toHaveBeenCalled()
   })
 
-  it('returns no results for 404 and at most eight otherwise', async () => {
+  it('returns no results for 404 and at most five otherwise', async () => {
     expect(await searchCommanders('none', (() => json(404, {})) as unknown as typeof fetch)).toEqual([])
     const many = Array.from({ length: 12 }, (_, i) => card({ id: `id-${i}` }))
-    expect(await searchCommanders('many', (() => json(200, { data: many })) as unknown as typeof fetch)).toHaveLength(8)
+    expect(await searchCommanders('many', (() => json(200, { data: many })) as unknown as typeof fetch)).toHaveLength(5)
     expect(await searchCommanders('odd', (() => json(200, 'odd')) as unknown as typeof fetch)).toEqual([])
   })
 

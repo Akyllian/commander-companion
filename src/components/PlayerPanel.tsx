@@ -70,7 +70,8 @@ export function PlayerPanel({
     setLastLife(player.life)
     setBloom((count) => count + 1)
   }
-  const art = useArtImage(player.commander?.cardId ?? null)
+  const art = useArtImage(player.commanders[0]?.cardId ?? null)
+  const partnerArt = useArtImage(player.hasPartner ? (player.commanders[1]?.cardId ?? null) : null)
   const defeatReasons = getDefeatReasons(player)
   const defeated = defeatReasons.length > 0
   const settledLife = useSettledValue(player.life, GROUP_WINDOW_MS)
@@ -82,22 +83,25 @@ export function PlayerPanel({
       <label className="sr-only" htmlFor={`${player.id}-name`}>
         Nome giocatore
       </label>
-      <input
-        key={player.name}
-        id={`${player.id}-name`}
-        className="player-name"
-        defaultValue={player.name}
-        maxLength={28}
-        enterKeyHint="done"
-        onKeyDown={(event) => {
-          if (event.key === 'Enter') event.currentTarget.blur()
-          if (event.key === 'Escape') {
-            event.currentTarget.value = player.name
-            event.currentTarget.blur()
-          }
-        }}
-        onBlur={(event) => dispatch({ type: 'rename-player', playerId: player.id, name: event.currentTarget.value })}
-      />
+      {/* data-text sizes the local contrast veil to the visible name (D-027). */}
+      <span className="name-field" data-text={player.name}>
+        <input
+          key={player.name}
+          id={`${player.id}-name`}
+          className="player-name"
+          defaultValue={player.name}
+          maxLength={28}
+          enterKeyHint="done"
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') event.currentTarget.blur()
+            if (event.key === 'Escape') {
+              event.currentTarget.value = player.name
+              event.currentTarget.blur()
+            }
+          }}
+          onBlur={(event) => dispatch({ type: 'rename-player', playerId: player.id, name: event.currentTarget.value })}
+        />
+      </span>
     </>
   )
 
@@ -149,21 +153,34 @@ export function PlayerPanel({
     'aria-label': `Segnapunti di ${player.name}`,
   }
 
-  // Full-bleed commander art behind a layered contrast veil (C2.1). Decorative: the
-  // commander name and artist are text elsewhere.
+  // Commander art behind the C2.1 veil (decorative: names and credits are text elsewhere).
+  // Partners with two arts split 50/50 on a slight diagonal (D-027); otherwise full-bleed.
+  const split = Boolean(art && partnerArt)
+  const veil = {
+    name: Math.max(art?.veil.name ?? 0, split ? (partnerArt?.veil.name ?? 0) : 0),
+    life: Math.max(art?.veil.life ?? 0, split ? (partnerArt?.veil.life ?? 0) : 0),
+  }
+  const veilStyle = { '--art-veil-name': veil.name, '--art-veil-life': veil.life } as React.CSSProperties
   const artLayer = art && (
-    <div
-      className="player-art"
-      aria-hidden="true"
-      style={{ '--art-veil-name': art.veil.name, '--art-veil-life': art.veil.life } as React.CSSProperties}
-    >
-      <img src={art.url} alt="" decoding="async" />
+    <div className="player-art" aria-hidden="true" data-split={split || undefined}>
+      {split ? (
+        <>
+          <span className="player-art__half player-art__half--1">
+            <img src={art.url} alt="" decoding="async" />
+          </span>
+          <span className="player-art__half player-art__half--2">
+            <img src={partnerArt?.url} alt="" decoding="async" />
+          </span>
+        </>
+      ) : (
+        <img src={art.url} alt="" decoding="async" />
+      )}
     </div>
   )
 
   if (compact) {
     return (
-      <section {...sectionProps} data-compact="">
+      <section {...sectionProps} style={veilStyle} data-compact="">
         {artLayer}
         <header className="player-panel__header">
           {nameInput}
@@ -223,7 +240,7 @@ export function PlayerPanel({
   }
 
   return (
-    <section {...sectionProps}>
+    <section {...sectionProps} style={veilStyle}>
       {artLayer}
       <div className="player-panel__sigil" aria-hidden="true">
         <span />
@@ -253,8 +270,6 @@ export function PlayerPanel({
         </p>
       )}
 
-      {deckSection}
-
       <div className="life-zone">
         <span className="life-label">Punti vita</span>
         {lifeValue}
@@ -267,6 +282,7 @@ export function PlayerPanel({
 
       {commanderSection}
       {countersSection}
+      {deckSection}
     </section>
   )
 }

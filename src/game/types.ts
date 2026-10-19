@@ -30,11 +30,16 @@ export interface PlayerState {
   hasPartner: boolean
   /** Commander damage received, keyed by the source player id. */
   commanderDamage: Record<string, CommanderDamageBySource>
-  /** The deck's commander, or null when not chosen. */
-  commander: CommanderArt | null
+  /**
+   * Commander slots, indexed by `CommanderIndex` like the damage labels ("Comandante 1/2").
+   * Slot 1 is only used by partner decks (D-027).
+   */
+  commanders: CommanderSlots
 }
 
-export const GAME_SCHEMA_VERSION = 3
+export type CommanderSlots = [CommanderArt | null, CommanderArt | null]
+
+export const GAME_SCHEMA_VERSION = 4
 
 export interface GameState {
   version: typeof GAME_SCHEMA_VERSION
@@ -53,7 +58,7 @@ export type GameAction =
       amount: number
     }
   | { type: 'set-partner'; playerId: string; hasPartner: boolean }
-  | { type: 'set-commander'; playerId: string; commander: CommanderArt | null }
+  | { type: 'set-commander'; playerId: string; slot: CommanderIndex; commander: CommanderArt | null }
   | { type: 'rename-player'; playerId: string; name: string }
   | { type: 'remove-player'; playerId: string }
   | { type: 'reset-game' }
