@@ -176,3 +176,60 @@ describe('grouping rapid taps (UX decision 3)', () => {
     expect(historyReducer(historyReducer(history, tap(1, 2)), { type: 'external', game: remote }).group).toBeNull()
   })
 })
+
+describe('grouping frequent scores (D-033)', () => {
+  const partnerGame = () => {
+    let history = createHistory(createGame(2))
+    history = historyReducer(history, {
+      type: 'apply',
+      at: 0,
+      action: { type: 'set-partner', playerId: 'player-1', hasPartner: true },
+    })
+    return history
+  }
+  const taxTap = (history: History, commander: 0 | 1, amount: number, at: number) =>
+    historyReducer(history, { type: 'apply', at, action: { type: 'adjust-commander-tax', playerId: 'player-1', commander, amount } })
+
+  it('groups same-slot tax taps and reports the cumulative tax delta', () => {
+    let history = partnerGame()
+    history = taxTap(history, 0, 2, 100_000)
+    history = taxTap(history, 0, 2, 100_300)
+    expect(history.present.players[0].commanderTax).toEqual([4, 0])
+    expect(getGroupDelta(history)).toEqual({
+      target: { kind: 'commander-tax', playerId: 'player-1', commander: 0 },
+      delta: 4,
+      at: 100_300,
+    })
+    expect(historyReducer(history, { type: 'undo' }).present.players[0].commanderTax).toEqual([0, 0])
+  })
+
+  it('keeps different tax slots and directions in separate undo steps', () => {
+    let history = partnerGame()
+    history = taxTap(history, 0, 2, 100_000)
+    history = taxTap(history, 1, 2, 100_100)
+    history = taxTap(history, 1, -2, 100_200)
+    expect(history.past).toHaveLength(4)
+  })
+
+  it('groups rad taps like any other counter', () => {
+    let history = createHistory(createGame(2))
+    for (const at of [0, 200, 400]) {
+      history = historyReducer(history, {
+        type: 'apply',
+        at,
+        action: { type: 'adjust-counter', playerId: 'player-2', counter: 'rad', amount: 1 },
+      })
+    }
+    expect(history.past).toHaveLength(1)
+    expect(getGroupDelta(history)?.delta).toBe(3)
+  })
+
+  it('records each table-role transfer as its own step', () => {
+    let history = createHistory(createGame(3))
+    for (const [at, playerId] of [[0, 'player-1'], [100, 'player-2'], [200, 'player-3']] as const) {
+      history = historyReducer(history, { type: 'apply', at, action: { type: 'set-table-role', role: 'monarch', playerId } })
+    }
+    expect(history.past).toHaveLength(3)
+    expect(history.group).toBeNull()
+  })
+})

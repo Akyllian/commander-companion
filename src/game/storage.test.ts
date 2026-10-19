@@ -70,7 +70,7 @@ describe('loadGame', () => {
     const result = loadGame()
 
     expect(result.status).toBe('migrated')
-    expect(result.game.version).toBe(4)
+    expect(result.game.version).toBe(5)
     expect(result.game.players[0]).toMatchObject({
       name: 'Atraxa',
       life: 31,
@@ -101,7 +101,7 @@ describe('loadGame', () => {
   })
 
   it('backs up a payload written by a newer app version', () => {
-    const future = JSON.stringify({ ...createGame(2), version: 5 })
+    const future = JSON.stringify({ ...createGame(2), version: 6 })
     localStorage.setItem(STORAGE_KEY, future)
 
     expect(loadGame().status).toBe('recovered')
@@ -300,6 +300,64 @@ describe('schema v4: two commander slots (D-026/D-027)', () => {
   ])('rejects %s', (_label, commanders) => {
     const game = structuredClone(createGame(2)) as unknown as { players: Array<Record<string, unknown>> }
     game.players[0].commanders = commanders
+    expect(parseStoredGame(game)).toBeNull()
+  })
+})
+
+describe('schema v5: frequent scores (D-033)', () => {
+  const asV4 = (game: GameState) => {
+    const v4 = structuredClone(game) as unknown as Record<string, unknown> & { players: Array<Record<string, unknown>> }
+    v4.version = 4
+    delete v4.monarchPlayerId
+    delete v4.initiativePlayerId
+    v4.players.forEach((player) => {
+      delete player.rad
+      delete player.commanderTax
+    })
+    return v4
+  }
+
+  it('migrates a version 4 game exactly, starting every new value empty', () => {
+    let game = gameReducer(createGame(3), { type: 'set-partner', playerId: 'player-2', hasPartner: true })
+    game = gameReducer(game, { type: 'adjust-commander-damage', playerId: 'player-1', sourcePlayerId: 'player-2', commander: 1, amount: 7 })
+    game = gameReducer(game, { type: 'adjust-counter', playerId: 'player-3', counter: 'energy', amount: 4 })
+    game = gameReducer(game, { type: 'rename-player', playerId: 'player-1', name: 'Atraxa' })
+    store(asV4(game))
+
+    const result = loadGame()
+    expect(result).toEqual({ status: 'migrated', game })
+    expect(result.game.players.every((player) => player.rad === 0)).toBe(true)
+    expect(result.game.monarchPlayerId).toBeNull()
+  })
+
+  it('round-trips rad, both Partner taxes and table roles', () => {
+    let game = gameReducer(createGame(2), { type: 'set-partner', playerId: 'player-1', hasPartner: true })
+    game = gameReducer(game, { type: 'adjust-commander-tax', playerId: 'player-1', commander: 1, amount: 4 })
+    game = gameReducer(game, { type: 'adjust-counter', playerId: 'player-2', counter: 'rad', amount: 3 })
+    game = gameReducer(game, { type: 'set-table-role', role: 'monarch', playerId: 'player-2' })
+    game = gameReducer(game, { type: 'set-table-role', role: 'initiative', playerId: 'player-2' })
+    saveGame(game)
+    expect(loadGame()).toEqual({ status: 'restored', game })
+  })
+
+  it('rejects a version 4 game with invalid structure', () => {
+    expect(parseStoredGame({ version: 4, players: [{ id: 'x' }, { id: 'y' }] })).toBeNull()
+  })
+
+  const corruptions: Array<[string, (game: Record<string, unknown> & { players: Array<Record<string, unknown>> }) => void]> = [
+    ['negative rad', (game) => (game.players[0].rad = -1)],
+    ['missing tax', (game) => delete game.players[0].commanderTax],
+    ['odd tax', (game) => (game.players[0].commanderTax = [3, 0])],
+    ['a one-slot tax', (game) => (game.players[0].commanderTax = [2])],
+    ['partner tax without a partner', (game) => (game.players[0].commanderTax = [0, 2])],
+    ['an unknown Monarch', (game) => (game.monarchPlayerId = 'ghost')],
+    ['a non-string Initiative', (game) => (game.initiativePlayerId = 3)],
+    ['a missing Monarch field', (game) => delete game.monarchPlayerId],
+  ]
+
+  it.each(corruptions)('rejects %s', (_label, corrupt) => {
+    const game = structuredClone(createGame(2)) as unknown as Record<string, unknown> & { players: Array<Record<string, unknown>> }
+    corrupt(game)
     expect(parseStoredGame(game)).toBeNull()
   })
 })

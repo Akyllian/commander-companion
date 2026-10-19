@@ -9,6 +9,7 @@ export type GroupTarget =
   | { kind: 'life'; playerId: string }
   | { kind: 'counter'; playerId: string; counter: CounterKey }
   | { kind: 'commander'; playerId: string; sourcePlayerId: string; commander: CommanderIndex }
+  | { kind: 'commander-tax'; playerId: string; commander: CommanderIndex }
 
 export interface HistoryGroup {
   key: string
@@ -65,6 +66,11 @@ function groupFor(action: GameAction): { key: string; target: GroupTarget } | nu
           commander: action.commander,
         },
       }
+    case 'adjust-commander-tax':
+      return {
+        key: `commander-tax:${action.playerId}:${action.commander}:${direction(action.amount)}`,
+        target: { kind: 'commander-tax', playerId: action.playerId, commander: action.commander },
+      }
     default:
       return null
   }
@@ -79,6 +85,8 @@ function readTarget(game: GameState, target: GroupTarget): number {
       return player[target.counter]
     case 'commander':
       return player.commanderDamage[target.sourcePlayerId]?.[target.commander] ?? 0
+    case 'commander-tax':
+      return player.commanderTax[target.commander]
   }
 }
 
