@@ -2593,3 +2593,78 @@ button:hover:not(:disabled) {
   display: inline-flex;
   align-items: center;
 }
+
+/* ---- Four-player seats (D-034) ----
+   Every cell is a stable `.player-seat`; the layout preference only changes placement and the
+   turn of `.player-seat__content`. DOM and tab order stay 1→4. Top-layer dialogs and portals are
+   outside the transformed subtree, so sheets and menus stay upright. */
+.player-seat,
+.player-seat__content {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+}
+
+.player-seat[data-orientation='180'] > .player-seat__content {
+  transform: rotate(180deg);
+}
+
+/* Tavolo: one player per edge, the centre left free. Side seats reserve swapped geometry
+   through a size container: the turned content is exactly as long as the seat is tall. */
+.app-shell .player-grid[data-layout='table'][data-player-count] {
+  grid-template-areas:
+    'top top top'
+    'left centre right'
+    'bottom bottom bottom';
+  grid-template-columns: minmax(8.5rem, 1fr) minmax(0, 1.2fr) minmax(8.5rem, 1fr);
+  /* The side seats get half the viewport height; a short screen scrolls rather than shrinking
+     controls below 44px or silently switching to the grid. */
+  grid-template-rows: auto clamp(16rem, 50dvh, 40rem) auto;
+}
+
+.player-grid[data-layout='table'] > [data-seat='top'] {
+  grid-area: top;
+}
+
+.player-grid[data-layout='table'] > [data-seat='bottom'] {
+  grid-area: bottom;
+}
+
+.player-grid[data-layout='table'] > [data-seat='left'] {
+  grid-area: left;
+}
+
+.player-grid[data-layout='table'] > [data-seat='right'] {
+  grid-area: right;
+}
+
+.player-grid[data-layout='table'] > [data-seat='left'],
+.player-grid[data-layout='table'] > [data-seat='right'] {
+  position: relative;
+  container-type: size;
+}
+
+.player-grid[data-layout='table'] > [data-seat='left'] > .player-seat__content,
+.player-grid[data-layout='table'] > [data-seat='right'] > .player-seat__content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100cqh;
+  height: 100cqw;
+  translate: -50% -50%;
+}
+
+.player-seat[data-orientation='90'] > .player-seat__content {
+  transform: rotate(90deg);
+}
+
+.player-seat[data-orientation='-90'] > .player-seat__content {
+  transform: rotate(-90deg);
+}
+
+/* Top and bottom seats stay as wide as their compact rail needs, centred on their edge. */
+.player-grid[data-layout='table'] > [data-seat='top'] .player-panel,
+.player-grid[data-layout='table'] > [data-seat='bottom'] .player-panel {
+  justify-self: center;
+  width: min(100%, 32rem);
+}
