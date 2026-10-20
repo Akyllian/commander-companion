@@ -8,7 +8,7 @@ const setup = ({ compact = false, showLayout = true } = {}) => {
       canUndo={false}
       canRedo={false}
       compact={compact}
-      preferences={{ keepScreenOn: true, fourPlayerLayout: 'grid' }}
+      preferences={{ keepScreenOn: true, fourPlayerLayout: 'grid', twoPlayerLayout: 'same-side' }}
       onPreferencesChange={vi.fn()}
       showPreferences
       showLayout={showLayout}

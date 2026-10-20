@@ -1,19 +1,28 @@
-import { DEFAULT_PREFERENCES, FOUR_PLAYER_LAYOUTS, loadPreferences, PREFERENCES_KEY, savePreferences } from './preferences'
+import {
+  DEFAULT_PREFERENCES,
+  FOUR_PLAYER_LAYOUTS,
+  loadPreferences,
+  PREFERENCES_KEY,
+  savePreferences,
+  TWO_PLAYER_LAYOUTS,
+} from './preferences'
+
+const base = { keepScreenOn: true, fourPlayerLayout: 'grid', twoPlayerLayout: 'same-side' } as const
 
 afterEach(() => vi.restoreAllMocks())
 
 describe('preferences', () => {
   it('keeps the screen on and uses the grid by default', () => {
-    expect(loadPreferences()).toEqual({ keepScreenOn: true, fourPlayerLayout: 'grid' })
+    expect(loadPreferences()).toEqual(base)
   })
 
   it('round-trips a saved choice', () => {
-    expect(savePreferences({ keepScreenOn: false, fourPlayerLayout: 'grid' })).toBe(true)
-    expect(loadPreferences()).toEqual({ keepScreenOn: false, fourPlayerLayout: 'grid' })
+    expect(savePreferences({ ...base, keepScreenOn: false })).toBe(true)
+    expect(loadPreferences()).toEqual({ ...base, keepScreenOn: false })
   })
 
   it.each(FOUR_PLAYER_LAYOUTS)('round-trips the %s layout (D-034)', (layout) => {
-    savePreferences({ keepScreenOn: true, fourPlayerLayout: layout })
+    savePreferences({ ...base, fourPlayerLayout: layout })
     expect(loadPreferences().fourPlayerLayout).toBe(layout)
   })
 
@@ -24,23 +33,33 @@ describe('preferences', () => {
 
   it('migrates an older preference without a layout to the grid', () => {
     localStorage.setItem(PREFERENCES_KEY, '{"keepScreenOn":false}')
-    expect(loadPreferences()).toEqual({ keepScreenOn: false, fourPlayerLayout: 'grid' })
+    expect(loadPreferences()).toEqual({ ...base, keepScreenOn: false })
   })
 
   it.each(['"circle"', '3', 'null'])('falls back to the grid for layout %s, keeping a valid Wake Lock choice', (layout) => {
     localStorage.setItem(PREFERENCES_KEY, `{"keepScreenOn":false,"fourPlayerLayout":${layout}}`)
-    expect(loadPreferences()).toEqual({ keepScreenOn: false, fourPlayerLayout: 'grid' })
+    expect(loadPreferences()).toEqual({ ...base, keepScreenOn: false })
   })
 
   it('keeps a valid layout when the Wake Lock value is corrupt', () => {
     localStorage.setItem(PREFERENCES_KEY, '{"keepScreenOn":"yes","fourPlayerLayout":"table"}')
-    expect(loadPreferences()).toEqual({ keepScreenOn: true, fourPlayerLayout: 'table' })
+    expect(loadPreferences()).toEqual({ ...base, fourPlayerLayout: 'table' })
+  })
+
+  it.each(TWO_PLAYER_LAYOUTS)('round-trips the %s two-player layout, separate from four players (D-035)', (layout) => {
+    savePreferences({ ...base, fourPlayerLayout: 'table', twoPlayerLayout: layout })
+    expect(loadPreferences()).toEqual({ ...base, fourPlayerLayout: 'table', twoPlayerLayout: layout })
+  })
+
+  it('falls back to the same side for an unknown two-player layout, keeping the rest', () => {
+    localStorage.setItem(PREFERENCES_KEY, '{"keepScreenOn":false,"fourPlayerLayout":"table","twoPlayerLayout":"diagonal"}')
+    expect(loadPreferences()).toEqual({ keepScreenOn: false, fourPlayerLayout: 'table', twoPlayerLayout: 'same-side' })
   })
 
   it('reports a failed write without throwing', () => {
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new Error('QuotaExceededError')
     })
-    expect(savePreferences({ keepScreenOn: true, fourPlayerLayout: 'facing' })).toBe(false)
+    expect(savePreferences({ ...base, fourPlayerLayout: 'facing' })).toBe(false)
   })
 })
