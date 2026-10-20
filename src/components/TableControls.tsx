@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { ReactNode } from 'react'
 import type { Preferences } from '../settings/preferences'
-import { RedoIcon, UndoIcon } from './icons'
+import { LayoutIcon, RedoIcon, UndoIcon } from './icons'
 import { MatchMenu } from './MatchMenu'
 import { PreferencesMenu } from './PreferencesMenu'
 
@@ -9,12 +9,15 @@ interface TableControlsProps {
   currentPlayerCount: number
   canUndo: boolean
   canRedo: boolean
-  /** Compact landscape: Undo, Redo, status, then everything else inside "Partita". */
+  /** Compact density: Undo, Redo, status, then everything else inside "Partita". */
   compact?: boolean
   preferences: Preferences
   onPreferencesChange: (next: Preferences) => void
   /** False when the only preference (Wake Lock) is unsupported. */
   showPreferences: boolean
+  /** Only with exactly four players (D-034); hiding it keeps the saved layout. */
+  showLayout: boolean
+  onOpenLayout: () => void
   /** Compact-only slot between Redo and Partita (the "Stato app" button). */
   status?: ReactNode
   onUndo: () => void
@@ -40,6 +43,8 @@ export function TableControls({
   preferences,
   onPreferencesChange,
   showPreferences,
+  showLayout,
+  onOpenLayout,
   status,
   onUndo,
   onRedo,
@@ -54,6 +59,19 @@ export function TableControls({
     <button type="button" className="rules-button" aria-label="Regole Commander" title="Regole Commander" onClick={onOpenRules}>
       <BookIcon />
       <span>Regole</span>
+    </button>
+  )
+
+  const layout = showLayout && (
+    <button
+      type="button"
+      className="layout-button"
+      aria-label="Layout dei quattro giocatori"
+      title="Layout dei quattro giocatori"
+      onClick={onOpenLayout}
+    >
+      <LayoutIcon />
+      <span>Layout</span>
     </button>
   )
 
@@ -75,6 +93,7 @@ export function TableControls({
         <div className="match-controls">
           {status}
           {rules}
+          {layout}
           <MatchMenu
             currentPlayerCount={currentPlayerCount}
             preferences={preferences}
@@ -112,6 +131,7 @@ export function TableControls({
           Azzera punteggi
         </button>
         {rules}
+        {layout}
         {showPreferences && <PreferencesMenu preferences={preferences} onChange={onPreferencesChange} />}
       </div>
     </div>

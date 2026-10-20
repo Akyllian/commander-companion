@@ -291,8 +291,21 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 - **Verifica:** 293 test. Controllo nel browser a 320×568, 390×844, 768, 1440, 844×390, 844×330 e 640×400 (≈200%): nessuno scroll orizzontale di pagina, nessun pulsante del dock sotto 44 px. La prova su telefono e al tavolo (checklist §11) è ancora da fare.
 
 ## D-034 — Layout manuale per quattro giocatori
-- **Stato:** Approvata dal product owner (2026-10-19), da implementare.
+- **Stato:** Approvata dal product owner (2026-10-19). Implementata da Claude (2026-10-20), in attesa della revisione di ChatGPT prima del merge.
 - **Decisione:** con quattro giocatori si sceglie manualmente fra `Griglia`, `Fronte a fronte` e `Tavolo`. La scelta è una preferenza persistente, separata dallo stato partita e da Annulla/Ripeti.
 - **Rotazione:** ruotare il dispositivo può cambiare soltanto densità e reflow responsive; non cambia mai il layout scelto. Overlay e ordine del focus restano dritti/logici anche quando i pannelli sono orientati verso i posti al tavolo.
 - **Art e motion:** anteprime schematiche nel linguaggio oro/teal canonico, senza verde neon. Cambio tramite crossfade/assestamento di 140 ms, mai rotazione animata; immediato con reduced motion.
 - **Specifica:** [`docs/superpowers/specs/2026-10-19-four-player-layout-selector-design.md`](superpowers/specs/2026-10-19-four-player-layout-selector-design.md).
+- **Implementazione:**
+  - **Preferenza:** `fourPlayerLayout` (`grid` predefinito e fallback campo per campo), fuori da partita, salvataggio e cronologia.
+  - **Densità:** `useCompactDensity` (`max-height: 30rem`, senza orientamento) sostituisce `useCompactLandscape`.
+  - **Selettore e posti:** `LayoutSelector` (foglio laterale, radiogroup) e `PlayerSeat` (wrapper stabili, nessun remount).
+- **Scelte tecniche da confermare:**
+  - Tavolo usa sempre i pannelli compatti.
+  - In Tavolo le righe alta e bassa occupano tutta la larghezza.
+  - La barra Annulla di un giocatore rimosso conta come quarto posto.
+  - Con lo schermo basso si scorre invece di passare alla griglia.
+- **Verifica:** 326 test. Browser: Tavolo a 768×1024 e 390×844, Fronte a fronte a 844×390, Griglia a 1440. Dettagli aperto da un posto a 90° resta dritto e restituisce il focus. La prova al tavolo con 4 persone (checklist §12) è ancora da fare.
+- **Revisione ChatGPT (2026-10-20):** due correzioni.
+  - Le colonne del selettore seguono la larghezza reale dello sheet (container query): una colonna a 768, 1024 e al 200%, nessun overflow interno.
+  - Il radiogroup ha il roving tabindex con frecce, Home e End. Le frecce spostano il focus senza applicare il layout, che si sceglie con Spazio o Invio, perché la scelta chiude lo sheet.

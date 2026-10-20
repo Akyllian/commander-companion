@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react'
 
 /**
- * Phase 1.6: a phone held horizontally. Usable height, not device detection, so it also
- * covers Safari with visible browser chrome. This is the single source of the condition:
- * CSS keys off `data-compact-landscape` instead of repeating the query.
+ * Compact density (Phase 1.6, D-034): a short viewport, such as a phone on its side or Safari
+ * with visible chrome. It changes control density only; the four-player layout is a separate
+ * preference and rotation never chooses it. CSS keys off `data-compact-density` instead of
+ * repeating the query.
  */
-export const COMPACT_LANDSCAPE_QUERY = '(orientation: landscape) and (max-height: 30rem)'
+export const COMPACT_DENSITY_QUERY = '(max-height: 30rem)'
 
 const mediaList = () =>
   typeof window !== 'undefined' && typeof window.matchMedia === 'function'
-    ? window.matchMedia(COMPACT_LANDSCAPE_QUERY)
+    ? window.matchMedia(COMPACT_DENSITY_QUERY)
     : null
 
-export function useCompactLandscape(): boolean {
+export function useCompactDensity(): boolean {
   const [matches, setMatches] = useState(() => mediaList()?.matches ?? false)
 
   useEffect(() => {

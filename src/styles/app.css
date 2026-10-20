@@ -998,10 +998,10 @@ input[type='checkbox'] {
 }
 
 /* ---- Compact landscape (Phase 1.6, spec 2026-10-18) ----
-   Activated by `data-compact-landscape`, set from COMPACT_LANDSCAPE_QUERY in JS (single source).
+   Activated by `data-compact-density`, set from COMPACT_DENSITY_QUERY in JS (single source).
    Budget at 844×330: 8 + 52 header + 8 + 2 rows of ~123 + 8 gap + 8. */
 
-.app-shell[data-compact-landscape='true'] {
+.app-shell[data-compact-density='true'] {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   gap: var(--space-2);
@@ -1015,11 +1015,11 @@ input[type='checkbox'] {
     max(var(--space-2), env(safe-area-inset-left));
 }
 
-.app-shell[data-compact-landscape='true'] .app-footer {
+.app-shell[data-compact-density='true'] .app-footer {
   display: none;
 }
 
-.app-shell[data-compact-landscape='true'] .app-header {
+.app-shell[data-compact-density='true'] .app-header {
   flex-direction: row;
   align-items: center;
   gap: var(--space-2);
@@ -1028,40 +1028,40 @@ input[type='checkbox'] {
   padding: var(--space-1) var(--space-2);
 }
 
-.app-shell[data-compact-landscape='true'] .brand > span {
+.app-shell[data-compact-density='true'] .brand > span {
   display: none;
 }
 
-.app-shell[data-compact-landscape='true'] .brand-mark {
+.app-shell[data-compact-density='true'] .brand-mark {
   width: 2.25rem;
   height: 2.25rem;
 }
 
-.app-shell[data-compact-landscape='true'] .table-controls {
+.app-shell[data-compact-density='true'] .table-controls {
   flex: 1 1 auto;
   flex-wrap: nowrap;
   justify-content: space-between;
   min-width: 0;
 }
 
-.app-shell[data-compact-landscape='true'] .history-controls,
-.app-shell[data-compact-landscape='true'] .match-controls {
+.app-shell[data-compact-density='true'] .history-controls,
+.app-shell[data-compact-density='true'] .match-controls {
   flex: none;
   flex-wrap: nowrap;
 }
 
-.app-shell[data-compact-landscape='true'] .history-controls button span {
+.app-shell[data-compact-density='true'] .history-controls button span {
   display: none;
 }
 
-.app-shell[data-compact-landscape='true'] .history-controls button {
+.app-shell[data-compact-density='true'] .history-controls button {
   min-width: var(--button-height);
 }
 
 /* Grid: rows fill the height when they fit, and grow (page scrolls vertically) when zoom or
    text size makes the 44px controls unable to fit — accessibility wins over no-scroll. */
-.app-shell[data-compact-landscape='true'] .player-grid,
-.app-shell[data-compact-landscape='true'] .player-grid[data-player-count='2'] {
+.app-shell[data-compact-density='true'] .player-grid,
+.app-shell[data-compact-density='true'] .player-grid[data-player-count='2'] {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-auto-rows: minmax(min-content, 1fr);
   gap: var(--space-2);
@@ -1069,16 +1069,16 @@ input[type='checkbox'] {
 }
 
 /* Three players: three columns from 44rem, otherwise 2 + one spanning panel. */
-.app-shell[data-compact-landscape='true'] .player-grid[data-player-count='3'] > :nth-child(3) {
+.app-shell[data-compact-density='true'] .player-grid[data-player-count='3'] > :nth-child(3) {
   grid-column: 1 / -1;
 }
 
 @media (min-width: 44rem) {
-  .app-shell[data-compact-landscape='true'] .player-grid[data-player-count='3'] {
+  .app-shell[data-compact-density='true'] .player-grid[data-player-count='3'] {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .app-shell[data-compact-landscape='true'] .player-grid[data-player-count='3'] > :nth-child(3) {
+  .app-shell[data-compact-density='true'] .player-grid[data-player-count='3'] > :nth-child(3) {
     grid-column: auto;
   }
 }
@@ -1086,12 +1086,12 @@ input[type='checkbox'] {
 /* Accessible reflow (200% zoom, very narrow CSS viewports): two columns can no longer hold a
    44px rail, so panels stack and the page scrolls vertically instead of clipping controls. */
 @media (max-width: 32rem) {
-  .app-shell[data-compact-landscape='true'] .player-grid,
-  .app-shell[data-compact-landscape='true'] .player-grid[data-player-count] {
+  .app-shell[data-compact-density='true'] .player-grid,
+  .app-shell[data-compact-density='true'] .player-grid[data-player-count] {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .app-shell[data-compact-landscape='true'] .player-grid[data-player-count='3'] > :nth-child(3) {
+  .app-shell[data-compact-density='true'] .player-grid[data-player-count='3'] > :nth-child(3) {
     grid-column: auto;
   }
 }
@@ -1183,7 +1183,7 @@ input[type='checkbox'] {
   margin: 0;
 }
 
-.app-shell[data-compact-landscape='true'] .undo-bar {
+.app-shell[data-compact-density='true'] .undo-bar {
   align-self: stretch;
   align-content: center;
 }
@@ -1317,42 +1317,42 @@ input[type='checkbox'] {
 }
 
 /* Compact shape and depth: 12px radius, lighter shadow; standard layout unchanged. */
-.app-shell[data-compact-landscape='true'] .app-header,
-.app-shell[data-compact-landscape='true'] .player-panel,
-.app-shell[data-compact-landscape='true'] .undo-bar,
-.app-shell[data-compact-landscape='true'] .side-sheet {
+.app-shell[data-compact-density='true'] .app-header,
+.app-shell[data-compact-density='true'] .player-panel,
+.app-shell[data-compact-density='true'] .undo-bar,
+.app-shell[data-compact-density='true'] .side-sheet {
   border-radius: var(--radius-md);
 }
 
-.app-shell[data-compact-landscape='true'] .player-panel {
+.app-shell[data-compact-density='true'] .player-panel {
   box-shadow: var(--shadow-panel-compact);
 }
 
-.app-shell[data-compact-landscape='true'] .app-header {
+.app-shell[data-compact-density='true'] .app-header {
   gap: var(--space-1);
   box-shadow: var(--shadow-panel-compact);
 }
 
-.app-shell[data-compact-landscape='true'] .table-controls,
-.app-shell[data-compact-landscape='true'] .history-controls {
+.app-shell[data-compact-density='true'] .table-controls,
+.app-shell[data-compact-density='true'] .history-controls {
   gap: var(--space-1);
 }
 
 /* 8px before the Regole/Partita group, 4px between controls. */
-.app-shell[data-compact-landscape='true'] .match-controls {
+.app-shell[data-compact-density='true'] .match-controls {
   gap: var(--space-1);
   margin-left: var(--space-2);
 }
 
 /* Brand mark: 36px inside a 44px non-interactive slot, half the standard glow. */
-.app-shell[data-compact-landscape='true'] .brand {
+.app-shell[data-compact-density='true'] .brand {
   display: inline-grid;
   width: var(--button-height);
   height: var(--button-height);
   place-items: center;
 }
 
-.app-shell[data-compact-landscape='true'] .brand-mark {
+.app-shell[data-compact-density='true'] .brand-mark {
   filter: drop-shadow(0 0 0.275rem oklch(0.72 0.1 188 / 48%));
 }
 
@@ -1513,7 +1513,7 @@ body {
 }
 
 /* Compact: less spectacle, same world. */
-body:has(.app-shell[data-compact-landscape='true']) {
+body:has(.app-shell[data-compact-density='true']) {
   background:
     radial-gradient(ellipse at 20% 0%, oklch(0.794 0.132 184 / 7%), transparent 26rem),
     var(--arcane-stars),
@@ -1559,7 +1559,7 @@ body:has(.app-shell[data-compact-landscape='true']) {
   fill: var(--color-gold-bright);
 }
 
-.app-shell[data-compact-landscape='true'] .brand-mark {
+.app-shell[data-compact-density='true'] .brand-mark {
   filter: drop-shadow(0 0 0.25rem oklch(0.812 0.11 87 / 35%));
 }
 
@@ -2592,4 +2592,217 @@ button:hover:not(:disabled) {
 .score-adjust__value output {
   display: inline-flex;
   align-items: center;
+}
+
+/* ---- Four-player seats (D-034) ----
+   Every cell is a stable `.player-seat`; the layout preference only changes placement and the
+   turn of `.player-seat__content`. DOM and tab order stay 1→4. Top-layer dialogs and portals are
+   outside the transformed subtree, so sheets and menus stay upright. */
+.player-seat,
+.player-seat__content {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+}
+
+.player-seat[data-orientation='180'] > .player-seat__content {
+  transform: rotate(180deg);
+}
+
+/* Tavolo: one player per edge, the centre left free. Side seats reserve swapped geometry
+   through a size container: the turned content is exactly as long as the seat is tall. */
+.app-shell .player-grid[data-layout='table'][data-player-count] {
+  grid-template-areas:
+    'top top top'
+    'left centre right'
+    'bottom bottom bottom';
+  grid-template-columns: minmax(8.5rem, 1fr) minmax(0, 1.2fr) minmax(8.5rem, 1fr);
+  /* The side seats get half the viewport height; a short screen scrolls rather than shrinking
+     controls below 44px or silently switching to the grid. */
+  grid-template-rows: auto clamp(18rem, 50dvh, 40rem) auto;
+}
+
+.player-grid[data-layout='table'] > [data-seat='top'] {
+  grid-area: top;
+}
+
+.player-grid[data-layout='table'] > [data-seat='bottom'] {
+  grid-area: bottom;
+}
+
+.player-grid[data-layout='table'] > [data-seat='left'] {
+  grid-area: left;
+}
+
+.player-grid[data-layout='table'] > [data-seat='right'] {
+  grid-area: right;
+}
+
+.player-grid[data-layout='table'] > [data-seat='left'],
+.player-grid[data-layout='table'] > [data-seat='right'] {
+  position: relative;
+  container-type: size;
+}
+
+.player-grid[data-layout='table'] > [data-seat='left'] > .player-seat__content,
+.player-grid[data-layout='table'] > [data-seat='right'] > .player-seat__content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100cqh;
+  height: 100cqw;
+  translate: -50% -50%;
+}
+
+.player-seat[data-orientation='90'] > .player-seat__content {
+  transform: rotate(90deg);
+}
+
+.player-seat[data-orientation='-90'] > .player-seat__content {
+  transform: rotate(-90deg);
+}
+
+/* Top and bottom seats stay as wide as their compact rail needs, centred on their edge. */
+.player-grid[data-layout='table'] > [data-seat='top'] .player-panel,
+.player-grid[data-layout='table'] > [data-seat='bottom'] .player-panel {
+  justify-self: center;
+  width: min(100%, 32rem);
+}
+
+/* ---- Layout selector (D-034): an engraved seating board, not a settings card ---- */
+.layout-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-width: var(--button-height);
+  padding-inline: var(--space-3);
+}
+
+/* Like Preferenze, the label yields to the icon when space is short; the full name stays. */
+@media (max-width: 52rem) {
+  .layout-button span {
+    display: none;
+  }
+}
+
+.app-shell[data-compact-density='true'] .layout-button {
+  padding-inline: 0;
+}
+
+.app-shell[data-compact-density='true'] .layout-button span {
+  display: none;
+}
+
+.layout-options {
+  display: grid;
+  gap: var(--space-3);
+}
+
+/* Columns follow the sheet's real width, not the viewport: two options only when each still
+   has room for its preview and its text (the default 28rem sheet always stays one column). */
+.layout-sheet .side-sheet__body {
+  container-type: inline-size;
+}
+
+@container (min-width: 40rem) {
+  .layout-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.layout-option {
+  display: grid;
+  grid-template-columns: minmax(6rem, 8rem) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 5.5rem;
+  padding: var(--space-3);
+  border-color: var(--color-gold-hairline);
+  border-radius: var(--radius-md);
+  background: color-mix(in oklch, var(--color-ink) 92%, transparent);
+  text-align: start;
+}
+
+.layout-option[aria-checked='true'] {
+  border-color: var(--color-gold-bright);
+  background: color-mix(in oklch, var(--color-primary) 9%, var(--color-ink));
+  box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--color-gold) 30%, transparent);
+}
+
+.layout-option__text {
+  display: grid;
+  justify-items: start;
+  gap: 0.125rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.layout-option__name {
+  color: var(--color-ivory);
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.layout-option__description {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+/* Text, not colour alone, says which layout is active. */
+.layout-option__selected {
+  margin-top: var(--space-1);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-gold-line);
+  border-radius: var(--radius-round);
+  color: var(--color-gold-bright);
+  font-size: 0.72rem;
+  font-weight: 650;
+  line-height: 1.4rem;
+}
+
+.layout-preview {
+  width: 100%;
+  height: auto;
+}
+
+.layout-preview__table {
+  fill: var(--color-depth);
+  stroke: var(--color-gold-hairline);
+  stroke-width: 1;
+}
+
+.layout-preview__seat {
+  --seat-accent: var(--color-primary);
+}
+
+.layout-preview__seat[data-accent='gold'] {
+  --seat-accent: var(--primitive-gold-500);
+}
+
+.layout-preview__seat[data-accent='violet'] {
+  --seat-accent: var(--primitive-violet-500);
+}
+
+.layout-preview__seat[data-accent='ember'] {
+  --seat-accent: var(--primitive-ember-500);
+}
+
+.layout-preview__seat rect {
+  fill: var(--color-ink);
+  stroke: var(--color-gold-line);
+  stroke-width: 1;
+}
+
+/* Player tints only as the small orientation mark that faces each seat. */
+.layout-preview__seat line {
+  stroke: var(--seat-accent);
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.layout-option[aria-checked='true'] .layout-preview__seat rect {
+  stroke: var(--color-gold-bright);
 }

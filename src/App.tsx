@@ -1,8 +1,10 @@
-import { useEffect, useReducer, useState } from 'react'
+import { useEffect, useReducer, useRef, useState } from 'react'
 import { AppNotices } from './components/AppNotices'
 import { BrandSigil } from './components/icons'
 import { ConfirmDialog } from './components/ConfirmDialog'
 import { PlayerPanel } from './components/PlayerPanel'
+import { LayoutSelector } from './components/LayoutSelector'
+import { PlayerSeat } from './components/PlayerSeat'
 import { RulesDialog } from './components/RulesDialog'
 import { FAN_CONTENT_NOTICE } from './content/legal'
 import { getArtStore, pruneArt } from './media/artStore'
@@ -18,7 +20,7 @@ import {
 } from './game/storage'
 import type { LoadStatus } from './game/storage'
 import type { GameAction, GameState } from './game/types'
-import { useCompactLandscape } from './platform/useCompactLandscape'
+import { useCompactDensity } from './platform/useCompactDensity'
 import { isWakeLockSupported, useWakeLock } from './platform/useWakeLock'
 import { loadPreferences, savePreferences } from './settings/preferences'
 import type { Preferences } from './settings/preferences'
@@ -48,7 +50,8 @@ export default function App() {
   const [removal, setRemoval] = useState<Removal | null>(null)
   // Presentation state only: never dispatched, persisted or part of history.
   const [rulesOpen, setRulesOpen] = useState(false)
-  const compact = useCompactLandscape()
+  const [layoutOpen, setLayoutOpen] = useState(false)
+  const compact = useCompactDensity()
   const game = history.present
   const groupDelta = getGroupDelta(history)
 
@@ -107,6 +110,28 @@ export default function App() {
     if (hadFocus) document.getElementById('main')?.focus()
   }
 
+  // Four cells (players, or three players plus a removed player's Undo bar) take the chosen
+  // layout; otherwise the plain grid. Rotation never changes it (D-034).
+  const cellCount = game.players.length + (removalIsLatest ? 1 : 0)
+  const layout = cellCount === 4 ? preferences.fourPlayerLayout : 'grid'
+  // A seat is a short strip along one table edge, so Tavolo always uses compact panels.
+  const panelDensity = compact || layout === 'table'
+
+  // Layout change: one 140 ms crossfade with a 2px settle on the whole grid, never an animated
+  // rotation and never a remount; immediate with reduced motion (D-034).
+  const gridRef = useRef<HTMLElement>(null)
+  const previousLayout = useRef(layout)
+  useEffect(() => {
+    if (previousLayout.current === layout) return
+    previousLayout.current = layout
+    const grid = gridRef.current
+    if (typeof grid?.animate !== 'function' || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
+    grid.animate([{ opacity: 0, transform: 'translateY(2px)' }, { opacity: 1, transform: 'none' }], {
+      duration: 140,
+      easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+    })
+  }, [layout])
+
   const panels = game.players.map((player) => (
     <PlayerPanel
       key={player.id}
@@ -115,7 +140,7 @@ export default function App() {
       playerCount={game.players.length}
       canRemovePartner={canRemovePartner(game, player.id)}
       delta={groupDelta?.target.playerId === player.id ? groupDelta : null}
-      compact={compact}
+      compact={panelDensity}
       monarchPlayerId={game.monarchPlayerId}
       initiativePlayerId={game.initiativePlayerId}
       dispatch={dispatch}
@@ -136,6 +161,12 @@ export default function App() {
       />,
     )
   }
+
+  const cells = panels.map((cell, index) => (
+    <PlayerSeat key={cell.key} layout={layout} index={index}>
+      {cell}
+    </PlayerSeat>
+  ))
 
   const notices = (
     <AppNotices
@@ -158,7 +189,7 @@ export default function App() {
   }
 
   return (
-    <div className="app-shell" data-compact-landscape={compact}>
+    <div className="app-shell" data-compact-density={compact}>
       <header className="app-header">
         <a className="brand" href="#main" aria-label="Commander Companion, vai ai punteggi">
           <BrandSigil />
@@ -184,13 +215,15 @@ export default function App() {
           onReset={() => setPending({ kind: 'reset' })}
           onNewGame={(playerCount) => setPending({ kind: 'new-game', playerCount })}
           onOpenRules={() => setRulesOpen(true)}
+          showLayout={game.players.length === 4}
+          onOpenLayout={() => setLayoutOpen(true)}
         />
       </header>
 
       {!compact && notices}
 
-      <main id="main" className="player-grid" data-player-count={panels.length} tabIndex={-1}>
-        {panels}
+      <main id="main" ref={gridRef} className="player-grid" data-player-count={panels.length} data-layout={layout} tabIndex={-1}>
+        {cells}
       </main>
 
       <footer className="app-footer">
@@ -201,6 +234,15 @@ export default function App() {
       </footer>
 
       <RulesDialog open={rulesOpen} onClose={() => setRulesOpen(false)} />
+      <LayoutSelector
+        open={layoutOpen}
+        layout={preferences.fourPlayerLayout}
+        onChoose={(fourPlayerLayout) => {
+          updatePreferences({ ...preferences, fourPlayerLayout })
+          setLayoutOpen(false)
+        }}
+        onClose={() => setLayoutOpen(false)}
+      />
 
       <ConfirmDialog
         open={pending?.kind === 'new-game'}
