@@ -183,3 +183,25 @@ export function CheckIcon() {
     </svg>
   )
 }
+
+/** The Contatori trigger (R2 §3.3): a small stack of counters. */
+export function CountersIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="button-icon">
+      <rect x="4" y="4" width="16" height="5" rx="1.5" />
+      <rect x="4" y="11" width="16" height="5" rx="1.5" />
+      <path d="M7 20h10" />
+    </svg>
+  )
+}
+
+/** The card's details trigger (⋮). */
+export function DetailsIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="button-icon">
+      <circle cx="12" cy="5" r="1.25" />
+      <circle cx="12" cy="12" r="1.25" />
+      <circle cx="12" cy="19" r="1.25" />
+    </svg>
+  )
+}

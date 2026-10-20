@@ -3,36 +3,29 @@ import type { CommanderIndex, GameAction, PlayerState } from '../game/types'
 import { CommanderSlotPicker, commanderSlotLabel } from './CommanderPicker'
 
 /**
- * Secondary player sections, shared by the standard panel (inline) and the compact
- * player-details sheet (spec 2026-10-18). Scoring lives in the dock instead (D-033).
+ * Sections of the player-details sheet (R2 §4.3): defeat causes, deck and credits. Scoring
+ * lives on the card and in its inner panels.
  */
 
 
-/** Visible reason (UX decision 6; shorter in compact) and the full sentence for screen readers. */
-const DEFEAT_LABELS: Record<DefeatReason, { short: string; compact: string; full: string }> = {
-  life: { short: 'Vita', compact: 'Vita', full: 'punti vita a zero o meno' },
-  poison: { short: '10 veleno', compact: '10 veleno', full: '10 segnalini veleno' },
-  'commander-damage': { short: '21 danni Commander', compact: '21 Commander', full: '21 danni da un comandante' },
+/** Every tracked cause of a player being out of the game, in full words (R2 §9, D-039). */
+const DEFEAT_LABELS: Record<DefeatReason, string> = {
+  life: 'punti vita a zero o meno',
+  poison: '10 segnalini veleno',
+  'commander-damage': '21 danni da un comandante',
 }
 
-interface DefeatBadgeProps {
-  reasons: DefeatReason[]
-  variant?: 'standard' | 'compact'
-}
-
-export function DefeatBadge({ reasons, variant = 'standard' }: DefeatBadgeProps) {
+export function DefeatReasons({ reasons }: { reasons: DefeatReason[] }) {
   if (reasons.length === 0) return null
-  const visible =
-    reasons.length === 1
-      ? DEFEAT_LABELS[reasons[0]][variant === 'compact' ? 'compact' : 'short']
-      : `${reasons.length} condizioni`
   return (
-    <span className="status-badge">
-      <span className="status-badge__label">Sconfitto</span>
-      {/* In narrow compact panels only this part is shortened, never the word "Sconfitto". */}
-      <span className="status-badge__reason"> · {visible}</span>
-      <span className="sr-only">: {reasons.map((reason) => DEFEAT_LABELS[reason].full).join(', ')}</span>
-    </span>
+    <div className="defeat-reasons">
+      <p className="defeat-reasons__title">Fuori dalla partita</p>
+      <ul>
+        {reasons.map((reason) => (
+          <li key={reason}>{DEFEAT_LABELS[reason]}</li>
+        ))}
+      </ul>
+    </div>
   )
 }
 

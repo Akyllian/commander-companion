@@ -5,6 +5,7 @@ import { PlayerPanel } from './components/PlayerPanel'
 import { PlayerSeat } from './components/PlayerSeat'
 import type { TableLayout } from './components/PlayerSeat'
 import { RulesDialog } from './components/RulesDialog'
+import { blocksSeats, CLOSED, surfaceReducer } from './match/surface'
 import { useMatchArt } from './media/useMatchArt'
 import { canRemovePartner, createGame } from './game/game'
 import { createHistory, getGroupDelta, historyReducer } from './game/history'
@@ -43,6 +44,10 @@ export default function App() {
   // Presentation state only: never dispatched, persisted or part of history.
   const [rulesOpen, setRulesOpen] = useState(false)
   const [revealed, setRevealed] = useState(false)
+  // The one transient surface (R2 §2.5): hub, tool, or a card's Contatori or Danni Commander.
+  const [surface, dispatchSurface] = useReducer(surfaceReducer, CLOSED)
+  // Where focus goes once the surface that held it is gone.
+  const focusAfterClose = useRef<string | null>(null)
   const [section, navigate] = useSection()
   const compact = useCompactDensity()
   const rhombusRef = useRef<HTMLButtonElement>(null)
@@ -58,7 +63,7 @@ export default function App() {
   useEffect(() => setSaveFailed(!saveGame(game)), [game])
 
   // Random art for seats without a commander, fixed for the whole match (D-039).
-  const { startNew: startNewMatch } = useMatchArt(game.players)
+  const { match, startNew: startNewMatch } = useMatchArt(game.players)
 
   useEffect(() => {
     void requestPersistentStorage()
@@ -122,6 +127,48 @@ export default function App() {
 
   const dispatch = (action: GameAction) => dispatchHistory({ type: 'apply', action, at: performance.now() })
 
+  /** Closes the active surface; a card panel hands focus back to its trigger (R2 §11). */
+  const closeSurface = () => {
+    if (surface.kind === 'counters' || surface.kind === 'commander') {
+      focusAfterClose.current = `[data-player-id="${surface.playerId}"] [data-surface-trigger="${surface.kind}"]`
+    }
+    dispatchSurface({ type: 'close' })
+  }
+
+  useEffect(() => {
+    if (surface.kind !== 'closed' || !focusAfterClose.current) return
+    document.querySelector<HTMLElement>(focusAfterClose.current)?.focus()
+    focusAfterClose.current = null
+  }, [surface])
+
+  // Escape closes the active surface, unless a dialog above it handles the key first.
+  useEffect(() => {
+    if (surface.kind === 'closed') return
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || document.querySelector('dialog[open], [role="dialog"]')) return
+      closeSurface()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  })
+
+  // A panel whose player left closes, and focus falls back to the rhombus, never to <body>.
+  const playerIds = game.players.map((player) => player.id).join(',')
+  const previousCount = useRef(game.players.length)
+  useEffect(() => {
+    const ids = playerIds.split(',')
+    dispatchSurface({ type: 'players-changed', playerIds: ids })
+    const removed = ids.length < previousCount.current
+    previousCount.current = ids.length
+    if (!removed) return
+    // After the removed card's own controls unmount (and its sheet hands focus back).
+    const timer = window.setTimeout(() => {
+      const active = document.activeElement
+      if (!active || active === document.body || !active.isConnected) rhombusRef.current?.focus()
+    })
+    return () => window.clearTimeout(timer)
+  }, [playerIds])
+
   // Two players may face each other (D-035); four players use their chosen layout (D-034).
   const playerCount = game.players.length
   const layout: TableLayout =
@@ -137,6 +184,8 @@ export default function App() {
   useEffect(() => {
     if (previousLayout.current === layout) return
     previousLayout.current = layout
+    // A surface never survives a new layout: its geometry and focus would be orphaned (R2 §9).
+    dispatchSurface({ type: 'layout-changed' })
     const grid = gridRef.current
     if (typeof grid?.animate !== 'function' || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
     grid.animate([{ opacity: 0, transform: 'translateY(2px)' }, { opacity: 1, transform: 'none' }], {
@@ -155,6 +204,7 @@ export default function App() {
       index={index}
       clear={centre.clearances[index]}
       hintReserve={showHint ? centre.hintReserves[index] : null}
+      inert={blocksSeats(surface)}
     >
       <PlayerPanel
         player={player}
@@ -165,6 +215,10 @@ export default function App() {
         compact={panelDensity}
         monarchPlayerId={game.monarchPlayerId}
         initiativePlayerId={game.initiativePlayerId}
+        randomArt={match.randomArtBySeat[player.id] ?? null}
+        openSurface={(surface.kind === 'counters' || surface.kind === 'commander') && surface.playerId === player.id ? surface.kind : null}
+        onOpenSurface={(kind) => dispatchSurface({ type: 'open', surface: { kind, playerId: player.id } })}
+        onCloseSurface={closeSurface}
         dispatch={dispatch}
       />
     </PlayerSeat>
@@ -210,7 +264,8 @@ export default function App() {
         <ShellRhombus
           expanded={revealed}
           controlsId={NAV_ID}
-          showHint={showHint}
+          // The label hides while a surface is open; its reserved band stays, so no card moves.
+          showHint={showHint && surface.kind === 'closed'}
           onToggle={toggleBar}
           buttonRef={rhombusRef}
           style={centre.point ? { left: centre.point.x, top: centre.point.y } : undefined}

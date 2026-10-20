@@ -12,12 +12,22 @@ import type { ArtStore } from './media/artStore'
 let clock = 0
 const panel = (name: RegExp) => screen.getByRole('region', { name })
 const life = (name: RegExp) => within(panel(name)).getByTestId('life-total')
-// The first badge in DOM order is the visible one (a closed details sheet may hold another).
-const badgeOf = (scope: HTMLElement) => within(scope).getAllByText('Sconfitto')[0].closest('.status-badge') as HTMLElement
 const click = (scope: HTMLElement, name: RegExp) => fireEvent.click(within(scope).getByRole('button', { name }))
-/** Picks a score mode in the panel's dock (D-033). */
-const mode = (scope: HTMLElement, label: RegExp) =>
-  fireEvent.click(within(within(scope).getByRole('group', { name: /^punteggio di/i })).getByRole('button', { name: label }))
+/** Taps a card's life button `times` times (R2: ±1 only). */
+const tapLife = (scope: HTMLElement, sign: 1 | -1, times: number) => {
+  for (let tap = 0; tap < times; tap += 1) click(scope, sign > 0 ? /^aumenta di 1 la vita/i : /^riduci di 1 la vita/i)
+}
+/** Opens a card's Contatori drawer (R2 §5) or Danni Commander panel (R2 §6). */
+const openCounters = (scope: HTMLElement) => fireEvent.click(within(scope).getByRole('button', { name: 'Contatori' }))
+const openCommander = (scope: HTMLElement) => fireEvent.click(within(scope).getByRole('button', { name: /^danni commander di/i }))
+const chooseSource = (scope: HTMLElement, name: string) => fireEvent.click(within(scope).getByRole('radio', { name }))
+const counterValue = (scope: HTMLElement, name: string) => within(within(scope).getByRole('group', { name })).getByTestId('counter-value')
+/** Opens a card's upright Dettagli sheet (R2 §4.3). */
+const openDetails = (scope: HTMLElement) => fireEvent.click(within(scope).getByRole('button', { name: /^apri dettagli di/i }))
+const removePlayer = (scope: HTMLElement) => {
+  openDetails(scope)
+  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Rimuovi giocatore' }))
+}
 
 /** Opens a section the way a player does: from the game, the rhombus first reveals the bar. */
 const goTo = (name: 'Partita' | 'Mazzi' | 'Impara' | 'Altro') => {
@@ -58,110 +68,120 @@ describe('scoring', () => {
 
   it('persists the latest score for a later mount', () => {
     const first = render(<App />)
-    click(panel(/giocatore 1/i), /riduci.*5.*vita/i)
+    tapLife(panel(/giocatore 1/i), -1, 5)
     first.unmount()
 
     render(<App />)
     expect(life(/giocatore 1/i)).toHaveTextContent('35')
   })
 
-  it('adjusts counters through the steppers', () => {
+  it('adjusts counters in the Contatori drawer', () => {
     render(<App />)
     const player = panel(/giocatore 1/i)
-    mode(player, /^veleno/i)
-    click(player, /aumenta veleno di giocatore 1/i)
-    click(player, /aumenta veleno di giocatore 1/i)
-    click(player, /riduci veleno di giocatore 1/i)
-    expect(within(player).getByRole('status', { name: /veleno di giocatore 1/i })).toHaveTextContent('1')
+    openCounters(player)
+    click(player, /^aggiungi 1 al veleno di giocatore 1/i)
+    click(player, /^aggiungi 1 al veleno di giocatore 1/i)
+    click(player, /^togli 1 dal veleno di giocatore 1/i)
+    expect(counterValue(player, 'Veleno')).toHaveTextContent('1')
   })
 
-  it('applies Commander damage to life as one undoable step', () => {
+  it('applies Commander damage to life as one step', () => {
     render(<App />)
     const target = panel(/giocatore 1/i)
-    mode(target, /^commander/i)
+    openCommander(target)
 
-    click(target, /aumenta danni commander da giocatore 2 a giocatore 1/i)
-    click(target, /aumenta danni commander da giocatore 2 a giocatore 1/i)
+    click(target, /^aggiungi 1 danno commander da giocatore 2 a giocatore 1/i)
+    click(target, /^aggiungi 1 danno commander da giocatore 2 a giocatore 1/i)
     expect(life(/giocatore 1/i)).toHaveTextContent('38')
-    expect(within(target).getByRole('status', { name: /danni commander da giocatore 2/i })).toHaveTextContent('2')
+    expect(within(target).getByTestId('commander-value')).toHaveTextContent('2')
 
-    click(target, /riduci danni commander da giocatore 2 a giocatore 1/i)
+    click(target, /^togli 1 danno commander da giocatore 2 a giocatore 1/i)
     expect(life(/giocatore 1/i)).toHaveTextContent('39')
   })
 
-  it('shows the defeat label with its reason', () => {
+  it('marks a poisoned player out of the game and lists the cause in Dettagli', () => {
     render(<App />)
     const player = panel(/giocatore 1/i)
-    mode(player, /^veleno/i)
-    for (let step = 0; step < 10; step += 1) click(player, /aumenta veleno di giocatore 1/i)
-    expect(badgeOf(player)).toHaveTextContent('Sconfitto · 10 veleno: 10 segnalini veleno')
+    openCounters(player)
+    for (let step = 0; step < 10; step += 1) click(player, /^aggiungi 1 al veleno di giocatore 1/i)
+    expect(within(player).getByText('Fuori dalla partita')).toBeInTheDocument()
+    click(player, /^chiudi contatori/i)
+    openDetails(player)
+    expect(within(screen.getByRole('dialog')).getByText('10 segnalini veleno')).toBeInTheDocument()
   })
 
-  it('summarises several defeat conditions', () => {
+  it('lists several defeat causes together in Dettagli', () => {
     vi.spyOn(performance, 'now').mockImplementation(() => (clock += 1000))
     render(<App />)
     const player = panel(/giocatore 1/i)
-    mode(player, /^veleno/i)
-    for (let step = 0; step < 10; step += 1) click(player, /aumenta veleno di giocatore 1/i)
-    mode(player, /^vita/i)
-    for (let step = 0; step < 8; step += 1) click(player, /riduci di 5 la vita/i)
-    expect(badgeOf(player)).toHaveTextContent(/^Sconfitto · 2 condizioni/)
-    // Eighteen full-app taps: under coverage on a busy machine this can pass 5 s.
+    openCounters(player)
+    for (let step = 0; step < 10; step += 1) click(player, /^aggiungi 1 al veleno di giocatore 1/i)
+    click(player, /^chiudi contatori/i)
+    tapLife(player, -1, 40)
+    openDetails(player)
+    const sheet = screen.getByRole('dialog')
+    expect(within(sheet).getByText('10 segnalini veleno')).toBeInTheDocument()
+    expect(within(sheet).getByText('punti vita a zero o meno')).toBeInTheDocument()
+    // Fifty full-app taps: under coverage on a busy machine this can pass 5 s.
   }, 15_000)
 
-  it('summarises Commander damage with the maximum from one commander, not the sum', () => {
+  it('keeps one opponent’s damage per source: 21 from one commander, never the sum', () => {
     render(<App />)
     const target = panel(/giocatore 1/i)
-    mode(target, /^commander/i)
-    for (let step = 0; step < 3; step += 1) click(target, /aumenta danni commander da giocatore 2 a giocatore 1/i)
-    click(target, /^giocatore 3/i)
-    click(target, /aumenta danni commander da giocatore 3 a giocatore 1/i)
-    expect(within(target).getByRole('button', { name: 'Commander: massimo 3 su 21' })).toHaveTextContent('3/21')
+    openCommander(target)
+    for (let step = 0; step < 20; step += 1) click(target, /^aggiungi 1 danno commander da giocatore 2 a giocatore 1/i)
+    chooseSource(target, 'Giocatore 3 · Comandante')
+    click(target, /^aggiungi 1 danno commander da giocatore 3 a giocatore 1/i)
+    expect(within(target).queryByText('Fuori dalla partita')).not.toBeInTheDocument()
+    chooseSource(target, 'Giocatore 2 · Comandante')
+    click(target, /^aggiungi 1 danno commander da giocatore 2 a giocatore 1/i)
+    expect(within(target).getByText('Fuori dalla partita')).toBeInTheDocument()
   })
 
-  it('keeps the chosen mode while the rest of the table keeps scoring', () => {
+  it('keeps one card’s panel open while the rest of the table keeps scoring', () => {
     render(<App />)
-    mode(panel(/giocatore 1/i), /^commander/i)
+    openCommander(panel(/giocatore 1/i))
     click(panel(/giocatore 2/i), /aumenta.*1.*vita/i)
     click(panel(/giocatore 2/i), /riduci.*1.*vita/i)
-    expect(within(panel(/giocatore 1/i)).getByRole('button', { name: /^commander/i })).toHaveAttribute('aria-pressed', 'true')
+    expect(within(panel(/giocatore 1/i)).getByRole('radiogroup')).toBeInTheDocument()
   })
 })
 
 describe('partner commanders', () => {
   it('tracks the two commanders of a partner deck separately', () => {
     render(<App />)
-    fireEvent.click(within(panel(/giocatore 2/i)).getByRole('checkbox', { name: /due comandanti/i }))
-    expect(within(panel(/giocatore 2/i)).getByText('Partner')).toBeInTheDocument()
+    openDetails(panel(/giocatore 2/i))
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('checkbox', { name: /due comandanti/i }))
+    expect(within(screen.getByRole('dialog')).getByText('Partner')).toBeInTheDocument()
+    fireEvent(screen.getByRole('dialog'), new Event('cancel', { cancelable: true }))
 
     const target = panel(/giocatore 1/i)
-    mode(target, /^commander/i)
-    click(target, /^giocatore 2, comandante 2/i)
-    click(target, /aumenta danni commander da giocatore 2, comandante 2 a giocatore 1/i)
-    expect(
-      within(target).getByRole('status', { name: /danni commander da giocatore 2, comandante 2/i }),
-    ).toHaveTextContent('1')
-    expect(within(target).getByRole('button', { name: /^giocatore 2, comandante 1/i })).toHaveAccessibleName(
-      'Giocatore 2, Comandante 1: 0 danni',
-    )
+    openCommander(target)
+    chooseSource(target, 'Giocatore 2 · Comandante 2')
+    click(target, /^aggiungi 1 danno commander da giocatore 2, comandante 2 a giocatore 1/i)
+    expect(within(target).getByTestId('commander-value')).toHaveTextContent('1')
+    chooseSource(target, 'Giocatore 2 · Comandante 1')
+    expect(within(target).getByTestId('commander-value')).toHaveTextContent('0')
 
-    const toggle = within(panel(/giocatore 2/i)).getByRole('checkbox', { name: /due comandanti/i })
+    openDetails(panel(/giocatore 2/i))
+    const toggle = within(screen.getByRole('dialog')).getByRole('checkbox', { name: /due comandanti/i })
     expect(toggle).toBeDisabled()
-    expect(within(panel(/giocatore 2/i)).getByText('Azzera prima danni e tassa del Comandante 2.')).toBeInTheDocument()
+    expect(within(screen.getByRole('dialog')).getByText('Azzera prima danni e tassa del Comandante 2.')).toBeInTheDocument()
   })
 })
 
 describe('players and match', () => {
-  it('renames with Enter and cancels with Escape', () => {
+  it('renames in Dettagli with Enter and cancels with Escape', () => {
     render(<App />)
-    const input = within(panel(/giocatore 1/i)).getByRole('textbox', { name: /nome giocatore/i })
+    openDetails(panel(/giocatore 1/i))
+    const input = within(screen.getByRole('dialog')).getByRole('textbox', { name: /nome giocatore/i })
 
     fireEvent.change(input, { target: { value: 'Liliana' } })
     fireEvent.keyDown(input, { key: 'Enter' })
     fireEvent.blur(input)
     expect(panel(/liliana/i)).toBeInTheDocument()
 
-    const renamed = within(panel(/liliana/i)).getByRole('textbox', { name: /nome giocatore/i })
+    const renamed = within(screen.getByRole('dialog')).getByRole('textbox', { name: /nome giocatore/i })
     fireEvent.change(renamed, { target: { value: 'Nessuno' } })
     fireEvent.keyDown(renamed, { key: 'Escape' })
     fireEvent.blur(renamed)
@@ -170,7 +190,7 @@ describe('players and match', () => {
 
   it('removes a player at once and starts the new-game draft from the current table', () => {
     render(<App />)
-    click(panel(/giocatore 4/i), /rimuovi giocatore 4/i)
+    removePlayer(panel(/giocatore 4/i))
     expect(screen.getAllByRole('region')).toHaveLength(3)
     expect(screen.queryByText('Giocatore 4 rimosso')).not.toBeInTheDocument()
     goTo('Altro')
@@ -181,7 +201,7 @@ describe('players and match', () => {
 
   it('starts a new game only after confirming in the dialog', () => {
     render(<App />)
-    click(panel(/giocatore 1/i), /riduci.*5.*vita/i)
+    tapLife(panel(/giocatore 1/i), -1, 5)
     goTo('Altro')
     fireEvent.click(within(screen.getByRole('radiogroup', { name: 'Giocatori per la nuova partita' })).getByRole('radio', { name: '2' }))
     const opener = screen.getByRole('button', { name: 'Nuova partita' })
@@ -206,7 +226,7 @@ describe('players and match', () => {
 
   it('resets scores only after confirming, and closes with Escape', () => {
     render(<App />)
-    click(panel(/giocatore 1/i), /riduci.*5.*vita/i)
+    tapLife(panel(/giocatore 1/i), -1, 5)
     goTo('Altro')
 
     fireEvent.click(screen.getByRole('button', { name: /azzera punteggi/i }))
@@ -253,12 +273,13 @@ describe('announcements', () => {
     render(<App />)
     const player = panel(/giocatore 1/i)
     const live = player.querySelector('.score-announcement') as HTMLElement
-    mode(player, /^commander/i)
-    click(player, /aumenta danni commander da giocatore 2 a giocatore 1/i)
-    click(player, /aumenta danni commander da giocatore 2 a giocatore 1/i)
+    openCommander(player)
+    click(player, /^aggiungi 1 danno commander da giocatore 2 a giocatore 1/i)
+    click(player, /^aggiungi 1 danno commander da giocatore 2 a giocatore 1/i)
     act(() => vi.advanceTimersByTime(700))
     expect(live).toHaveTextContent('Giocatore 1: 2 danni Commander da Giocatore 2; vita 38')
 
+    click(player, /^chiudi danni commander/i)
     resetScores()
     act(() => vi.advanceTimersByTime(700))
     expect(live).toHaveTextContent('Giocatore 1: 40 punti vita')
@@ -307,7 +328,6 @@ describe('persistence and system notices', () => {
     await act(async () => fireEvent.click(screen.getByRole('button', { name: /^aggiorna$/i })))
     expect(apply).toHaveBeenCalledOnce()
   })
-
 })
 
 describe('rapid taps (UX decision 3)', () => {
@@ -337,28 +357,28 @@ describe('rapid taps (UX decision 3)', () => {
     render(<App />)
     const player = panel(/giocatore 1/i)
     click(player, /riduci di 1 la vita/i)
-    mode(player, /^veleno/i)
-    click(player, /aumenta veleno di giocatore 1/i)
-    click(player, /aumenta veleno di giocatore 1/i)
-    const dockBadge = () => player.querySelector('.score-adjust .delta-badge:not([data-phase])')
+    openCounters(player)
+    click(player, /^aggiungi 1 al veleno di giocatore 1/i)
+    click(player, /^aggiungi 1 al veleno di giocatore 1/i)
+    const panelBadge = () => player.querySelector('[data-drawer] .delta-badge:not([data-phase])')
     const lifeBadge = () => player.querySelector('.life-value .delta-badge:not([data-phase])')
-    expect(dockBadge()).toHaveTextContent('+2')
-    mode(player, /^commander/i)
-    click(player, /^giocatore 3/i)
-    click(player, /aumenta danni commander da giocatore 3 a giocatore 1/i)
-    expect(dockBadge()).toHaveTextContent('+1')
+    expect(panelBadge()).toHaveTextContent('+2')
+    openCommander(player)
+    chooseSource(player, 'Giocatore 3 · Comandante')
+    click(player, /^aggiungi 1 danno commander da giocatore 3 a giocatore 1/i)
+    expect(panelBadge()).toHaveTextContent('+1')
     // D-036: the same burst also shows, mirrored, on life.
     expect(lifeBadge()).toHaveTextContent('−1')
-    click(player, /riduci danni commander da giocatore 3 a giocatore 1/i)
-    expect(dockBadge()).toHaveTextContent('−1')
+    click(player, /^togli 1 danno commander da giocatore 3 a giocatore 1/i)
+    expect(panelBadge()).toHaveTextContent('−1')
     expect(lifeBadge()).toHaveTextContent('+1')
   })
 })
 
 describe('player removal (D-037: no Undo bar)', () => {
-  it('removes at once, with no Undo bar, and the table closes up', () => {
+  it('removes at once from Dettagli, with no Undo bar, and the table closes up', () => {
     render(<App />)
-    click(panel(/giocatore 3/i), /rimuovi giocatore 3/i)
+    removePlayer(panel(/giocatore 3/i))
     expect(screen.getAllByRole('region')).toHaveLength(3)
     expect(screen.queryByText('Giocatore 3 rimosso')).not.toBeInTheDocument()
     expect(document.querySelectorAll('#main > .player-seat')).toHaveLength(3)
@@ -391,7 +411,7 @@ describe('screen-on preference in Altro (UX decision 7)', () => {
   })
 })
 
-describe('compact landscape (Phase 1.6)', () => {
+describe('compact landscape (Phase 1.6, R2)', () => {
   afterEach(() => vi.unstubAllGlobals())
 
   const shell = () => document.querySelector('.app-shell') as HTMLElement
@@ -399,7 +419,7 @@ describe('compact landscape (Phase 1.6)', () => {
   it('switches layout when the media query changes, without touching the game', () => {
     const media = installMatchMedia(false)
     render(<App />)
-    click(panel(/giocatore 1/i), /riduci di 5 la vita/i)
+    tapLife(panel(/giocatore 1/i), -1, 5)
     expect(shell()).toHaveAttribute('data-compact-density', 'false')
 
     act(() => media.set(true))
@@ -410,17 +430,17 @@ describe('compact landscape (Phase 1.6)', () => {
     expect(life(/giocatore 1/i)).toHaveTextContent('35')
   })
 
-  it('shows a score rail and moves secondary controls to the details sheet', () => {
+  it('keeps the same card anatomy, with removal only in Dettagli', () => {
     installMatchMedia(true)
     render(<App />)
     const player = panel(/giocatore 1/i)
 
     const rail = within(player).getByRole('group', { name: 'Punti vita di Giocatore 1' })
-    expect(within(rail).getAllByRole('button').map((button) => button.textContent)).toEqual(['-5', '-1', '+1', '+5'])
-    expect(rail.children[2]).toContainElement(within(player).getByTestId('life-total'))
+    expect(within(rail).getAllByRole('button').map((button) => button.textContent)).toEqual(['−', '+'])
+    expect(rail.children[1]).toContainElement(within(player).getByTestId('life-total'))
     expect(within(player).queryByRole('button', { name: /rimuovi/i })).not.toBeInTheDocument()
 
-    const details = within(player).getByRole('button', { name: 'Dettagli di Giocatore 1' })
+    const details = within(player).getByRole('button', { name: 'Apri dettagli di Giocatore 1' })
     details.focus()
     fireEvent.click(details)
     const sheet = screen.getByRole('dialog', { name: 'Dettagli di Giocatore 1' })
@@ -435,44 +455,42 @@ describe('compact landscape (Phase 1.6)', () => {
     expect(details).toHaveFocus()
   })
 
-  it('scores Commander damage on the compact panel, with life still on the rail', () => {
+  it('scores Commander damage inside the compact card', () => {
     installMatchMedia(true)
     render(<App />)
     const player = panel(/giocatore 1/i)
-    mode(player, /^commander/i)
-    click(player, /aumenta danni commander da giocatore 2 a giocatore 1/i)
+    openCommander(player)
+    click(player, /^aggiungi 1 danno commander da giocatore 2 a giocatore 1/i)
     expect(life(/giocatore 1/i)).toHaveTextContent('39')
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    mode(player, /^vita/i)
-    expect(within(player).getByRole('group', { name: 'Punti vita di Giocatore 1' })).toBeInTheDocument()
   })
 
   it('removes from the sheet at once, with no Undo bar', () => {
     installMatchMedia(true)
     render(<App />)
-    fireEvent.click(within(panel(/giocatore 2/i)).getByRole('button', { name: /dettagli/i }))
-    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Rimuovi giocatore' }))
+    removePlayer(panel(/giocatore 2/i))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(screen.getAllByRole('region')).toHaveLength(3)
     expect(screen.queryByText('Giocatore 2 rimosso')).not.toBeInTheDocument()
   })
 
-  it('shows the compact defeat label and keeps every reason for screen readers', () => {
+  it('marks 21 Commander damage from one source out of the game, with the cause in Dettagli', () => {
     installMatchMedia(true)
     render(<App />)
     const player = panel(/giocatore 1/i)
-    mode(player, /^commander/i)
-    for (let step = 0; step < 21; step += 1) click(player, /aumenta danni commander da giocatore 2/i)
-    expect(badgeOf(panel(/giocatore 1/i))).toHaveTextContent(
-      'Sconfitto · 21 Commander: 21 danni da un comandante',
-    )
+    openCommander(player)
+    for (let step = 0; step < 21; step += 1) click(player, /^aggiungi 1 danno commander da giocatore 2/i)
+    expect(within(player).getByText('Fuori dalla partita')).toBeInTheDocument()
+    click(player, /^chiudi danni commander/i)
+    openDetails(player)
+    expect(within(screen.getByRole('dialog')).getByText('21 danni da un comandante')).toBeInTheDocument()
   })
 
   it('offers removal only when more than two players remain', () => {
     installMatchMedia(true)
     localStorage.setItem('commander-companion.game.v1', JSON.stringify(createGame(2)))
     render(<App />)
-    fireEvent.click(within(panel(/giocatore 1/i)).getByRole('button', { name: /dettagli/i }))
+    openDetails(panel(/giocatore 1/i))
     expect(within(screen.getByRole('dialog')).queryByRole('button', { name: 'Rimuovi giocatore' })).not.toBeInTheDocument()
   })
 
@@ -491,7 +509,7 @@ describe('rules reference, bridged in Impara until R4 (Phase 2a, R1)', () => {
 
   it('opens from Impara and closes without changing the game', () => {
     render(<App />)
-    click(panel(/giocatore 1/i), /riduci di 5 la vita/i)
+    tapLife(panel(/giocatore 1/i), -1, 5)
     const stored = localStorage.getItem('commander-companion.game.v1')
     goTo('Impara')
 
@@ -513,14 +531,14 @@ describe('rules reference, bridged in Impara until R4 (Phase 2a, R1)', () => {
   it('uses the combat-damage helper wherever Commander damage is shown', () => {
     const helper = 'Registra qui solo i danni da combattimento del comandante: riducono anche i punti vita.'
     const standard = render(<App />)
-    mode(panel(/giocatore 1/i), /^commander/i)
-    expect(within(panel(/giocatore 1/i)).getByRole('group', { name: /fonte dei danni commander/i })).toHaveAccessibleDescription(helper)
+    openCommander(panel(/giocatore 1/i))
+    expect(within(panel(/giocatore 1/i)).getByRole('group', { name: 'Danni Commander' })).toHaveAccessibleDescription(helper)
     standard.unmount()
 
     installMatchMedia(true)
     render(<App />)
-    mode(panel(/giocatore 1/i), /^commander/i)
-    expect(within(panel(/giocatore 1/i)).getByRole('group', { name: /fonte dei danni commander/i })).toHaveAccessibleDescription(helper)
+    openCommander(panel(/giocatore 1/i))
+    expect(within(panel(/giocatore 1/i)).getByRole('group', { name: 'Danni Commander' })).toHaveAccessibleDescription(helper)
   })
 })
 
@@ -529,7 +547,7 @@ describe('four-player layout in Altro (D-034, R1)', () => {
 
   it('applies and saves the choice at once, outside the game', () => {
     render(<App />)
-    click(panel(/giocatore 1/i), /riduci di 5 la vita/i)
+    tapLife(panel(/giocatore 1/i), -1, 5)
     const savedGame = localStorage.getItem(STORAGE_KEY)
     goTo('Altro')
     fireEvent.click(within(screen.getByRole('radiogroup', { name: 'Layout dei giocatori' })).getByRole('radio', { name: /^tavolo/i }))
@@ -542,7 +560,7 @@ describe('four-player layout in Altro (D-034, R1)', () => {
   it('shows the two-player options after a player leaves, and the saved four-player choice when back at four', () => {
     localStorage.setItem(PREFS, JSON.stringify({ keepScreenOn: true, fourPlayerLayout: 'facing' }))
     render(<App />)
-    click(panel(/giocatore 4/i), /rimuovi giocatore 4/i)
+    removePlayer(panel(/giocatore 4/i))
     goTo('Altro')
     expect(screen.queryByRole('radiogroup', { name: 'Layout dei giocatori' })).not.toBeInTheDocument()
     goTo('Partita')
@@ -578,7 +596,7 @@ describe('four-player seats (D-034)', () => {
   it('switches layout without remounting panels or touching scores', () => {
     render(<App />)
     const before = panel(/giocatore 2/i)
-    click(before, /riduci di 5 la vita/i)
+    tapLife(before, -1, 5)
     goTo('Altro')
     fireEvent.click(screen.getByRole('radio', { name: /^fronte a fronte/i }))
     goTo('Partita')
@@ -658,7 +676,7 @@ describe('two-player layouts (D-035)', () => {
     localStorage.setItem(PREFS, JSON.stringify({ keepScreenOn: true, fourPlayerLayout: 'grid', twoPlayerLayout: 'facing' }))
     localStorage.setItem(STORAGE_KEY, JSON.stringify(createGame(3)))
     render(<App />)
-    click(panel(/giocatore 3/i), /rimuovi giocatore 3/i)
+    removePlayer(panel(/giocatore 3/i))
     expect(document.getElementById('main')).toHaveAttribute('data-layout', 'two-facing')
   })
 })
@@ -667,43 +685,42 @@ describe('reset scope (D-033)', () => {
   it('says that reset also clears tax and table roles, and does so', () => {
     render(<App />)
     const player = panel(/giocatore 1/i)
-    mode(player, /^tassa/i)
-    click(player, /^aumenta di 2 mana/i)
-    mode(player, /^monarca/i)
+    openCounters(player)
+    click(player, /^aggiungi 2 alla tassa del comandante di giocatore 1/i)
+    click(player, /^chiudi contatori/i)
+    click(player, /^prendi monarca$/i)
     goTo('Altro')
     fireEvent.click(screen.getByRole('button', { name: 'Azzera punteggi' }))
     const dialog = screen.getByRole('dialog', { name: /azzerare tutti i punteggi/i })
     expect(dialog).toHaveTextContent('Vita, danni, segnalini, tassa, Monarca e Iniziativa torneranno ai valori iniziali.')
     fireEvent.click(within(dialog).getByRole('button', { name: 'Azzera punteggi' }))
     goTo('Partita')
-    expect(within(player).getByRole('button', { name: /^monarca/i })).toHaveAttribute('aria-pressed', 'false')
-    expect(within(player).getByRole('status', { name: /tassa del comandante 1/i })).toHaveAccessibleName(
-      'Tassa del Comandante 1 di Giocatore 1: più 0 mana',
-    )
+    expect(within(player).getByRole('button', { name: 'Prendi Monarca' })).toHaveAttribute('aria-pressed', 'false')
+    openCounters(player)
+    expect(counterValue(player, 'Tassa C1')).toHaveTextContent('0')
   })
 })
 
-describe('direct scoring dock structure (D-033)', () => {
+describe('closed card structure (R2 §3)', () => {
   it.each([
     ['standard', false],
     ['compact', true],
-  ])('renders exactly one labelled mode group per panel (%s)', (_label, compact) => {
+  ])('shows no counter and exactly three entries per card (%s)', (_label, compact) => {
     installMatchMedia(compact)
     render(<App />)
     for (const region of screen.getAllByRole('region')) {
-      const name = region.getAttribute('aria-label')?.replace('Segnapunti di ', '')
-      expect(within(region).getAllByRole('group', { name: `Punteggio di ${name}` })).toHaveLength(1)
+      expect(within(region).queryByRole('group', { name: 'Contatori' })).not.toBeInTheDocument()
+      expect(region.querySelectorAll('[data-surface-trigger]')).toHaveLength(2)
+      expect(within(region).getAllByRole('button', { name: /^apri dettagli di/i })).toHaveLength(1)
     }
   })
 
-  it('keeps the same panel nodes when the mode changes', () => {
+  it('keeps the same card nodes when a panel opens and closes', () => {
     render(<App />)
     const player = panel(/giocatore 1/i)
-    const strip = within(player).getByRole('group', { name: /^punteggio di/i })
-    mode(player, /^radiazioni/i)
-    mode(player, /^vita/i)
+    openCounters(player)
+    click(player, /^chiudi contatori/i)
     expect(panel(/giocatore 1/i)).toBe(player)
-    expect(within(player).getByRole('group', { name: /^punteggio di/i })).toBe(strip)
   })
 })
 
@@ -786,7 +803,7 @@ describe('app shell (D-037, R1)', () => {
 
   it('keeps the bar outside the game, keeps the scores, and follows Back', () => {
     render(<App />)
-    click(panel(/giocatore 1/i), /riduci di 5 la vita/i)
+    tapLife(panel(/giocatore 1/i), -1, 5)
     goTo('Altro')
     expect(window.location.hash).toBe('#altro')
     expect(nav()).toBeInTheDocument()
@@ -903,5 +920,55 @@ describe('random art per seat (R2 §4.2, D-039)', () => {
     expect(store.delete).toHaveBeenCalledWith(cardId(77))
     expect(store.delete).not.toHaveBeenCalledWith(cardId(8))
     expect(store.delete).not.toHaveBeenCalledWith(cardId(9))
+  })
+})
+
+describe('one transient surface at a time (R2 §2.5)', () => {
+  const PREFS = 'commander-companion.preferences'
+
+  it('replaces one card’s panel with another’s, and Escape returns focus to the trigger', () => {
+    render(<App />)
+    openCounters(panel(/giocatore 1/i))
+    openCommander(panel(/giocatore 2/i))
+    expect(document.querySelectorAll('[data-drawer]')).toHaveLength(1)
+    expect(within(panel(/giocatore 2/i)).getByRole('radiogroup')).toBeInTheDocument()
+    fireEvent.keyDown(window, { key: 'Escape' })
+    expect(document.querySelector('[data-drawer]')).toBeNull()
+    expect(within(panel(/giocatore 2/i)).getByRole('button', { name: 'Danni Commander di Giocatore 2' })).toHaveFocus()
+  })
+
+  it('returns focus to Contatori when the drawer closes from its own control', () => {
+    render(<App />)
+    openCounters(panel(/giocatore 1/i))
+    click(panel(/giocatore 1/i), /^chiudi contatori/i)
+    expect(within(panel(/giocatore 1/i)).getByRole('button', { name: 'Contatori' })).toHaveFocus()
+  })
+
+  it('closes an open panel when the layout changes', () => {
+    localStorage.setItem(PREFS, JSON.stringify({ keepScreenOn: true, fourPlayerLayout: 'grid', twoPlayerLayout: 'same-side' }))
+    render(<App />)
+    openCounters(panel(/giocatore 1/i))
+    goTo('Altro')
+    fireEvent.click(screen.getByRole('radio', { name: /tavolo/i }))
+    goTo('Partita')
+    expect(document.querySelector('[data-drawer]')).toBeNull()
+  })
+
+  it('leaves no panel and lands focus on the rhombus when that player is removed', async () => {
+    render(<App />)
+    openCounters(panel(/giocatore 3/i))
+    removePlayer(panel(/giocatore 3/i))
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    })
+    expect(document.querySelector('[data-drawer]')).toBeNull()
+    expect(document.activeElement).not.toBe(document.body)
+    expect(document.activeElement).toHaveClass('shell-rhombus')
+  })
+
+  it('keeps the seats interactive while a card panel is open', () => {
+    render(<App />)
+    openCounters(panel(/giocatore 1/i))
+    for (const seat of document.querySelectorAll('.player-seat')) expect(seat).not.toHaveAttribute('inert')
   })
 })

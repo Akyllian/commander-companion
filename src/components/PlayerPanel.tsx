@@ -1,16 +1,37 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type React from 'react'
 import { getDefeatReasons } from '../game/game'
 import type { GroupDelta } from '../game/history'
 import type { GameAction, PlayerState } from '../game/types'
+import type { RandomArt } from '../match/presentation'
+import { useArtImage, useArtState } from '../media/useCommanderArt'
+import { CommanderDamagePanel } from './CommanderDamagePanel'
+import { CountersDrawer } from './CountersDrawer'
 import { deltaFor } from './DeltaBadge'
+import { CommanderDamageIcon, CountersIcon, CrownIcon, DetailsIcon } from './icons'
 import { ModalSideSheet } from './ModalSideSheet'
-import { useArtImage } from '../media/useCommanderArt'
-import { CommanderLine, DeckConfigSection, DefeatBadge, RemoveIcon } from './PlayerSections'
-import { QuickScoreDock, ScoreAdjust, ScoreModeStrip, ScoreSourceRow, useScoreSelection } from './QuickScoreDock'
+import { CommanderLine, DeckConfigSection, DefeatReasons, RemoveIcon } from './PlayerSections'
 import { useScoreAnnouncement } from './useScoreAnnouncement'
 
 export type { PanelDelta } from './DeltaBadge'
+
+export type CardSurface = 'counters' | 'commander'
+
+/** Below this usable height the inner panels switch to the compact full-card mode (R2 §5.3). */
+export const SHORT_CARD_HEIGHT = 132
+
+/** True while the card is shorter than {@link SHORT_CARD_HEIGHT}, measured in its own (unrotated) frame. */
+function useShortCard(ref: React.RefObject<HTMLElement | null>): boolean {
+  const [short, setShort] = useState(false)
+  useEffect(() => {
+    const element = ref.current
+    if (!element || typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(() => setShort(element.clientHeight < SHORT_CARD_HEIGHT))
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [ref])
+  return short
+}
 
 interface PlayerPanelProps {
   player: PlayerState
@@ -19,25 +40,24 @@ interface PlayerPanelProps {
   canRemovePartner: boolean
   /** The open tap group, when it concerns this player. */
   delta: GroupDelta | null
-  /** Compact landscape: score rail on the panel, everything else in the details sheet. */
+  /** Compact density: same anatomy, tighter rhythm; the artist credit moves to Dettagli. */
   compact?: boolean
   monarchPlayerId: string | null
   initiativePlayerId: string | null
+  /** This seat's random illustration, shown only without a commander (D-039). */
+  randomArt: RandomArt | null
+  /** The inner panel open on this card, if the app's single transient surface is one of its own. */
+  openSurface: CardSurface | null
+  onOpenSurface: (surface: CardSurface) => void
+  onCloseSurface: () => void
   dispatch: (action: GameAction) => void
 }
 
-function DetailsIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="button-icon">
-      <circle cx="5" cy="12" r="1.25" />
-      <circle cx="12" cy="12" r="1.25" />
-      <circle cx="19" cy="12" r="1.25" />
-    </svg>
-  )
-}
-
-const LIFE_STEPS = [-5, -1, 1, 5] as const
-
+/**
+ * The player card (R2 §3): Monarch crown, name and commander, life ±1, and three entries —
+ * Dettagli, Contatori and Danni Commander. Contatori and Danni Commander open inside the card,
+ * so they rotate with its seat; only Dettagli leaves it, as an upright side sheet.
+ */
 export function PlayerPanel({
   player,
   opponents,
@@ -47,11 +67,15 @@ export function PlayerPanel({
   compact = false,
   monarchPlayerId,
   initiativePlayerId,
+  randomArt,
+  openSurface,
+  onOpenSurface,
+  onCloseSurface,
   dispatch,
 }: PlayerPanelProps) {
-  // Lives above both presentations, so switching layout keeps the chosen mode and sources.
-  const selection = useScoreSelection(player, opponents)
   const [detailsOpen, setDetailsOpen] = useState(false)
+  const cardRef = useRef<HTMLElement>(null)
+  const short = useShortCard(cardRef)
   // One-shot light bloom on the life total when it changes (never on first render, D-024).
   const [lastLife, setLastLife] = useState(player.life)
   const [bloom, setBloom] = useState(0)
@@ -59,228 +83,257 @@ export function PlayerPanel({
     setLastLife(player.life)
     setBloom((count) => count + 1)
   }
-  const art = useArtImage(player.commanders[0]?.cardId ?? null)
-  const partnerArt = useArtImage(player.hasPartner ? (player.commanders[1]?.cardId ?? null) : null)
+  const [main, partner] = player.commanders
+  const art = useArtImage(main?.cardId ?? null)
+  const partnerArt = useArtImage(player.hasPartner ? (partner?.cardId ?? null) : null)
+  // The random art is only asked for while the seat has no commander (R2 §4.2).
+  const random = useArtState(main ? null : (randomArt?.cardId ?? null))
   const defeatReasons = getDefeatReasons(player)
-  const defeated = defeatReasons.length > 0
+  const out = defeatReasons.length > 0
   const spoken = useScoreAnnouncement(player, opponents, delta)
-  const canRemove = playerCount > 2
-  const remove = () => dispatch({ type: 'remove-player', playerId: player.id })
+  const monarch = monarchPlayerId === player.id
+  const countersId = `${player.id}-counters`
+  const commanderId = `${player.id}-commander`
 
-  const nameInput = (
-    <>
-      <label className="sr-only" htmlFor={`${player.id}-name`}>
-        Nome giocatore
-      </label>
-      {/* data-text sizes the radial contrast mask to the visible name (D-029). */}
-      <span className="name-field" data-text={player.name}>
-        <input
-          key={player.name}
-          id={`${player.id}-name`}
-          className="player-name"
-          defaultValue={player.name}
-          maxLength={28}
-          enterKeyHint="done"
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') event.currentTarget.blur()
-            if (event.key === 'Escape') {
-              event.currentTarget.value = player.name
-              event.currentTarget.blur()
-            }
-          }}
-          onBlur={(event) => dispatch({ type: 'rename-player', playerId: player.id, name: event.currentTarget.value })}
-        />
-      </span>
-    </>
-  )
-
-  const lifeButton = (amount: number) => (
+  const lifeButton = (amount: 1 | -1) => (
     <button
-      className={Math.abs(amount) === 1 ? 'score-button score-button--primary' : 'score-button'}
+      className="score-button score-button--primary"
       type="button"
-      key={amount}
-      aria-label={`${amount > 0 ? 'Aumenta' : 'Riduci'} di ${Math.abs(amount)} la vita di ${player.name}`}
+      aria-label={`${amount > 0 ? 'Aumenta' : 'Riduci'} di 1 la vita di ${player.name}`}
       onClick={() => dispatch({ type: 'adjust-life', playerId: player.id, amount })}
     >
-      {amount > 0 ? `+${amount}` : amount}
+      {amount > 0 ? '+' : '−'}
     </button>
   )
 
   // Commander damage also moves life: the same burst shows, mirrored, on life (D-036).
   const lifeDelta =
     delta?.target.kind === 'commander' && delta.lifeDelta !== undefined
-      ? { key: `${delta.key}:life`, target: { kind: 'life', playerId: player.id } as const, delta: delta.lifeDelta, at: delta.at }
+      ? {
+          key: `${delta.key}:life`,
+          target: { kind: 'life', playerId: player.id } as const,
+          delta: delta.lifeDelta,
+          at: delta.at,
+        }
       : delta
-  const lifeValue = (
-    <span className="life-value">
-      <strong key={bloom} className="life-total" data-testid="life-total" data-bloom={bloom > 0 || undefined}>
-        {player.life}
-      </strong>
-      {deltaFor(lifeDelta, { kind: 'life', playerId: player.id })}
-    </span>
-  )
 
-  // The panel's only live region: one announcement per settled burst (D-036).
-  const announcement = (
-    <span className="sr-only score-announcement" aria-live="polite" aria-atomic="true">
-      {spoken}
-    </span>
-  )
-
-  const dockProps = { player, opponents, selection, delta, monarchPlayerId, initiativePlayerId, dispatch }
-  const deckSection = <DeckConfigSection player={player} dispatch={dispatch} canRemovePartner={canRemovePartner} />
-
-  const sectionProps = {
-    className: 'player-panel',
-    'data-accent': player.accent,
-    'data-defeated': defeated || undefined,
-    'data-has-art': art ? '' : undefined,
-    'aria-label': `Segnapunti di ${player.name}`,
-  }
-
-  // Commander art behind the C2.1 veil (decorative: names and credits are text elsewhere).
-  // Partners with two arts split 50/50 on a slight diagonal (D-027); otherwise full-bleed.
+  // Commander art first; otherwise this seat's random art; otherwise the neutral texture.
   const split = Boolean(art && partnerArt)
+  const shown = art ?? (main ? null : random.image)
+  const artKind = art ? 'commander' : shown ? 'random' : 'neutral'
   const veil = {
-    name: Math.max(art?.veil.name ?? 0, split ? (partnerArt?.veil.name ?? 0) : 0),
-    life: Math.max(art?.veil.life ?? 0, split ? (partnerArt?.veil.life ?? 0) : 0),
+    name: Math.max(shown?.veil.name ?? 0, split ? (partnerArt?.veil.name ?? 0) : 0),
+    life: Math.max(shown?.veil.life ?? 0, split ? (partnerArt?.veil.life ?? 0) : 0),
   }
-  const veilStyle = { '--art-veil-name': veil.name, '--art-veil-life': veil.life } as React.CSSProperties
-  const artLayer = art && (
+  const veilStyle = {
+    '--art-veil-name': veil.name,
+    '--art-veil-life': veil.life,
+  } as React.CSSProperties
+  // Decorative: names and credits are text elsewhere. Partners split 50/50 on a diagonal (D-027).
+  const artLayer = (
     <div className="player-art" aria-hidden="true" data-split={split || undefined}>
       {split ? (
         <>
           <span className="player-art__half player-art__half--1">
-            <img src={art.url} alt="" decoding="async" />
+            <img src={art?.url} alt="" decoding="async" />
           </span>
           <span className="player-art__half player-art__half--2">
             <img src={partnerArt?.url} alt="" decoding="async" />
           </span>
         </>
       ) : (
-        <img src={art.url} alt="" decoding="async" />
+        shown && <img key={shown.url} src={shown.url} alt="" decoding="async" />
       )}
     </div>
   )
 
-  if (compact) {
-    return (
-      <section {...sectionProps} style={veilStyle} data-compact="">
-        {artLayer}
-        <header className="player-panel__header">
-          {nameInput}
-          <DefeatBadge reasons={defeatReasons} variant="compact" />
-          <ScoreModeStrip {...dockProps} />
-          <button
-            type="button"
-            className="icon-button details-button"
-            aria-label={`Dettagli di ${player.name}`}
-            title={`Dettagli di ${player.name}`}
-            onClick={() => setDetailsOpen(true)}
-          >
-            <DetailsIcon />
-          </button>
-        </header>
+  const commanderNames = player.commanders.flatMap((slot) => (slot ? [slot.name] : []))
+  const randomCredit = !main && shown && randomArt ? randomArt.artist : null
 
-        <ScoreSourceRow player={player} selection={selection} />
-        {selection.mode === 'life' ? (
-          <div className="score-rail" role="group" aria-label={`Punti vita di ${player.name}`}>
-            {lifeButton(-5)}
-            {lifeButton(-1)}
-            {lifeValue}
-            {lifeButton(1)}
-            {lifeButton(5)}
-          </div>
-        ) : (
-          // Other modes take the controls; life stays on the rail, still the largest value.
-          <div className="score-rail score-rail--mode">
-            <ScoreAdjust {...dockProps} lifeControls={null} />
-            {lifeValue}
-          </div>
-        )}
-        {announcement}
-
-        <ModalSideSheet
-          open={detailsOpen}
-          title={`Dettagli di ${player.name}`}
-          className="player-details-sheet"
-          onClose={() => setDetailsOpen(false)}
-        >
-          {defeated && (
-            <p className="defeat-line">
-              <DefeatBadge reasons={defeatReasons} />
-            </p>
-          )}
-          <CommanderLine player={player} />
-          {player.hasPartner && <span className="partner-badge">Partner</span>}
-          {deckSection}
-          {canRemove && (
-            <div className="sheet-danger-zone">
-              <button
-                type="button"
-                className="quiet-button remove-player-action"
-                onClick={() => {
-                  // Close first; the Undo bar then takes focus in the removed cell.
-                  setDetailsOpen(false)
-                  remove()
-                }}
-              >
-                <RemoveIcon /> Rimuovi giocatore
-              </button>
-            </div>
-          )}
-        </ModalSideSheet>
-      </section>
-    )
-  }
+  const open = (surface: CardSurface) => (openSurface === surface ? onCloseSurface() : onOpenSurface(surface))
 
   return (
-    <section {...sectionProps} style={veilStyle}>
+    <section
+      ref={cardRef}
+      className="player-panel"
+      data-accent={player.accent}
+      data-player-id={player.id}
+      data-compact={compact || undefined}
+      data-short={short || undefined}
+      data-out={out || undefined}
+      data-art={artKind}
+      data-has-art={artKind === 'neutral' ? undefined : ''}
+      data-surface={openSurface ?? undefined}
+      aria-label={`Segnapunti di ${player.name}`}
+      style={veilStyle}
+    >
       {artLayer}
-      <div className="player-panel__sigil" aria-hidden="true">
-        <span />
-      </div>
 
       <header className="player-panel__header">
-        {nameInput}
-        {player.hasPartner && <span className="partner-badge">Partner</span>}
-        {canRemove && (
-          <button
-            className="icon-button remove-button"
-            type="button"
-            aria-label={`Rimuovi ${player.name}`}
-            title={`Rimuovi ${player.name}`}
-            onClick={remove}
-          >
-            <RemoveIcon />
-          </button>
-        )}
+        <button
+          type="button"
+          className="icon-button monarch-button"
+          aria-label={monarch ? 'Rilascia Monarca' : 'Prendi Monarca'}
+          aria-pressed={monarch}
+          onClick={() =>
+            dispatch({
+              type: 'set-table-role',
+              role: 'monarch',
+              playerId: monarch ? null : player.id,
+            })
+          }
+        >
+          <CrownIcon />
+        </button>
+        <div className="player-panel__identity">
+          {/* data-text sizes the radial contrast mask to the visible name (D-029). */}
+          <span className="name-field" data-text={player.name}>
+            <span className="player-name">{player.name}</span>
+          </span>
+          <p className="player-commander">{commanderNames.length > 0 ? commanderNames.join(' + ') : 'Comandante non scelto'}</p>
+          {out && <p className="out-line">Fuori dalla partita</p>}
+        </div>
+        <button
+          type="button"
+          className="icon-button details-button"
+          aria-label={`Apri dettagli di ${player.name}`}
+          title={`Dettagli di ${player.name}`}
+          onClick={() => setDetailsOpen(true)}
+        >
+          <DetailsIcon />
+        </button>
       </header>
 
-      <CommanderLine player={player} />
+      <div className="life-zone" role="group" aria-label={`Punti vita di ${player.name}`}>
+        {lifeButton(-1)}
+        <span className="life-value">
+          <strong key={bloom} className="life-total" data-testid="life-total" data-bloom={bloom > 0 || undefined}>
+            {player.life}
+          </strong>
+          {deltaFor(lifeDelta, { kind: 'life', playerId: player.id })}
+        </span>
+        {lifeButton(1)}
+      </div>
+      {/* The card's only live region: one announcement per settled burst (D-036). */}
+      <span className="sr-only score-announcement" aria-live="polite" aria-atomic="true">
+        {spoken}
+      </span>
 
-      {defeated && (
-        <p className="defeat-line">
-          <DefeatBadge reasons={defeatReasons} />
-        </p>
-      )}
-
-      <div className="life-zone">
-        <span className="life-label">Punti vita</span>
-        {lifeValue}
-        {announcement}
+      <div className="player-panel__footer">
+        <button
+          type="button"
+          className="counters-trigger"
+          data-surface-trigger="counters"
+          aria-expanded={openSurface === 'counters'}
+          aria-controls={countersId}
+          aria-label={compact ? 'Contatori' : undefined}
+          onClick={() => open('counters')}
+        >
+          <CountersIcon />
+          <span className="counters-trigger__label">Contatori</span>
+        </button>
+        {!compact && randomCredit && <p className="art-credit">Illustrazione di {randomCredit}</p>}
+        <button
+          type="button"
+          className="commander-trigger"
+          data-surface-trigger="commander"
+          aria-expanded={openSurface === 'commander'}
+          aria-controls={commanderId}
+          aria-label={`Danni Commander di ${player.name}`}
+          onClick={() => open('commander')}
+        >
+          <CommanderDamageIcon />
+        </button>
       </div>
 
-      <QuickScoreDock
-        {...dockProps}
-        lifeControls={
-          <div className="life-controls" role="group" aria-label={`Controlli vita di ${player.name}`}>
-            {LIFE_STEPS.map(lifeButton)}
-          </div>
-        }
-      />
+      {openSurface === 'counters' && (
+        <CountersDrawer
+          id={countersId}
+          player={player}
+          delta={delta}
+          monarchPlayerId={monarchPlayerId}
+          initiativePlayerId={initiativePlayerId}
+          dispatch={dispatch}
+          onClose={onCloseSurface}
+        />
+      )}
+      {openSurface === 'commander' && (
+        <CommanderDamagePanel
+          id={commanderId}
+          player={player}
+          opponents={opponents}
+          delta={delta}
+          dispatch={dispatch}
+          onClose={onCloseSurface}
+        />
+      )}
 
-      {deckSection}
+      <ModalSideSheet
+        open={detailsOpen}
+        title={`Dettagli di ${player.name}`}
+        className="player-details-sheet"
+        onClose={() => setDetailsOpen(false)}
+      >
+        {/* Mounted only while open, so the card's text is never duplicated in a closed sheet. */}
+        {detailsOpen && (
+          <>
+            <label className="details-field">
+              <span>Nome giocatore</span>
+              <input
+                key={player.name}
+                className="details-name"
+                defaultValue={player.name}
+                maxLength={28}
+                enterKeyHint="done"
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') event.currentTarget.blur()
+                  if (event.key === 'Escape') {
+                    // Restore, and keep the sheet open: Escape here only undoes the typing.
+                    event.preventDefault()
+                    event.stopPropagation()
+                    event.currentTarget.value = player.name
+                  }
+                }}
+                onBlur={(event) =>
+                  dispatch({
+                    type: 'rename-player',
+                    playerId: player.id,
+                    name: event.currentTarget.value,
+                  })
+                }
+              />
+            </label>
+            <DefeatReasons reasons={defeatReasons} />
+            <CommanderLine player={player} />
+            {player.hasPartner && <span className="partner-badge">Partner</span>}
+            {!main &&
+              (randomArt && !random.missing ? (
+                <div className="random-art-credit">
+                  <p className="random-art-credit__title">Arte casuale</p>
+                  <p className="random-art-credit__name">{randomArt.name}</p>
+                  <p className="commander-credit">Illustrazione di {randomArt.artist}</p>
+                </div>
+              ) : (
+                <p className="random-art-credit">Illustrazione non disponibile offline</p>
+              ))}
+            <DeckConfigSection player={player} dispatch={dispatch} canRemovePartner={canRemovePartner} />
+            {playerCount > 2 && (
+              <div className="sheet-danger-zone">
+                <button
+                  type="button"
+                  className="quiet-button remove-player-action"
+                  onClick={() => {
+                    setDetailsOpen(false)
+                    dispatch({ type: 'remove-player', playerId: player.id })
+                  }}
+                >
+                  <RemoveIcon /> Rimuovi giocatore
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </ModalSideSheet>
     </section>
   )
 }

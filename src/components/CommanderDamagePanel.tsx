@@ -4,7 +4,7 @@ import type { GroupDelta } from '../game/history'
 import type { CommanderIndex, GameAction, PlayerState } from '../game/types'
 import { deltaFor } from './DeltaBadge'
 import { CheckIcon, CloseIcon, CommanderDamageIcon } from './icons'
-import { damageSources } from './scoreVocabulary'
+import { COMMANDER_HINT, damageSources } from './scoreVocabulary'
 
 interface CommanderDamagePanelProps {
   id: string
@@ -72,7 +72,10 @@ export function CommanderDamagePanel({ id, player, opponents, delta, dispatch, o
   }
 
   return (
-    <div ref={rootRef} className="commander-panel card-surface" id={id} role="group" aria-labelledby={titleId} data-drawer="commander">
+    <div ref={rootRef} className="commander-panel card-surface" id={id} role="group" aria-labelledby={titleId} aria-describedby={`${id}-hint`} data-drawer="commander">
+      <p className="sr-only" id={`${id}-hint`}>
+        {COMMANDER_HINT}
+      </p>
       <div className="card-surface__header">
         <p className="card-surface__title" id={titleId}>
           Danni Commander

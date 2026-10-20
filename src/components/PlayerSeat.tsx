@@ -48,10 +48,12 @@ interface PlayerSeatProps {
   clear?: Clearance | null
   /** The band kept free for the first-use label above the rhombus (R1 §13.2). */
   hintReserve?: HintReserve | null
+  /** True while the rhombus hub or a tool is open: the card can be neither tabbed to nor tapped (R2 §7.2). */
+  inert?: boolean
   children: ReactNode
 }
 
-export function PlayerSeat({ layout, index, clear, hintReserve, children }: PlayerSeatProps) {
+export function PlayerSeat({ layout, index, clear, hintReserve, inert = false, children }: PlayerSeatProps) {
   const { seat, orientation } = seatFor(layout, index)
   return (
     <div
@@ -60,6 +62,7 @@ export function PlayerSeat({ layout, index, clear, hintReserve, children }: Play
       data-orientation={orientation}
       data-clear={clear ?? undefined}
       data-hint-side={hintReserve?.side}
+      inert={inert || undefined}
       style={hintReserve ? ({ '--hint-reserve': `${Math.ceil(hintReserve.size)}px` } as React.CSSProperties) : undefined}
     >
       <div className="player-seat__content">{children}</div>
