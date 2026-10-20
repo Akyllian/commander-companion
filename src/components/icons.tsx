@@ -174,3 +174,12 @@ export function MoreIcon() {
     </svg>
   )
 }
+
+/** Selected source (R2 §6.2): the state is also said in text, never by colour alone. */
+export function CheckIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="button-icon">
+      <path d="m5 12.5 4.5 4.5L19 7.5" />
+    </svg>
+  )
+}
