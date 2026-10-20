@@ -16,6 +16,14 @@ export interface CentreLayout {
 
 const EMPTY: CentreLayout = { point: null, clearances: [] }
 
+/** Document coordinates: the chosen seam is anchored in the page and never follows scroll. */
+const toPage = (rect: DOMRect) => ({
+  left: rect.left + window.scrollX,
+  top: rect.top + window.scrollY,
+  right: rect.right + window.scrollX,
+  bottom: rect.bottom + window.scrollY,
+})
+
 /**
  * Measures the table and its seats whenever they resize, so the rhombus and the free zone follow
  * every layout, density and column count without layout-specific code.
@@ -29,13 +37,6 @@ export function useCentreLayout(gridRef: RefObject<HTMLElement | null>, key: str
     const measure = () => {
       const view = grid.getBoundingClientRect()
       if (view.width === 0 || view.height === 0) return
-      // Document coordinates: the chosen seam is anchored in the page and never follows scroll.
-      const toPage = (rect: DOMRect) => ({
-        left: rect.left + window.scrollX,
-        top: rect.top + window.scrollY,
-        right: rect.right + window.scrollX,
-        bottom: rect.bottom + window.scrollY,
-      })
       const area = toPage(view)
       const seats = Array.from(grid.querySelectorAll<HTMLElement>(':scope > .player-seat'))
       const boxes = seats.map((seat) => toPage(seat.getBoundingClientRect()))
