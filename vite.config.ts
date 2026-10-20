@@ -69,6 +69,8 @@ export default defineConfig(({ mode }) => {
           // Scoring rules, persistence and history are the reliability core.
           'src/game/**': { lines: 100, branches: 100, functions: 100, statements: 100 },
           'src/settings/**': { lines: 100, branches: 100, functions: 100, statements: 100 },
+          // Match presentation and the transient surface model (R2, D-039).
+          'src/match/**': { lines: 100, branches: 100, functions: 100, statements: 100 },
           // Network, cache and contrast maths for commander art (D-026); canvas glue and hooks excluded.
           'src/media/{scryfall,artAnalysis,artStore,commanderArt}.ts': { lines: 100, branches: 100, functions: 100, statements: 100 },
         },
