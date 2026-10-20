@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import type { FourPlayerLayout } from '../settings/preferences'
+import type { Clearance } from '../shell/centre'
 
 /**
  * Presentation-only seat around a player panel (D-034). The wrapper is always rendered, so
@@ -43,13 +44,15 @@ interface PlayerSeatProps {
   layout: TableLayout
   /** Zero-based cell position (a removed player's Undo bar keeps that player's index). */
   index: number
+  /** The side or corner this card keeps free for the central rhombus (R1). */
+  clear?: Clearance | null
   children: ReactNode
 }
 
-export function PlayerSeat({ layout, index, children }: PlayerSeatProps) {
+export function PlayerSeat({ layout, index, clear, children }: PlayerSeatProps) {
   const { seat, orientation } = seatFor(layout, index)
   return (
-    <div className="player-seat" data-seat={seat} data-orientation={orientation}>
+    <div className="player-seat" data-seat={seat} data-orientation={orientation} data-clear={clear ?? undefined}>
       <div className="player-seat__content">{children}</div>
     </div>
   )

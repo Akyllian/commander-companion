@@ -21,6 +21,7 @@ import { MoreScreen } from './shell/MoreScreen'
 import { SectionNav } from './shell/SectionNav'
 import { ShellRhombus } from './shell/ShellRhombus'
 import type { Section } from './shell/sections'
+import { useCentreLayout } from './shell/useCentreLayout'
 import { useSection } from './shell/useSection'
 
 type PendingConfirmation = { kind: 'new-game'; playerCount: number } | { kind: 'reset' } | null
@@ -147,8 +148,11 @@ export default function App() {
     })
   }, [layout])
 
+  // The rhombus sits on the table's centre and each card keeps the touching corner free (R1).
+  const centre = useCentreLayout(gridRef, `${layout}|${playerCount}|${panelDensity}|${section}`)
+
   const cells = game.players.map((player, index) => (
-    <PlayerSeat key={player.id} layout={layout} index={index}>
+    <PlayerSeat key={player.id} layout={layout} index={index} clear={centre.clearances[index]}>
       <PlayerPanel
         player={player}
         opponents={game.players.filter((opponent) => opponent.id !== player.id)}
@@ -203,6 +207,7 @@ export default function App() {
           showHint={!preferences.rhombusHintSeen}
           onToggle={toggleBar}
           buttonRef={rhombusRef}
+          style={centre.point ? { left: centre.point.x, top: centre.point.y } : undefined}
         />
       </main>
 
