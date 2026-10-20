@@ -44,4 +44,31 @@ describe('LayoutSelector (D-034)', () => {
       expect(option.querySelector('img')).toBeNull()
     }
   })
+
+  it('is one tab stop: only the checked option is focusable', () => {
+    const { group } = setup('facing')
+    expect(within(group).getAllByRole('radio').map((option) => option.tabIndex)).toEqual([-1, 0, -1])
+  })
+
+  it('moves focus with arrows, Home and End, wrapping, without choosing', () => {
+    const { group, onChoose } = setup('grid')
+    const [grid, facing, table] = within(group).getAllByRole('radio')
+    grid.focus()
+    fireEvent.keyDown(grid, { key: 'ArrowRight' })
+    expect(facing).toHaveFocus()
+    expect(facing.tabIndex).toBe(0)
+    fireEvent.keyDown(facing, { key: 'ArrowDown' })
+    expect(table).toHaveFocus()
+    fireEvent.keyDown(table, { key: 'ArrowDown' })
+    expect(grid).toHaveFocus()
+    fireEvent.keyDown(grid, { key: 'ArrowUp' })
+    expect(table).toHaveFocus()
+    fireEvent.keyDown(table, { key: 'ArrowLeft' })
+    expect(facing).toHaveFocus()
+    fireEvent.keyDown(facing, { key: 'Home' })
+    expect(grid).toHaveFocus()
+    fireEvent.keyDown(grid, { key: 'End' })
+    expect(table).toHaveFocus()
+    expect(onChoose).not.toHaveBeenCalled()
+  })
 })

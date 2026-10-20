@@ -306,3 +306,6 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
   - La barra Annulla di un giocatore rimosso conta come quarto posto.
   - Con lo schermo basso si scorre invece di passare alla griglia.
 - **Verifica:** 326 test. Browser: Tavolo a 768×1024 e 390×844, Fronte a fronte a 844×390, Griglia a 1440. Dettagli aperto da un posto a 90° resta dritto e restituisce il focus. La prova al tavolo con 4 persone (checklist §12) è ancora da fare.
+- **Revisione ChatGPT (2026-10-20):** due correzioni.
+  - Le colonne del selettore seguono la larghezza reale dello sheet (container query): una colonna a 768, 1024 e al 200%, nessun overflow interno.
+  - Il radiogroup ha il roving tabindex con frecce, Home e End. Le frecce spostano il focus senza applicare il layout, che si sceglie con Spazio o Invio, perché la scelta chiude lo sheet.

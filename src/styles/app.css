@@ -2699,7 +2699,13 @@ button:hover:not(:disabled) {
   gap: var(--space-3);
 }
 
-@media (min-width: 44rem) and (min-height: 30.01rem) {
+/* Columns follow the sheet's real width, not the viewport: two options only when each still
+   has room for its preview and its text (the default 28rem sheet always stays one column). */
+.layout-sheet .side-sheet__body {
+  container-type: inline-size;
+}
+
+@container (min-width: 40rem) {
   .layout-options {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2728,6 +2734,8 @@ button:hover:not(:disabled) {
   display: grid;
   justify-items: start;
   gap: 0.125rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .layout-option__name {

@@ -1,3 +1,5 @@
+import { useRef, useState } from 'react'
+import type { KeyboardEvent } from 'react'
 import type { FourPlayerLayout } from '../settings/preferences'
 import { FOUR_PLAYER_LAYOUTS } from '../settings/preferences'
 import { ModalSideSheet } from './ModalSideSheet'
@@ -81,34 +83,72 @@ interface LayoutSelectorProps {
   onClose: () => void
 }
 
+/** Arrow keys, Home and End move between options (wrapping); Space or Enter chooses. */
+const NEXT_INDEX: Record<string, (index: number, count: number) => number> = {
+  ArrowRight: (index, count) => (index + 1) % count,
+  ArrowDown: (index, count) => (index + 1) % count,
+  ArrowLeft: (index, count) => (index - 1 + count) % count,
+  ArrowUp: (index, count) => (index - 1 + count) % count,
+  Home: () => 0,
+  End: (_index, count) => count - 1,
+}
+
 export function LayoutSelector({ open, layout, onChoose, onClose }: LayoutSelectorProps) {
   return (
     <ModalSideSheet open={open} title="Layout dei giocatori" className="layout-sheet" onClose={onClose}>
-      <div className="layout-options" role="radiogroup" aria-label="Layout dei giocatori">
-        {FOUR_PLAYER_LAYOUTS.map((option) => {
-          const { name, description } = LAYOUT_COPY[option]
-          const checked = option === layout
-          return (
-            <button
-              key={option}
-              type="button"
-              role="radio"
-              className="layout-option"
-              data-layout={option}
-              aria-checked={checked}
-              aria-label={`${name}: ${description}`}
-              onClick={() => onChoose(option)}
-            >
-              <LayoutPreview layout={option} />
-              <span className="layout-option__text">
-                <span className="layout-option__name">{name}</span>
-                <span className="layout-option__description">{description}</span>
-                {checked && <span className="layout-option__selected">Selezionato</span>}
-              </span>
-            </button>
-          )
-        })}
-      </div>
+      {/* Keyed by the saved layout: each opening starts the roving focus on the checked option. */}
+      <LayoutOptions key={layout} layout={layout} onChoose={onChoose} />
     </ModalSideSheet>
+  )
+}
+
+/**
+ * Radio group with a roving tabindex: one Tab stop, arrows move focus without applying, because
+ * a choice applies at once and closes the sheet (D-034).
+ */
+function LayoutOptions({ layout, onChoose }: Pick<LayoutSelectorProps, 'layout' | 'onChoose'>) {
+  const [focusIndex, setFocusIndex] = useState(() => FOUR_PLAYER_LAYOUTS.indexOf(layout))
+  const optionRefs = useRef<Array<HTMLButtonElement | null>>([])
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+    const next = NEXT_INDEX[event.key]?.(index, FOUR_PLAYER_LAYOUTS.length)
+    if (next === undefined) return
+    event.preventDefault()
+    setFocusIndex(next)
+    optionRefs.current[next]?.focus()
+  }
+
+  return (
+    <div className="layout-options" role="radiogroup" aria-label="Layout dei giocatori">
+      {FOUR_PLAYER_LAYOUTS.map((option, index) => {
+        const { name, description } = LAYOUT_COPY[option]
+        const checked = option === layout
+        return (
+          <button
+            key={option}
+            type="button"
+            role="radio"
+            className="layout-option"
+            data-layout={option}
+            aria-checked={checked}
+            aria-label={`${name}: ${description}`}
+            tabIndex={index === focusIndex ? 0 : -1}
+            ref={(element) => {
+              optionRefs.current[index] = element
+            }}
+            onFocus={() => setFocusIndex(index)}
+            onKeyDown={(event) => handleKeyDown(event, index)}
+            onClick={() => onChoose(option)}
+          >
+            <LayoutPreview layout={option} />
+            <span className="layout-option__text">
+              <span className="layout-option__name">{name}</span>
+              <span className="layout-option__description">{description}</span>
+              {checked && <span className="layout-option__selected">Selezionato</span>}
+            </span>
+          </button>
+        )
+      })}
+    </div>
   )
 }
