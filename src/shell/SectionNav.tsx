@@ -17,7 +17,8 @@ interface SectionNavProps {
   section: Section
   /** Persistent outside the game; during play hidden until the rhombus reveals it. */
   state: SectionNavState
-  onNavigate: (next: Section) => void
+  /** `byKeyboard` is true for Enter activation, so focus can follow to the new view's title. */
+  onNavigate: (next: Section, byKeyboard: boolean) => void
   /** Choosing Partita while already playing just hides the revealed bar. */
   onRequestClose: () => void
 }
@@ -39,7 +40,7 @@ export function SectionNav({ id, section, state, onNavigate, onRequestClose }: S
                 onClick={(event) => {
                   event.preventDefault()
                   if (item === section && state === 'revealed') onRequestClose()
-                  else onNavigate(item)
+                  else onNavigate(item, event.detail === 0)
                 }}
               >
                 <Icon />

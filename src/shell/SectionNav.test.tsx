@@ -31,9 +31,9 @@ describe('SectionNav (R1)', () => {
 
   it('navigates without following the link', () => {
     const { onNavigate } = setup('altro')
-    const event = fireEvent.click(screen.getByRole('link', { name: 'Mazzi' }))
+    const event = fireEvent.click(screen.getByRole('link', { name: 'Mazzi' }), { detail: 1 })
     expect(event).toBe(false)
-    expect(onNavigate).toHaveBeenCalledWith('mazzi')
+    expect(onNavigate).toHaveBeenCalledWith('mazzi', false)
   })
 
   it('asks to close instead of navigating when Partita is chosen during play', () => {

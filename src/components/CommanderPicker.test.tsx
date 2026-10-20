@@ -61,10 +61,6 @@ describe('commander picker (Phase 2c)', () => {
     expect(within(panel).getAllByText('Illustrazione di Ekaterina Burmak').length).toBeGreaterThan(0)
     expect(panel).toHaveAttribute('data-has-art')
     expect(panel.querySelector('.player-art')).toHaveAttribute('aria-hidden', 'true')
-
-    // Undoable like any other change.
-    fireEvent.click(screen.getByRole('button', { name: /annulla ultima azione/i }))
-    await waitFor(() => expect(panel.querySelector('.player-art')).toBeNull())
   })
 
   it('explains that a connection is needed when offline', async () => {

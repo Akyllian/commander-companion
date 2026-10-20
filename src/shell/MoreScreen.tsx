@@ -43,10 +43,10 @@ export function MoreScreen({ playerCount, preferences, onPreferencesChange, wake
 
   return (
     <div className="screen more-screen">
-      <header className="screen__header">
+      <div className="screen__header">
         <h1 tabIndex={-1}>Altro</h1>
         <p className="screen__subtitle">Partita, schermo e informazioni</p>
-      </header>
+      </div>
 
       <section className="settings-group" aria-labelledby="altro-tavolo">
         <h2 id="altro-tavolo">Disposizione del tavolo</h2>

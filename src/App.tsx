@@ -1,46 +1,37 @@
 import { useEffect, useReducer, useRef, useState } from 'react'
 import { AppNotices } from './components/AppNotices'
-import { BrandSigil } from './components/icons'
 import { ConfirmDialog } from './components/ConfirmDialog'
 import { PlayerPanel } from './components/PlayerPanel'
-import { FOUR_PLAYER_CHOICES, LayoutSelector, TWO_PLAYER_CHOICES } from './components/LayoutSelector'
 import { PlayerSeat } from './components/PlayerSeat'
 import type { TableLayout } from './components/PlayerSeat'
 import { RulesDialog } from './components/RulesDialog'
-import { FAN_CONTENT_NOTICE } from './content/legal'
 import { getArtStore, pruneArt } from './media/artStore'
-import { TableControls } from './components/TableControls'
-import { UndoBar } from './components/UndoBar'
 import { canRemovePartner, createGame } from './game/game'
 import { createHistory, getGroupDelta, historyReducer } from './game/history'
-import {
-  loadGame,
-  requestPersistentStorage,
-  saveGame,
-  subscribeToExternalChanges,
-} from './game/storage'
+import { loadGame, requestPersistentStorage, saveGame, subscribeToExternalChanges } from './game/storage'
 import type { LoadStatus } from './game/storage'
-import type { GameAction, GameState } from './game/types'
+import type { GameAction } from './game/types'
 import { useCompactDensity } from './platform/useCompactDensity'
 import { isWakeLockSupported, useWakeLock } from './platform/useWakeLock'
 import { loadPreferences, savePreferences } from './settings/preferences'
 import type { Preferences } from './settings/preferences'
+import { DecksScreen } from './shell/DecksScreen'
+import { LearnScreen } from './shell/LearnScreen'
+import { MoreScreen } from './shell/MoreScreen'
+import { SectionNav } from './shell/SectionNav'
+import { ShellRhombus } from './shell/ShellRhombus'
+import type { Section } from './shell/sections'
+import { useSection } from './shell/useSection'
 
 type PendingConfirmation = { kind: 'new-game'; playerCount: number } | { kind: 'reset' } | null
 
-interface Removal {
-  playerId: string
-  name: string
-  /** Grid position of the removed panel, where the undo bar appears. */
-  index: number
-  /** The game right before the removal; the snackbar lives only while removal is the latest step. */
-  before: GameState
-}
+const NAV_ID = 'sezioni'
 
-const isEditableTarget = (target: EventTarget | null) =>
-  target instanceof HTMLElement &&
-  (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))
-
+/**
+ * The app shell (D-037, R1): four sections behind a top bar. The game view stays mounted and is
+ * only hidden, so leaving and coming back never remounts a panel. During play the bar is hidden
+ * until the central rhombus reveals it.
+ */
 export default function App() {
   const [initial] = useState(loadGame)
   const [history, dispatchHistory] = useReducer(historyReducer, initial.game, createHistory)
@@ -48,19 +39,23 @@ export default function App() {
   const [saveFailed, setSaveFailed] = useState(false)
   const [preferences, setPreferences] = useState(loadPreferences)
   const [pending, setPending] = useState<PendingConfirmation>(null)
-  const [removal, setRemoval] = useState<Removal | null>(null)
   // Presentation state only: never dispatched, persisted or part of history.
   const [rulesOpen, setRulesOpen] = useState(false)
-  const [layoutOpen, setLayoutOpen] = useState(false)
+  const [revealed, setRevealed] = useState(false)
+  const [section, navigate] = useSection()
   const compact = useCompactDensity()
+  const rhombusRef = useRef<HTMLButtonElement>(null)
+  const focusTitleNext = useRef(false)
+  const focusBarNext = useRef(false)
   const game = history.present
   const groupDelta = getGroupDelta(history)
+  const playing = section === 'partita'
 
   // Persist every change synchronously so a closed tab never loses the last action.
   // oxlint-disable-next-line react/set-state-in-effect -- the result comes from an external system (storage).
   useEffect(() => setSaveFailed(!saveGame(game)), [game])
 
-  // Drop cached art no current player uses (undo history does not survive a reload).
+  // Drop cached art no current player uses.
   useEffect(() => {
     const store = getArtStore()
     const keep = new Set(initial.game.players.flatMap((player) => player.commanders.flatMap((slot) => (slot ? [slot.cardId] : []))))
@@ -72,59 +67,67 @@ export default function App() {
     return subscribeToExternalChanges((external) => dispatchHistory({ type: 'external', game: external }))
   }, [])
 
-  useWakeLock(preferences.keepScreenOn)
+  // The screen stays awake only while the table is on screen (R1 design §6.2).
+  useWakeLock(preferences.keepScreenOn && playing)
 
+  const updatePreferences = (next: Preferences) => {
+    setPreferences(next)
+    savePreferences(next)
+  }
+
+  const hideBar = () => {
+    setRevealed(false)
+    rhombusRef.current?.focus()
+  }
+
+  // Esc hides the bar revealed over the game and hands focus back to the rhombus.
   useEffect(() => {
+    if (!playing || !revealed) return
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (!(event.ctrlKey || event.metaKey) || event.altKey || isEditableTarget(event.target)) return
-      const key = event.key.toLowerCase()
-      if (key === 'z' && !event.shiftKey) dispatchHistory({ type: 'undo' })
-      else if ((key === 'z' && event.shiftKey) || key === 'y') dispatchHistory({ type: 'redo' })
-      else return
-      event.preventDefault()
+      if (event.key !== 'Escape' || document.querySelector('dialog[open], [role="dialog"]')) return
+      setRevealed(false)
+      rhombusRef.current?.focus()
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
+  }, [playing, revealed])
 
-  const dispatch = (action: GameAction) => {
-    if (action.type === 'remove-player') {
-      const index = game.players.findIndex((candidate) => candidate.id === action.playerId)
-      const player = game.players[index]
-      if (player) setRemoval({ playerId: player.id, name: player.name, index, before: game })
+  // After a keyboard choice, focus lands on the new view's title (R1 design §4.2).
+  useEffect(() => {
+    if (!focusTitleNext.current) return
+    focusTitleNext.current = false
+    document.querySelector<HTMLElement>(`[data-section="${section}"] h1`)?.focus()
+  }, [section])
+
+  const toggleBar = (byKeyboard: boolean) => {
+    if (!preferences.rhombusHintSeen) updatePreferences({ ...preferences, rhombusHintSeen: true })
+    if (revealed) {
+      setRevealed(false)
+      return
     }
-    dispatchHistory({ type: 'apply', action, at: performance.now() })
+    focusBarNext.current = byKeyboard
+    setRevealed(true)
   }
 
-  // Any later step (or undo) makes the removal no longer the latest action: hide the snackbar
-  // so its "Annulla" can never undo something else.
-  const removalIsLatest =
-    removal !== null &&
-    history.past.at(-1) === removal.before &&
-    history.future.length === 0 &&
-    !game.players.some((player) => player.id === removal.playerId)
+  // Opening the bar from the keyboard moves focus to the current section in it.
+  useEffect(() => {
+    if (!revealed || !focusBarNext.current) return
+    focusBarNext.current = false
+    document.querySelector<HTMLElement>(`#${NAV_ID} [aria-current="page"]`)?.focus()
+  }, [revealed])
 
-  const dismissRemoval = () => {
-    // If the bar held focus, hand it to the score grid rather than losing it.
-    const hadFocus = Boolean(document.activeElement?.closest('.undo-bar'))
-    setRemoval(null)
-    if (hadFocus) document.getElementById('main')?.focus()
+  const goTo = (next: Section, byKeyboard: boolean) => {
+    setRevealed(false)
+    if (byKeyboard && next !== 'partita') focusTitleNext.current = true
+    navigate(next)
   }
 
-  // Four cells (players, or three players plus a removed player's Undo bar) take the chosen
-  // four-player layout (D-034); two players their own (D-035); otherwise the plain grid.
-  // Rotation never changes it.
-  const cellCount = game.players.length + (removalIsLatest ? 1 : 0)
+  const dispatch = (action: GameAction) => dispatchHistory({ type: 'apply', action, at: performance.now() })
+
+  // Two players may face each other (D-035); four players use their chosen layout (D-034).
+  const playerCount = game.players.length
   const layout: TableLayout =
-    cellCount === 4
-      ? preferences.fourPlayerLayout
-      : cellCount === 2 && preferences.twoPlayerLayout === 'facing'
-        ? 'two-facing'
-        : 'grid'
-  // The trigger follows what is on screen: while a removed player's Undo bar still holds a cell,
-  // the table keeps its previous arrangement, so no selector for the new count yet (D-035 review).
-  const settledCount = cellCount === game.players.length ? cellCount : null
-  const layoutTable = settledCount === 4 ? 'four' : settledCount === 2 ? 'two' : null
+    playerCount === 4 ? preferences.fourPlayerLayout : playerCount === 2 && preferences.twoPlayerLayout === 'facing' ? 'two-facing' : 'grid'
   // With the device in the middle of the table every player must fit without scrolling, so
   // Tavolo and two players face to face always use compact panels (D-034, D-035).
   const panelDensity = compact || layout === 'table' || layout === 'two-facing'
@@ -144,50 +147,21 @@ export default function App() {
     })
   }, [layout])
 
-  const panels = game.players.map((player) => (
-    <PlayerPanel
-      key={player.id}
-      player={player}
-      opponents={game.players.filter((opponent) => opponent.id !== player.id)}
-      playerCount={game.players.length}
-      canRemovePartner={canRemovePartner(game, player.id)}
-      delta={groupDelta?.target.playerId === player.id ? groupDelta : null}
-      compact={panelDensity}
-      monarchPlayerId={game.monarchPlayerId}
-      initiativePlayerId={game.initiativePlayerId}
-      dispatch={dispatch}
-    />
-  ))
-  if (removalIsLatest) {
-    panels.splice(
-      removal.index,
-      0,
-      <UndoBar
-        key={`undo-${removal.playerId}`}
-        message={`${removal.name} rimosso`}
-        onUndo={() => {
-          dispatchHistory({ type: 'undo' })
-          setRemoval(null)
-        }}
-        onDismiss={dismissRemoval}
-      />,
-    )
-  }
-
-  const cells = panels.map((cell, index) => (
-    <PlayerSeat key={cell.key} layout={layout} index={index}>
-      {cell}
+  const cells = game.players.map((player, index) => (
+    <PlayerSeat key={player.id} layout={layout} index={index}>
+      <PlayerPanel
+        player={player}
+        opponents={game.players.filter((opponent) => opponent.id !== player.id)}
+        playerCount={playerCount}
+        canRemovePartner={canRemovePartner(game, player.id)}
+        delta={groupDelta?.target.playerId === player.id ? groupDelta : null}
+        compact={panelDensity}
+        monarchPlayerId={game.monarchPlayerId}
+        initiativePlayerId={game.initiativePlayerId}
+        dispatch={dispatch}
+      />
     </PlayerSeat>
   ))
-
-  const notices = (
-    <AppNotices
-      loadStatus={loadStatus}
-      saveFailed={saveFailed}
-      onDismissLoadStatus={() => setLoadStatus('restored')}
-      compact={compact}
-    />
-  )
 
   const confirm = () => {
     if (pending?.kind === 'new-game') dispatchHistory({ type: 'replace', game: createGame(pending.playerCount) })
@@ -195,80 +169,62 @@ export default function App() {
     setPending(null)
   }
 
-  const updatePreferences = (next: Preferences) => {
-    setPreferences(next)
-    savePreferences(next)
-  }
-
   return (
-    <div className="app-shell" data-compact-density={compact}>
-      <header className="app-header">
-        <a className="brand" href="#main" aria-label="Commander Companion, vai ai punteggi">
-          <BrandSigil />
-          <span>
-            <strong>Commander Companion</strong>
-            <small>Il grimorio del tavolo</small>
-          </span>
-        </a>
+    <div className="app-shell" data-compact-density={compact} data-active-section={section}>
+      <SectionNav
+        id={NAV_ID}
+        section={section}
+        state={playing ? (revealed ? 'revealed' : 'hidden') : 'persistent'}
+        onNavigate={goTo}
+        onRequestClose={hideBar}
+      />
 
-        <TableControls
-          key={game.players.length}
-          currentPlayerCount={game.players.length}
-          canUndo={history.past.length > 0}
-          canRedo={history.future.length > 0}
-          compact={compact}
-          preferences={preferences}
-          onPreferencesChange={updatePreferences}
-          // Keeping the screen on is the only preference: hide it when unsupported.
-          showPreferences={isWakeLockSupported()}
-          status={compact && notices}
-          onUndo={() => dispatchHistory({ type: 'undo' })}
-          onRedo={() => dispatchHistory({ type: 'redo' })}
-          onReset={() => setPending({ kind: 'reset' })}
-          onNewGame={(playerCount) => setPending({ kind: 'new-game', playerCount })}
-          onOpenRules={() => setRulesOpen(true)}
-          layoutLabel={layoutTable && `Layout dei ${layoutTable === 'four' ? 'quattro' : 'due'} giocatori`}
-          onOpenLayout={() => setLayoutOpen(true)}
-        />
-      </header>
+      <AppNotices
+        loadStatus={loadStatus}
+        saveFailed={saveFailed}
+        onDismissLoadStatus={() => setLoadStatus('restored')}
+        placement={playing ? 'toast' : 'inline'}
+      />
 
-      {!compact && notices}
-
-      <main id="main" ref={gridRef} className="player-grid" data-player-count={panels.length} data-layout={layout} tabIndex={-1}>
+      <main
+        id="main"
+        ref={gridRef}
+        className="player-grid"
+        data-player-count={playerCount}
+        data-layout={layout}
+        data-section="partita"
+        hidden={!playing}
+        tabIndex={-1}
+      >
         {cells}
+        <ShellRhombus
+          expanded={revealed}
+          controlsId={NAV_ID}
+          showHint={!preferences.rhombusHintSeen}
+          onToggle={toggleBar}
+          buttonRef={rhombusRef}
+        />
       </main>
 
-      <footer className="app-footer">
-        <p>I punteggi restano su questo dispositivo. Commander Companion non sostituisce le regole ufficiali.</p>
-        <p className="fan-content-notice" lang="en">
-          {FAN_CONTENT_NOTICE}
-        </p>
-      </footer>
+      <section className="app-view" data-section="mazzi" hidden={section !== 'mazzi'}>
+        <DecksScreen />
+      </section>
+      <section className="app-view" data-section="impara" hidden={section !== 'impara'}>
+        <LearnScreen onOpenRules={() => setRulesOpen(true)} />
+      </section>
+      <section className="app-view" data-section="altro" hidden={section !== 'altro'}>
+        <MoreScreen
+          key={playerCount}
+          playerCount={playerCount}
+          preferences={preferences}
+          onPreferencesChange={updatePreferences}
+          wakeLockSupported={isWakeLockSupported()}
+          onNewGame={(count) => setPending({ kind: 'new-game', playerCount: count })}
+          onReset={() => setPending({ kind: 'reset' })}
+        />
+      </section>
 
       <RulesDialog open={rulesOpen} onClose={() => setRulesOpen(false)} />
-      {layoutTable === 'two' ? (
-        <LayoutSelector
-          open={layoutOpen}
-          choices={TWO_PLAYER_CHOICES}
-          value={preferences.twoPlayerLayout}
-          onChoose={(twoPlayerLayout) => {
-            updatePreferences({ ...preferences, twoPlayerLayout })
-            setLayoutOpen(false)
-          }}
-          onClose={() => setLayoutOpen(false)}
-        />
-      ) : (
-        <LayoutSelector
-          open={layoutOpen && layoutTable === 'four'}
-          choices={FOUR_PLAYER_CHOICES}
-          value={preferences.fourPlayerLayout}
-          onChoose={(fourPlayerLayout) => {
-            updatePreferences({ ...preferences, fourPlayerLayout })
-            setLayoutOpen(false)
-          }}
-          onClose={() => setLayoutOpen(false)}
-        />
-      )}
 
       <ConfirmDialog
         open={pending?.kind === 'new-game'}

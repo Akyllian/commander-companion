@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
 import type { FourPlayerLayout, TwoPlayerLayout } from '../settings/preferences'
-import { ModalSideSheet } from './ModalSideSheet'
 
 /**
  * Manual table layout for four (D-034) or two players (D-035). A device preference: choosing
@@ -109,12 +108,10 @@ function LayoutPreview({ seats }: { seats: PreviewSeat[] }) {
   )
 }
 
-interface LayoutSelectorProps<T extends string> {
-  open: boolean
+interface LayoutOptionsProps<T extends string> {
   choices: ReadonlyArray<LayoutChoice<T>>
   value: T
   onChoose: (value: T) => void
-  onClose: () => void
 }
 
 /** Arrow keys, Home and End move between options (wrapping); Space or Enter chooses. */
@@ -127,20 +124,11 @@ const NEXT_INDEX: Record<string, (index: number, count: number) => number> = {
   End: (_index, count) => count - 1,
 }
 
-export function LayoutSelector<T extends string>({ open, choices, value, onChoose, onClose }: LayoutSelectorProps<T>) {
-  return (
-    <ModalSideSheet open={open} title="Layout dei giocatori" className="layout-sheet" onClose={onClose}>
-      {/* Keyed by table and value: each opening starts the roving focus on the checked option. */}
-      <LayoutOptions key={`${choices.length}-${value}`} choices={choices} value={value} onChoose={onChoose} />
-    </ModalSideSheet>
-  )
-}
-
 /**
  * Radio group with a roving tabindex: one Tab stop, arrows move focus without applying, because
- * a choice applies at once and closes the sheet (D-034).
+ * a choice applies at once (D-034; shown inline in Altro since R1).
  */
-export function LayoutOptions<T extends string>({ choices, value, onChoose }: Pick<LayoutSelectorProps<T>, 'choices' | 'value' | 'onChoose'>) {
+export function LayoutOptions<T extends string>({ choices, value, onChoose }: LayoutOptionsProps<T>) {
   const [focusIndex, setFocusIndex] = useState(() => Math.max(0, choices.findIndex((choice) => choice.id === value)))
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([])
 

@@ -5,50 +5,36 @@ import { AppNotices } from './AppNotices'
 afterEach(() => updateStore.reset())
 
 const renderNotices = (props: Partial<Parameters<typeof AppNotices>[0]> = {}) =>
-  render(
-    <AppNotices
-      loadStatus="restored"
-      saveFailed={false}
-      onDismissLoadStatus={vi.fn()}
-      supportsPopover={false}
-      {...props}
-    />,
-  )
+  render(<AppNotices loadStatus="restored" saveFailed={false} onDismissLoadStatus={vi.fn()} placement="inline" {...props} />)
 
-describe('AppNotices', () => {
-  it('shows notices inline in the standard layout', () => {
+describe('AppNotices (R1)', () => {
+  it('shows notices in the page flow outside the game', () => {
     renderNotices({ saveFailed: true })
+    const region = screen.getByRole('status')
+    expect(region).toHaveAttribute('data-placement', 'inline')
     expect(screen.getByText(/salvataggio non è disponibile/i)).toBeVisible()
-    expect(screen.queryByRole('button', { name: 'Stato app' })).not.toBeInTheDocument()
   })
 
-  it('renders nothing visible in compact mode without notices', () => {
-    renderNotices({ compact: true })
-    expect(screen.queryByRole('button', { name: 'Stato app' })).not.toBeInTheDocument()
+  it('shows the same notices as a toast during play', () => {
+    renderNotices({ saveFailed: true, placement: 'toast' })
+    expect(screen.getByRole('status')).toHaveAttribute('data-placement', 'toast')
+    expect(screen.getByText(/salvataggio non è disponibile/i)).toBeVisible()
   })
 
-  it('collapses every notice behind one Stato app button with its count', () => {
+  it('renders an empty live region when there is nothing to say', () => {
+    renderNotices({ placement: 'toast' })
+    expect(screen.getByRole('status')).toBeEmptyDOMElement()
+  })
+
+  it('dismisses the recovered-save notice and offers the update', async () => {
     const onDismissLoadStatus = vi.fn()
-    renderNotices({ compact: true, saveFailed: true, loadStatus: 'recovered', onDismissLoadStatus })
-    act(() => updateStore.markNeedRefresh(async () => undefined))
-
-    const trigger = screen.getByRole('button', { name: 'Stato app' })
-    expect(trigger).toHaveAccessibleDescription('3 avvisi')
-    expect(screen.getByText('Stato app: 3 avvisi')).toBeInTheDocument()
-    expect(screen.getByText(/non era leggibile/i)).not.toBeVisible()
-
-    fireEvent.click(trigger)
-    expect(screen.getByText(/salvataggio non è disponibile/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Aggiorna' })).toBeInTheDocument()
+    renderNotices({ loadStatus: 'recovered', onDismissLoadStatus })
     fireEvent.click(screen.getByRole('button', { name: 'Ok' }))
     expect(onDismissLoadStatus).toHaveBeenCalledOnce()
 
-    fireEvent.keyDown(document, { key: 'Escape' })
-    expect(trigger).toHaveFocus()
-  })
-
-  it('uses the singular for one notice', () => {
-    renderNotices({ compact: true, saveFailed: true })
-    expect(screen.getByRole('button', { name: 'Stato app' })).toHaveAccessibleDescription('1 avviso')
+    const apply = vi.fn(async () => undefined)
+    act(() => updateStore.markNeedRefresh(apply))
+    fireEvent.click(screen.getByRole('button', { name: 'Aggiorna' }))
+    expect(apply).toHaveBeenCalledOnce()
   })
 })

@@ -4,7 +4,6 @@ import { createGame, gameReducer } from './game/game'
 import { BACKUP_KEY, STORAGE_KEY } from './game/storage'
 import { updateStore } from './pwa/updates'
 import { installMatchMedia } from './test/matchMedia'
-import { UNDO_BAR_DURATION_MS } from './components/UndoBar'
 import { DELTA_EXIT_MS } from './components/DeltaBadge'
 
 let clock = 0
@@ -17,23 +16,40 @@ const click = (scope: HTMLElement, name: RegExp) => fireEvent.click(within(scope
 const mode = (scope: HTMLElement, label: RegExp) =>
   fireEvent.click(within(within(scope).getByRole('group', { name: /^punteggio di/i })).getByRole('button', { name: label }))
 
+/** Opens a section the way a player does: from the game, the rhombus first reveals the bar. */
+const goTo = (name: 'Partita' | 'Mazzi' | 'Impara' | 'Altro') => {
+  if (!screen.queryByRole('navigation', { name: 'Sezioni' })) {
+    fireEvent.click(screen.getByRole('button', { name: 'Mostra le sezioni' }))
+  }
+  fireEvent.click(within(screen.getByRole('navigation', { name: 'Sezioni' })).getByRole('link', { name }))
+}
+/** Asks for a new game from Altro and confirms it. */
+const newGame = (players: 2 | 3 | 4) => {
+  goTo('Altro')
+  fireEvent.click(within(screen.getByRole('radiogroup', { name: 'Giocatori per la nuova partita' })).getByRole('radio', { name: String(players) }))
+  fireEvent.click(screen.getByRole('button', { name: 'Nuova partita' }))
+  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Nuova partita' }))
+  goTo('Partita')
+}
+/** Resets the scores from Altro and returns to the table. */
+const resetScores = () => {
+  goTo('Altro')
+  fireEvent.click(screen.getByRole('button', { name: 'Azzera punteggi' }))
+  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Azzera punteggi' }))
+  goTo('Partita')
+}
+
 afterEach(() => {
   vi.restoreAllMocks()
   vi.useRealTimers()
   updateStore.reset()
+  window.history.replaceState(null, '', window.location.pathname)
 })
 
 describe('scoring', () => {
-  it('changes a life total and can undo the action', () => {
+  it('changes a life total', () => {
     render(<App />)
-
     click(panel(/giocatore 1/i), /aumenta.*1.*vita/i)
-    expect(life(/giocatore 1/i)).toHaveTextContent('41')
-
-    fireEvent.click(screen.getByRole('button', { name: /annulla ultima azione/i }))
-    expect(life(/giocatore 1/i)).toHaveTextContent('40')
-
-    fireEvent.click(screen.getByRole('button', { name: /ripeti ultima azione/i }))
     expect(life(/giocatore 1/i)).toHaveTextContent('41')
   })
 
@@ -68,9 +84,6 @@ describe('scoring', () => {
 
     click(target, /riduci danni commander da giocatore 2 a giocatore 1/i)
     expect(life(/giocatore 1/i)).toHaveTextContent('39')
-
-    fireEvent.click(screen.getByRole('button', { name: /annulla ultima azione/i }))
-    expect(life(/giocatore 1/i)).toHaveTextContent('38')
   })
 
   it('shows the defeat label with its reason', () => {
@@ -107,7 +120,7 @@ describe('scoring', () => {
     render(<App />)
     mode(panel(/giocatore 1/i), /^commander/i)
     click(panel(/giocatore 2/i), /aumenta.*1.*vita/i)
-    fireEvent.click(screen.getByRole('button', { name: /annulla ultima azione/i }))
+    click(panel(/giocatore 2/i), /riduci.*1.*vita/i)
     expect(within(panel(/giocatore 1/i)).getByRole('button', { name: /^commander/i })).toHaveAttribute('aria-pressed', 'true')
   })
 })
@@ -152,18 +165,23 @@ describe('players and match', () => {
     expect(panel(/liliana/i)).toBeInTheDocument()
   })
 
-  it('removes a player and keeps the new-game selector in sync', () => {
+  it('removes a player at once and starts the new-game draft from the current table', () => {
     render(<App />)
     click(panel(/giocatore 4/i), /rimuovi giocatore 4/i)
     expect(screen.getAllByRole('region')).toHaveLength(3)
-    expect(screen.getByRole('combobox', { name: /numero di giocatori/i })).toHaveValue('3')
+    expect(screen.queryByText('Giocatore 4 rimosso')).not.toBeInTheDocument()
+    goTo('Altro')
+    expect(
+      within(screen.getByRole('radiogroup', { name: 'Giocatori per la nuova partita' })).getByRole('radio', { name: '3' }),
+    ).toHaveAttribute('aria-checked', 'true')
   })
 
   it('starts a new game only after confirming in the dialog', () => {
     render(<App />)
     click(panel(/giocatore 1/i), /riduci.*5.*vita/i)
-    fireEvent.change(screen.getByRole('combobox', { name: /numero di giocatori/i }), { target: { value: '2' } })
-    const opener = screen.getByRole('button', { name: /nuova partita/i })
+    goTo('Altro')
+    fireEvent.click(within(screen.getByRole('radiogroup', { name: 'Giocatori per la nuova partita' })).getByRole('radio', { name: '2' }))
+    const opener = screen.getByRole('button', { name: 'Nuova partita' })
     opener.focus()
 
     fireEvent.click(opener)
@@ -175,53 +193,39 @@ describe('players and match', () => {
     fireEvent.click(within(dialog).getByRole('button', { name: 'Annulla' }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(opener).toHaveFocus()
-    expect(screen.getAllByRole('region')).toHaveLength(4)
 
     fireEvent.click(opener)
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Nuova partita' }))
+    goTo('Partita')
     expect(screen.getAllByRole('region')).toHaveLength(2)
-    expect(screen.getByRole('button', { name: /annulla ultima azione/i })).toBeDisabled()
+    expect(life(/giocatore 1/i)).toHaveTextContent('40')
   })
 
   it('resets scores only after confirming, and closes with Escape', () => {
     render(<App />)
     click(panel(/giocatore 1/i), /riduci.*5.*vita/i)
+    goTo('Altro')
 
     fireEvent.click(screen.getByRole('button', { name: /azzera punteggi/i }))
     const dialog = screen.getByRole('dialog', { name: /azzerare tutti i punteggi/i })
     fireEvent(dialog, new Event('cancel', { cancelable: true }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    expect(life(/giocatore 1/i)).toHaveTextContent('35')
 
     fireEvent.click(screen.getByRole('button', { name: /azzera punteggi/i }))
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Azzera punteggi' }))
+    goTo('Partita')
     expect(life(/giocatore 1/i)).toHaveTextContent('40')
   })
 })
 
-describe('keyboard shortcuts', () => {
-  it('undoes and redoes with Ctrl/Cmd+Z, Shift+Z and Y', () => {
+describe('no Undo or Redo (D-037)', () => {
+  it('offers no Undo or Redo control and ignores Ctrl/Cmd+Z and Y', () => {
     render(<App />)
     click(panel(/giocatore 1/i), /aumenta.*1.*vita/i)
-
+    expect(screen.queryByRole('button', { name: /annulla ultima azione|ripeti ultima azione/i })).not.toBeInTheDocument()
     fireEvent.keyDown(window, { key: 'z', ctrlKey: true })
-    expect(life(/giocatore 1/i)).toHaveTextContent('40')
     fireEvent.keyDown(window, { key: 'Z', metaKey: true, shiftKey: true })
-    expect(life(/giocatore 1/i)).toHaveTextContent('41')
-    fireEvent.keyDown(window, { key: 'z', ctrlKey: true })
     fireEvent.keyDown(window, { key: 'y', ctrlKey: true })
-    expect(life(/giocatore 1/i)).toHaveTextContent('41')
-  })
-
-  it('leaves text fields and other shortcuts alone', () => {
-    render(<App />)
-    click(panel(/giocatore 1/i), /aumenta.*1.*vita/i)
-    const input = within(panel(/giocatore 1/i)).getByRole('textbox', { name: /nome giocatore/i })
-
-    fireEvent.keyDown(input, { key: 'z', ctrlKey: true })
-    fireEvent.keyDown(window, { key: 'z' })
-    fireEvent.keyDown(window, { key: 'z', ctrlKey: true, altKey: true })
-    fireEvent.keyDown(window, { key: 'k', ctrlKey: true })
     expect(life(/giocatore 1/i)).toHaveTextContent('41')
   })
 })
@@ -241,7 +245,7 @@ describe('announcements', () => {
     expect(announcement).toHaveTextContent('Giocatore 1: 42 punti vita')
   })
 
-  it('speaks a Commander burst once, then the life restored by Undo (D-036)', () => {
+  it('speaks a Commander burst once, then the life restored by a reset (D-036)', () => {
     vi.useFakeTimers()
     render(<App />)
     const player = panel(/giocatore 1/i)
@@ -252,7 +256,7 @@ describe('announcements', () => {
     act(() => vi.advanceTimersByTime(700))
     expect(live).toHaveTextContent('Giocatore 1: 2 danni Commander da Giocatore 2; vita 38')
 
-    fireEvent.click(screen.getByRole('button', { name: /annulla ultima azione/i }))
+    resetScores()
     act(() => vi.advanceTimersByTime(700))
     expect(live).toHaveTextContent('Giocatore 1: 40 punti vita')
   })
@@ -304,7 +308,7 @@ describe('persistence and system notices', () => {
 })
 
 describe('rapid taps (UX decision 3)', () => {
-  it('groups fast taps into one undo step and shows the cumulative delta', () => {
+  it('groups fast taps and shows the cumulative delta', () => {
     vi.useFakeTimers()
     let now = 0
     vi.spyOn(performance, 'now').mockImplementation(() => now)
@@ -322,9 +326,6 @@ describe('rapid taps (UX decision 3)', () => {
     expect(within(player).getByTestId('delta-badge')).toHaveAttribute('data-phase', 'exit')
     act(() => vi.advanceTimersByTime(DELTA_EXIT_MS))
     expect(within(player).queryByTestId('delta-badge')).not.toBeInTheDocument()
-
-    fireEvent.click(screen.getByRole('button', { name: /annulla ultima azione/i }))
-    expect(life(/giocatore 1/i)).toHaveTextContent('40')
   })
 
   it('shows deltas next to counters and Commander damage', () => {
@@ -351,81 +352,39 @@ describe('rapid taps (UX decision 3)', () => {
   })
 })
 
-describe('player removal (UX decision 2)', () => {
-  it('removes immediately and offers Annulla inline, in the removed panel position', () => {
+describe('player removal (D-037: no Undo bar)', () => {
+  it('removes at once, with no Undo bar, and the table closes up', () => {
     render(<App />)
     click(panel(/giocatore 3/i), /rimuovi giocatore 3/i)
     expect(screen.getAllByRole('region')).toHaveLength(3)
-
-    const bar = screen.getByText('Giocatore 3 rimosso').closest('.undo-bar') as HTMLElement
-    const cells = Array.from(document.getElementById('main')?.children ?? [])
-    expect(cells.indexOf(bar.closest('.player-seat') as Element)).toBe(2)
-    expect(bar).toHaveFocus()
-    fireEvent.click(within(bar).getByRole('button', { name: 'Annulla' }))
-    expect(screen.getAllByRole('region')).toHaveLength(4)
     expect(screen.queryByText('Giocatore 3 rimosso')).not.toBeInTheDocument()
-  })
-
-  it('hides the bar after six seconds unless its button has focus', () => {
-    vi.useFakeTimers()
-    render(<App />)
-    click(panel(/giocatore 3/i), /rimuovi giocatore 3/i)
-    const undo = within(screen.getByText('Giocatore 3 rimosso').closest('.undo-bar') as HTMLElement).getByRole(
-      'button',
-      { name: 'Annulla' },
-    )
-
-    fireEvent.focus(undo)
-    act(() => vi.advanceTimersByTime(10_000))
-    expect(screen.getByText('Giocatore 3 rimosso')).toBeInTheDocument()
-
-    fireEvent.blur(undo)
-    act(() => vi.advanceTimersByTime(6000))
-    expect(screen.queryByText('Giocatore 3 rimosso')).not.toBeInTheDocument()
-    // The global undo still restores the player.
-    fireEvent.click(screen.getByRole('button', { name: /annulla ultima azione/i }))
-    expect(screen.getAllByRole('region')).toHaveLength(4)
-  })
-
-  it('moves focus to the score grid when the focused bar disappears', () => {
-    vi.useFakeTimers()
-    render(<App />)
-    click(panel(/giocatore 3/i), /rimuovi giocatore 3/i)
-    act(() => vi.advanceTimersByTime(6000))
-    expect(document.getElementById('main')).toHaveFocus()
-  })
-
-  it('hides the bar as soon as another action happens', () => {
-    render(<App />)
-    click(panel(/giocatore 3/i), /rimuovi giocatore 3/i)
-    click(panel(/giocatore 1/i), /aumenta di 1 la vita/i)
-    expect(screen.queryByText('Giocatore 3 rimosso')).not.toBeInTheDocument()
+    expect(document.querySelectorAll('#main > .player-seat')).toHaveLength(3)
   })
 })
 
-describe('preferences (UX decision 7)', () => {
+describe('screen-on preference in Altro (UX decision 7)', () => {
   afterEach(() => {
     Reflect.deleteProperty(navigator, 'wakeLock')
   })
 
   it('hides the screen-on control when the browser cannot keep the screen awake', () => {
     render(<App />)
-    expect(screen.queryByRole('button', { name: 'Preferenze' })).not.toBeInTheDocument()
+    goTo('Altro')
+    expect(screen.queryByRole('switch', { name: /mantieni lo schermo acceso/i })).not.toBeInTheDocument()
   })
 
   it('offers the control on by default and remembers the choice', () => {
     const request = vi.fn(async () => ({ released: false, release: vi.fn(async () => undefined) }))
     Object.defineProperty(navigator, 'wakeLock', { configurable: true, value: { request } })
     const first = render(<App />)
-    fireEvent.click(screen.getByRole('button', { name: 'Preferenze' }))
-    const toggle = screen.getByRole('checkbox', { name: /mantieni lo schermo acceso/i })
+    goTo('Altro')
+    const toggle = screen.getByRole('switch', { name: /mantieni lo schermo acceso/i })
     expect(toggle).toBeChecked()
 
     fireEvent.click(toggle)
     first.unmount()
     render(<App />)
-    fireEvent.click(screen.getByRole('button', { name: 'Preferenze' }))
-    expect(screen.getByRole('checkbox', { name: /mantieni lo schermo acceso/i })).not.toBeChecked()
+    expect(screen.getByRole('switch', { name: /mantieni lo schermo acceso/i })).not.toBeChecked()
   })
 })
 
@@ -445,27 +404,7 @@ describe('compact landscape (Phase 1.6)', () => {
     expect(life(/giocatore 1/i)).toHaveTextContent('35')
 
     act(() => media.set(false))
-    expect(screen.getByRole('button', { name: 'Nuova partita' })).toBeInTheDocument()
-  })
-
-  it('keeps Undo, Redo and Partita in the header and moves match actions inside Partita', () => {
-    installMatchMedia(true)
-    render(<App />)
-    const controls = screen.getByRole('group', { name: 'Controlli partita' })
-    const names = within(controls)
-      .getAllByRole('button')
-      .map((button) => button.getAttribute('aria-label') ?? button.textContent)
-    expect(names).toEqual([
-      'Annulla ultima azione',
-      'Ripeti ultima azione',
-      'Regole Commander',
-      'Layout dei quattro giocatori',
-      'Partita',
-    ])
-
-    fireEvent.click(within(controls).getByRole('button', { name: 'Partita' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Azzera punteggi' }))
-    expect(screen.getByRole('dialog', { name: /azzerare tutti i punteggi/i })).toBeInTheDocument()
+    expect(life(/giocatore 1/i)).toHaveTextContent('35')
   })
 
   it('shows a score rail and moves secondary controls to the details sheet', () => {
@@ -505,19 +444,14 @@ describe('compact landscape (Phase 1.6)', () => {
     expect(within(player).getByRole('group', { name: 'Punti vita di Giocatore 1' })).toBeInTheDocument()
   })
 
-  it('removes from the sheet and leaves a focused Undo bar in that cell', () => {
+  it('removes from the sheet at once, with no Undo bar', () => {
     installMatchMedia(true)
     render(<App />)
     fireEvent.click(within(panel(/giocatore 2/i)).getByRole('button', { name: /dettagli/i }))
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Rimuovi giocatore' }))
-
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    const bar = screen.getByText('Giocatore 2 rimosso').closest('.undo-bar') as HTMLElement
-    expect(Array.from(document.getElementById('main')?.children ?? []).indexOf(bar.closest('.player-seat') as Element)).toBe(1)
-    expect(bar).toHaveFocus()
-
-    fireEvent.click(within(bar).getByRole('button', { name: 'Annulla' }))
-    expect(screen.getAllByRole('region')).toHaveLength(4)
+    expect(screen.getAllByRole('region')).toHaveLength(3)
+    expect(screen.queryByText('Giocatore 2 rimosso')).not.toBeInTheDocument()
   })
 
   it('shows the compact defeat label and keeps every reason for screen readers', () => {
@@ -539,47 +473,26 @@ describe('compact landscape (Phase 1.6)', () => {
     expect(within(screen.getByRole('dialog')).queryByRole('button', { name: 'Rimuovi giocatore' })).not.toBeInTheDocument()
   })
 
-  it('moves notices into the header as Stato app', () => {
+  it('shows notices during play as a toast outside the table', () => {
     installMatchMedia(true)
     localStorage.setItem('commander-companion.game.v1', '{broken')
     render(<App />)
-    const controls = screen.getByRole('group', { name: 'Controlli partita' })
-    expect(within(controls).getByRole('button', { name: 'Stato app' })).toHaveAccessibleDescription('1 avviso')
-    expect(document.querySelector('.app-notices:not(.app-notices--panel)')).toBeNull()
+    const toast = document.querySelector('.app-notices[data-placement="toast"]') as HTMLElement
+    expect(toast).toHaveTextContent(/salvataggio precedente non era leggibile/i)
+    expect(document.getElementById('main')).not.toContainElement(toast)
   })
 })
 
-describe('rules reference (Phase 2a)', () => {
+describe('rules reference, bridged in Impara until R4 (Phase 2a, R1)', () => {
   afterEach(() => vi.unstubAllGlobals())
 
-  const controlNames = () =>
-    within(screen.getByRole('group', { name: 'Controlli partita' }))
-      .getAllByRole('button')
-      .map((button) => button.getAttribute('aria-label') ?? button.textContent)
-
-  it('sits after Azzera punteggi and before Layout and Preferenze in the standard header', () => {
-    Object.defineProperty(navigator, 'wakeLock', { configurable: true, value: { request: vi.fn(async () => ({ released: false, release: vi.fn(async () => undefined) })) } })
-    render(<App />)
-    const names = controlNames()
-    expect(names.slice(-4)).toEqual(['Azzera punteggi', 'Regole Commander', 'Layout dei quattro giocatori', 'Preferenze'])
-    Reflect.deleteProperty(navigator, 'wakeLock')
-  })
-
-  it('sits after Stato app and before Layout and Partita in the compact header', () => {
-    installMatchMedia(true)
-    localStorage.setItem('commander-companion.game.v1', '{broken')
-    render(<App />)
-    expect(controlNames().slice(-4)).toEqual(['Stato app', 'Regole Commander', 'Layout dei quattro giocatori', 'Partita'])
-  })
-
-  it('opens and closes without changing the game or its history', () => {
+  it('opens from Impara and closes without changing the game', () => {
     render(<App />)
     click(panel(/giocatore 1/i), /riduci di 5 la vita/i)
-    const undo = screen.getByRole('button', { name: /annulla ultima azione/i })
-    const before = { life: life(/giocatore 1/i).textContent, undo: (undo as HTMLButtonElement).disabled }
     const stored = localStorage.getItem('commander-companion.game.v1')
+    goTo('Impara')
 
-    const trigger = screen.getByRole('button', { name: 'Regole Commander' })
+    const trigger = screen.getByRole('button', { name: 'Riferimento rapido Commander' })
     trigger.focus()
     fireEvent.click(trigger)
     fireEvent.click(within(screen.getByRole('dialog', { name: 'Regole Commander' })).getByRole('button', { name: 'Chiudi' }))
@@ -589,10 +502,9 @@ describe('rules reference (Phase 2a)', () => {
     fireEvent(screen.getByRole('dialog', { name: 'Regole Commander' }), new Event('cancel', { cancelable: true }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
 
-    expect({ life: life(/giocatore 1/i).textContent, undo: (undo as HTMLButtonElement).disabled }).toEqual(before)
     expect(localStorage.getItem('commander-companion.game.v1')).toBe(stored)
-    fireEvent.click(undo)
-    expect(life(/giocatore 1/i)).toHaveTextContent('40')
+    goTo('Partita')
+    expect(life(/giocatore 1/i)).toHaveTextContent('35')
   })
 
   it('uses the combat-damage helper wherever Commander damage is shown', () => {
@@ -609,44 +521,31 @@ describe('rules reference (Phase 2a)', () => {
   })
 })
 
-describe('four-player layout selector (D-034)', () => {
+describe('four-player layout in Altro (D-034, R1)', () => {
   const PREFS = 'commander-companion.preferences'
-  const openLayout = () => fireEvent.click(screen.getByRole('button', { name: 'Layout dei quattro giocatori' }))
 
-  it('applies, saves and closes on choice, returning focus to Layout, outside the game history', () => {
+  it('applies and saves the choice at once, outside the game', () => {
     render(<App />)
     click(panel(/giocatore 1/i), /riduci di 5 la vita/i)
     const savedGame = localStorage.getItem(STORAGE_KEY)
-    const trigger = screen.getByRole('button', { name: 'Layout dei quattro giocatori' })
-    trigger.focus()
-    openLayout()
-    fireEvent.click(within(screen.getByRole('dialog', { name: 'Layout dei giocatori' })).getByRole('radio', { name: /^tavolo/i }))
+    goTo('Altro')
+    fireEvent.click(within(screen.getByRole('radiogroup', { name: 'Layout dei giocatori' })).getByRole('radio', { name: /^tavolo/i }))
 
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    expect(trigger).toHaveFocus()
     expect(JSON.parse(localStorage.getItem(PREFS) ?? '{}')).toMatchObject({ fourPlayerLayout: 'table' })
     expect(localStorage.getItem(STORAGE_KEY)).toBe(savedGame)
-    fireEvent.click(screen.getByRole('button', { name: /annulla ultima azione/i }))
-    expect(life(/giocatore 1/i)).toHaveTextContent('40')
-    expect(JSON.parse(localStorage.getItem(PREFS) ?? '{}')).toMatchObject({ fourPlayerLayout: 'table' })
+    expect(document.getElementById('main')).toHaveAttribute('data-layout', 'table')
   })
 
-  it('closes with Escape without changing the layout', () => {
-    render(<App />)
-    openLayout()
-    fireEvent(screen.getByRole('dialog', { name: 'Layout dei giocatori' }), new Event('cancel', { cancelable: true }))
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    expect(localStorage.getItem(PREFS)).toBeNull()
-  })
-
-  it('hides Layout below four players and restores the saved choice at four', () => {
+  it('shows the two-player options after a player leaves, and the saved four-player choice when back at four', () => {
     localStorage.setItem(PREFS, JSON.stringify({ keepScreenOn: true, fourPlayerLayout: 'facing' }))
     render(<App />)
     click(panel(/giocatore 4/i), /rimuovi giocatore 4/i)
-    expect(screen.queryByRole('button', { name: 'Layout dei quattro giocatori' })).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Annulla' }))
-    openLayout()
-    expect(screen.getByRole('radio', { checked: true })).toHaveAccessibleName('Fronte a fronte: Due per lato')
+    goTo('Altro')
+    expect(screen.queryByRole('radiogroup', { name: 'Layout dei giocatori' })).not.toBeInTheDocument()
+    goTo('Partita')
+    newGame(4)
+    goTo('Altro')
+    expect(screen.getByRole('radio', { checked: true, name: /fronte a fronte/i })).toHaveAccessibleName('Fronte a fronte: Due per lato')
   })
 })
 
@@ -677,8 +576,9 @@ describe('four-player seats (D-034)', () => {
     render(<App />)
     const before = panel(/giocatore 2/i)
     click(before, /riduci di 5 la vita/i)
-    fireEvent.click(screen.getByRole('button', { name: 'Layout dei quattro giocatori' }))
+    goTo('Altro')
     fireEvent.click(screen.getByRole('radio', { name: /^fronte a fronte/i }))
+    goTo('Partita')
     expect(panel(/giocatore 2/i)).toBe(before)
     expect(life(/giocatore 2/i)).toHaveTextContent('35')
     expect(seatOf(/giocatore 2/i)).toHaveAttribute('data-orientation', '180')
@@ -693,18 +593,6 @@ describe('four-player seats (D-034)', () => {
     act(() => media.set(false))
     expect(document.getElementById('main')).toHaveAttribute('data-layout', 'table')
     expect(orientations()).toEqual(['0', '90', '180', '-90'])
-  })
-
-  it('gives the Undo bar of a removed player that player\'s seat and orientation', () => {
-    localStorage.setItem(PREFS, JSON.stringify({ keepScreenOn: true, fourPlayerLayout: 'table' }))
-    render(<App />)
-    // Tavolo seats use compact panels: removal lives in Dettagli.
-    fireEvent.click(within(panel(/giocatore 3/i)).getByRole('button', { name: 'Dettagli di Giocatore 3' }))
-    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Rimuovi giocatore' }))
-    const bar = screen.getByText('Giocatore 3 rimosso').closest('.player-seat') as HTMLElement
-    expect(bar).toHaveAttribute('data-seat', 'top')
-    expect(bar).toHaveAttribute('data-orientation', '180')
-    expect(seatOf(/giocatore 4/i)).toHaveAttribute('data-orientation', '-90')
   })
 
   it('uses the plain grid below four players without losing the preference', () => {
@@ -726,14 +614,15 @@ describe('two-player layouts (D-035)', () => {
     render(<App />)
     expect(document.getElementById('main')).toHaveAttribute('data-layout', 'grid')
 
-    fireEvent.click(screen.getByRole('button', { name: 'Layout dei due giocatori' }))
-    const sheet = screen.getByRole('dialog', { name: 'Layout dei giocatori' })
+    goTo('Altro')
+    const sheet = screen.getByRole('radiogroup', { name: 'Layout dei giocatori' })
     expect(within(sheet).getAllByRole('radio').map((option) => option.getAttribute('aria-label'))).toEqual([
       'Stesso lato: Tutti e due verso di te',
       'Fronte a fronte: Uno per lato',
     ])
     expect(within(sheet).getByRole('radio', { checked: true })).toHaveAccessibleName('Stesso lato: Tutti e due verso di te')
     fireEvent.click(within(sheet).getByRole('radio', { name: /^fronte a fronte/i }))
+    goTo('Partita')
 
     expect(document.getElementById('main')).toHaveAttribute('data-layout', 'two-facing')
     expect(seatOf(/giocatore 1$/i)).toHaveAttribute('data-seat', 'bottom')
@@ -748,7 +637,8 @@ describe('two-player layouts (D-035)', () => {
       keepScreenOn: true,
       fourPlayerLayout: 'table',
       twoPlayerLayout: 'facing',
-      rhombusHintSeen: false,
+      // Reaching Altro used the rhombus, so its first-use hint is gone.
+      rhombusHintSeen: true,
     })
   })
 
@@ -759,28 +649,12 @@ describe('two-player layouts (D-035)', () => {
     expect(screen.getAllByRole('region').every((region) => region.hasAttribute('data-compact'))).toBe(true)
   })
 
-  it('offers the two-player layout only once the removed third player is gone for good', () => {
+  it('switches to the two-player layout as soon as the third player leaves', () => {
     localStorage.setItem(PREFS, JSON.stringify({ keepScreenOn: true, fourPlayerLayout: 'grid', twoPlayerLayout: 'facing' }))
     localStorage.setItem(STORAGE_KEY, JSON.stringify(createGame(3)))
-    vi.useFakeTimers()
     render(<App />)
     click(panel(/giocatore 3/i), /rimuovi giocatore 3/i)
-
-    // The Undo bar still holds the third cell: still a three-cell grid, no two-player trigger.
-    expect(screen.getByText('Giocatore 3 rimosso')).toBeInTheDocument()
-    expect(document.getElementById('main')).toHaveAttribute('data-layout', 'grid')
-    expect(screen.queryByRole('button', { name: /^layout dei/i })).not.toBeInTheDocument()
-
-    act(() => vi.advanceTimersByTime(UNDO_BAR_DURATION_MS))
-    expect(screen.queryByText('Giocatore 3 rimosso')).not.toBeInTheDocument()
     expect(document.getElementById('main')).toHaveAttribute('data-layout', 'two-facing')
-    expect(screen.getByRole('button', { name: 'Layout dei due giocatori' })).toBeInTheDocument()
-  })
-
-  it('names the trigger for four players at a four-player table', () => {
-    render(<App />)
-    expect(screen.getByRole('button', { name: 'Layout dei quattro giocatori' })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Layout dei due giocatori' })).not.toBeInTheDocument()
   })
 })
 
@@ -791,10 +665,12 @@ describe('reset scope (D-033)', () => {
     mode(player, /^tassa/i)
     click(player, /^aumenta di 2 mana/i)
     mode(player, /^monarca/i)
+    goTo('Altro')
     fireEvent.click(screen.getByRole('button', { name: 'Azzera punteggi' }))
     const dialog = screen.getByRole('dialog', { name: /azzerare tutti i punteggi/i })
     expect(dialog).toHaveTextContent('Vita, danni, segnalini, tassa, Monarca e Iniziativa torneranno ai valori iniziali.')
     fireEvent.click(within(dialog).getByRole('button', { name: 'Azzera punteggi' }))
+    goTo('Partita')
     expect(within(player).getByRole('button', { name: /^monarca/i })).toHaveAttribute('aria-pressed', 'false')
     expect(within(player).getByRole('status', { name: /tassa del comandante 1/i })).toHaveAccessibleName(
       'Tassa del Comandante 1 di Giocatore 1: più 0 mana',
@@ -839,22 +715,137 @@ describe('canonical one-shot light (D-024)', () => {
 })
 
 describe('Fan Content Policy (D-025)', () => {
-  afterEach(() => vi.unstubAllGlobals())
-
-  it('shows the required notice in English in the footer', () => {
+  it('shows the required notice in English in Altro, with the Scryfall credit', () => {
     render(<App />)
-    const footer = screen.getByRole('contentinfo')
-    const footerNotice = within(footer).getByText(/is unofficial Fan Content permitted under the Fan Content Policy/)
-    expect(footerNotice).toHaveAttribute('lang', 'en')
-    expect(footerNotice).toHaveTextContent('©Wizards of the Coast LLC.')
+    goTo('Altro')
+    const altro = document.querySelector('[data-section="altro"]') as HTMLElement
+    const notice = within(altro).getByText(/is unofficial Fan Content permitted under the Fan Content Policy/)
+    expect(notice).toHaveAttribute('lang', 'en')
+    expect(notice).toHaveTextContent('©Wizards of the Coast LLC.')
+    expect(screen.getByText('Dati e illustrazioni delle carte da Scryfall')).toBeVisible()
   })
 
-  it('keeps the notice reachable in compact landscape through the rules', () => {
-    installMatchMedia(true)
+  it('keeps the notice reachable through the rules reference', () => {
     render(<App />)
-    fireEvent.click(screen.getByRole('button', { name: 'Regole Commander' }))
-    expect(
-      within(screen.getByRole('dialog', { name: 'Regole Commander' })).getByText(/unofficial Fan Content/),
-    ).toBeVisible()
+    goTo('Impara')
+    fireEvent.click(screen.getByRole('button', { name: 'Riferimento rapido Commander' }))
+    expect(within(screen.getByRole('dialog', { name: 'Regole Commander' })).getByText(/unofficial Fan Content/)).toBeVisible()
+  })
+})
+
+describe('app shell (D-037, R1)', () => {
+  const nav = () => screen.queryByRole('navigation', { name: 'Sezioni' })
+  const rhombus = () => screen.getByRole('button', { name: /le sezioni$/ })
+
+  afterEach(() => {
+    Reflect.deleteProperty(navigator, 'wakeLock')
+  })
+
+  it('opens on the game with the bar hidden, and the rhombus reveals it without remounting the table', () => {
+    render(<App />)
+    const table = panel(/giocatore 1/i)
+    expect(nav()).toBeNull()
+    expect(document.getElementById('sezioni')).toHaveAttribute('hidden')
+    expect(rhombus()).toHaveAttribute('aria-expanded', 'false')
+
+    fireEvent.click(rhombus())
+    expect(nav()).toBeInTheDocument()
+    expect(rhombus()).toHaveAccessibleName('Nascondi le sezioni')
+    expect(panel(/giocatore 1/i)).toBe(table)
+    expect(within(nav() as HTMLElement).getByRole('link', { name: 'Partita' })).toHaveAttribute('aria-current', 'page')
+  })
+
+  it('hides the revealed bar with Esc, with Partita or with the rhombus, keeping focus on the rhombus', () => {
+    render(<App />)
+    fireEvent.click(rhombus())
+    within(nav() as HTMLElement).getByRole('link', { name: 'Mazzi' }).focus()
+    fireEvent.keyDown(document.activeElement as Element, { key: 'Escape' })
+    expect(nav()).toBeNull()
+    expect(rhombus()).toHaveFocus()
+
+    fireEvent.click(rhombus())
+    fireEvent.click(within(nav() as HTMLElement).getByRole('link', { name: 'Partita' }))
+    expect(nav()).toBeNull()
+    expect(rhombus()).toHaveFocus()
+
+    fireEvent.click(rhombus())
+    fireEvent.click(rhombus())
+    expect(nav()).toBeNull()
+  })
+
+  it('moves focus into the bar when the rhombus is used from the keyboard', () => {
+    render(<App />)
+    fireEvent.click(rhombus(), { detail: 0 })
+    expect(within(nav() as HTMLElement).getByRole('link', { name: 'Partita' })).toHaveFocus()
+  })
+
+  it('keeps the bar outside the game, keeps the scores, and follows Back', () => {
+    render(<App />)
+    click(panel(/giocatore 1/i), /riduci di 5 la vita/i)
+    goTo('Altro')
+    expect(window.location.hash).toBe('#altro')
+    expect(nav()).toBeInTheDocument()
+    expect(document.getElementById('main')).toHaveAttribute('hidden')
+    expect(screen.getByRole('heading', { level: 1, name: 'Altro' })).toBeVisible()
+
+    act(() => {
+      window.history.replaceState(null, '', window.location.pathname)
+      window.dispatchEvent(new PopStateEvent('popstate'))
+    })
+    expect(document.getElementById('main')).not.toHaveAttribute('hidden')
+    expect(life(/giocatore 1/i)).toHaveTextContent('35')
+    expect(nav()).toBeNull()
+  })
+
+  it('opens on the section in the address', () => {
+    window.history.replaceState(null, '', '#impara')
+    render(<App />)
+    expect(screen.getByRole('heading', { level: 1, name: 'Impara' })).toBeVisible()
+  })
+
+  it('moves focus to the new title after choosing a section from the keyboard', () => {
+    render(<App />)
+    fireEvent.click(rhombus(), { detail: 0 })
+    fireEvent.click(within(nav() as HTMLElement).getByRole('link', { name: 'Mazzi' }), { detail: 0 })
+    expect(screen.getByRole('heading', { level: 1, name: 'Mazzi' })).toHaveFocus()
+  })
+
+  it('shows the hint until the rhombus is first used, and never again', () => {
+    const first = render(<App />)
+    expect(screen.getByText('Tocca il sigillo per le sezioni')).toBeInTheDocument()
+    fireEvent.click(rhombus())
+    expect(screen.queryByText('Tocca il sigillo per le sezioni')).not.toBeInTheDocument()
+    first.unmount()
+    render(<App />)
+    expect(screen.queryByText('Tocca il sigillo per le sezioni')).not.toBeInTheDocument()
+  })
+
+  it('holds the screen awake only while the game is visible', async () => {
+    const release = vi.fn(async () => undefined)
+    const request = vi.fn(async () => ({ released: false, release }))
+    Object.defineProperty(navigator, 'wakeLock', { configurable: true, value: { request } })
+    render(<App />)
+    await act(async () => undefined)
+    expect(request).toHaveBeenCalledTimes(1)
+    goTo('Altro')
+    await act(async () => undefined)
+    expect(release).toHaveBeenCalled()
+    goTo('Partita')
+    await act(async () => undefined)
+    expect(request).toHaveBeenCalledTimes(2)
+  })
+
+  it('keeps notices in the flow outside the game', () => {
+    localStorage.setItem(STORAGE_KEY, '{broken')
+    render(<App />)
+    goTo('Altro')
+    expect(document.querySelector('.app-notices[data-placement="inline"]')).toHaveTextContent(/non era leggibile/i)
+  })
+
+  it('has no header, brand or footer any more', () => {
+    render(<App />)
+    expect(document.querySelector('.app-header, .brand, .app-footer')).toBeNull()
+    expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument()
+    expect(screen.queryByRole('group', { name: 'Controlli partita' })).not.toBeInTheDocument()
   })
 })
