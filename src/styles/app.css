@@ -2966,22 +2966,6 @@ button:hover:not(:disabled) {
   width: 64px;
 }
 
-.rhombus-hub[data-quadrant$='end'] .rhombus-hub__actions {
-  left: 40px;
-}
-
-.rhombus-hub[data-quadrant$='start'] .rhombus-hub__actions {
-  right: 40px;
-}
-
-.rhombus-hub[data-quadrant^='bottom'] .rhombus-hub__actions {
-  top: 40px;
-}
-
-.rhombus-hub[data-quadrant^='top'] .rhombus-hub__actions {
-  bottom: 40px;
-}
-
 .rhombus-hub[data-variant='grid'] .rhombus-hub__actions::before {
   position: absolute;
   width: 16px;
@@ -3183,12 +3167,11 @@ button:hover:not(:disabled) {
   }
 }
 
-/* Mana: 3 × 2 by default; one row of six only when the panel has room for six 44px columns. */
+/* Mana: 3 × 2 by default and always under 360px; one row of six from 640px, where it fits. */
 .mana-tool {
   display: grid;
   justify-items: center;
   gap: var(--space-3);
-  container-type: inline-size;
 }
 
 .mana-tool__pool {

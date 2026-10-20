@@ -395,7 +395,7 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 - **Effetto accettato:** mentre il suggerimento è visibile, la carta sopra la giuntura è più alta della fascia riservata (in colonna). Al primo tocco del rombo la fascia sparisce e il rombo risale una sola volta.
 
 ## D-039 — R2: Partita (decisioni tecniche approvate)
-- **Stato:** Piano approvato da ChatGPT (2026-10-20) con due correzioni, recepite qui e nel piano `docs/superpowers/plans/2026-10-20-r2-match.md`. Design normativo: `docs/superpowers/specs/2026-10-20-r2-match-design.md`. Implementazione in corso; questa voce si completa con le verifiche a fine fase.
+- **Stato:** Piano approvato da ChatGPT (2026-10-20) con due correzioni, recepite qui e nel piano `docs/superpowers/plans/2026-10-20-r2-match.md`. Design normativo: `docs/superpowers/specs/2026-10-20-r2-match-design.md`. Implementata da Claude (2026-10-20), in attesa della revisione di design di ChatGPT.
 - **Arte casuale:**
   - **Dove sta:** un envelope di presentazione separato dalla partita e dalla cronologia (`commander-companion.match`, versione 1), con `matchId`, `randomArtBySeat` (chiave = id giocatore) e `spareArt`.
   - **Identità:** un'assegnazione è identificata da `(matchId, playerId)`.
@@ -413,3 +413,17 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
   - il Mana è condiviso e non viene salvato: resta anche cambiando sezione e si azzera solo a mano, con Nuova partita confermata o ricaricando la pagina.
 - **Suggerimento del rombo:** è versionato (`rhombusHintVersion`; il flag R1 diventa versione 1), così il nuovo suggerimento R2 compare una volta anche a chi aveva visto quello R1.
 - **Supera:** il dock D-033 e, della D-038, il comportamento del rombo come accesso diretto alle sezioni (spec R2 §14).
+- **Implementazione:**
+  - **Carta:** `PlayerPanel` riscritta. Tolto il dock D-033 (`QuickScoreDock`); i nomi condivisi stanno in `scoreVocabulary.ts`. La carta chiusa ha corona Monarca, nome (non modificabile), riga comandante, `⋮`, vita ±1, «Contatori» e il rombo Commander senza numeri. Nome, cause di sconfitta, crediti, arte casuale e rimozione stanno in Dettagli.
+  - **Superfici interne:** `CountersDrawer` e `CommanderDamagePanel` sono montate solo da aperte, dentro la carta (`inset: 0`, `overflow: clip`), quindi ruotano con il posto.
+  - **Densità compatta:** due righe sole (identità; Contatori · vita · Commander), così la carta chiusa non supera l'altezza del pannello compatto R1.
+  - **Rombo:** `RhombusHub` con il radiale A e la matrice 2×2 B scelta da `radialFits`; `placeMatrix` tiene la matrice dentro i margini. `ToolFrame` colloca Dadi, Mana e Moneta con `placePanel` e disegna la hairline quando li sposta. La geometria pura è in `src/shell/hubGeometry.ts`, coperta al 100%.
+  - **Strumenti:** `src/tools/`: `random.ts` e `mana.ts` puri al 100%; un'unica regione live nel livello del rombo.
+- **Scostamenti dal piano, da confermare in revisione:**
+  1. **Soglia della modalità compatta a 200 px invece di 132.** La tendina standard ha una riga titolo da 44 px sopra colonne 44 + valore + 44, quindi entra solo da circa 190 px. A 844×330 le carte misurano 153 px e il «−» veniva tagliato. Sotto i 200 px vale la modalità compatta della specifica, con colonne di esattamente 123 px.
+  2. **Chiusura delle superfici interne senza dissolvenza.** Si chiudono smontandosi, quindi i 140 ms di uscita non si vedono; resta l'ingresso di 180 ms.
+  3. **Suggerimento del rombo nascosto mentre una superficie è aperta.** Altrimenti copriva la tendina; la fascia riservata resta, quindi nessuna carta si muove.
+- **Verifica:**
+  - 499 test, `npm run verify` verde;
+  - controllo automatico nel browser a 320×568, 390×844, 640×400, 768×1024, 844×390, 844×330 e 1440×900, con Griglia, Fronte a fronte, Tavolo (844×390 e 768×1024) e 2 giocatori fronte a fronte. Esito: nessun controllo sotto 44 px, nessuno scroll orizzontale, tendine e pannelli dentro la carta, colonne compatte di 123 px, hub e strumenti dentro lo schermo meno 12 px, carte ferme all'apertura di ogni superficie.
+

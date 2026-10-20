@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import type React from 'react'
 import { getDefeatReasons } from '../game/game'
 import type { GroupDelta } from '../game/history'
@@ -17,16 +17,25 @@ export type { PanelDelta } from './DeltaBadge'
 
 export type CardSurface = 'counters' | 'commander'
 
-/** Below this usable height the inner panels switch to the compact full-card mode (R2 §5.3). */
-export const SHORT_CARD_HEIGHT = 132
+/**
+ * Below this usable height the inner panels use the compact full-card mode (R2 §5.3, D-039). The
+ * spec names 132px, but the standard drawer needs its 44px title row above 44 + value + 44px
+ * columns, so it only fits from about 190px: the compact mode (columns of exactly 123px) takes
+ * over everywhere the standard one would clip its controls.
+ */
+export const SHORT_CARD_HEIGHT = 200
 
 /** True while the card is shorter than {@link SHORT_CARD_HEIGHT}, measured in its own (unrotated) frame. */
 function useShortCard(ref: React.RefObject<HTMLElement | null>): boolean {
   const [short, setShort] = useState(false)
-  useEffect(() => {
+  useLayoutEffect(() => {
     const element = ref.current
-    if (!element || typeof ResizeObserver === 'undefined') return
-    const observer = new ResizeObserver(() => setShort(element.clientHeight < SHORT_CARD_HEIGHT))
+    if (!element) return
+    const measure = () => setShort(element.clientHeight > 0 && element.clientHeight < SHORT_CARD_HEIGHT)
+    // Measured at once, then on every resize: the first frame already has the right mode.
+    measure()
+    if (typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(measure)
     observer.observe(element)
     return () => observer.disconnect()
   }, [ref])

@@ -114,7 +114,7 @@ Icon family: 24×24 viewBox, rounded 1.75px stroke, `currentColor` (muted ivory 
 | Compact credit | `.player-details-sheet .commander-credit` | visible in Details/picker, intentionally absent from the 123px panel |
 | Partner art | two art slots | static 50/50 split, Commander 1 left / Commander 2 right, subtle 48%→52% diagonal seam; never alternate |
 
-## Direct scoring dock (D-033) — implemented, awaiting design review
+## Direct scoring dock (D-033) — removed by R2 (D-039); kept for history
 
 - **Structure:** every panel has one `Punteggio di <nome>` group: modes `Vita`, `Commander`, `Veleno`, `Energia`, `Esperienza`, `Radiazioni`, `Tassa`, a gold divider, then `Monarca` and `Iniziativa`. Each is a real button with `aria-pressed`. Commander and Partner tax add a source row; the adjustment bar sits below.
 - **Material:** one continuous strip on ink at 82% with gold hairline separators (`.score-modes`). Active mode: teal-tinted ink, ivory text, teal icon and a 2px gold underline, so the state reads by shape too. A held role fills its icon at 35% gold and keeps the underline.
@@ -169,3 +169,34 @@ Icon family: 24×24 viewBox, rounded 1.75px stroke, `currentColor` (muted ivory 
 - **Altro:** `.screen` is a 46rem column. `.settings-group` titles are gold uppercase 0.75rem; `.settings-row` rows are at least 52px. The reset sits in its own group 24px below a hairline. Also `.settings-switch`, `.segmented` and `.primary-button`.
 - **Placeholders:** `.placeholder-screen` with a 3rem line icon (teal for Mazzi, gold for Impara) and a serif heading. Mazzi has a `In preparazione` pill; Impara has the `.rules-bridge` button.
 - **Notices:** `.app-notices[data-placement]`, `inline` under the bar outside the game, `toast` fixed above the bottom safe area during play.
+
+## Match screen (R2, D-039) — implemented, awaiting design review
+
+- **Card (`.player-panel`):**
+  - header grid `2.75rem | 1fr | 2.75rem`: `.monarch-button` (filled crown and gold line when held), identity (`.player-name` display serif uppercase 1.2rem, `.player-commander` 0.8rem), `.details-button` (⋮);
+  - `.life-zone` `− total +`, buttons 44px;
+  - footer: `.counters-trigger` (gold-line rectangle, icon and label, icon-only when compact) and `.commander-trigger` (44px square hit area with a 45° diamond drawn in `::before`);
+  - `.art-credit` on standard cards only.
+- **Compact density:** two rows, `head` and `counters life commander`.
+- **States:** `data-art="commander|random|neutral"`. `data-out` desaturates the art and shows `.out-line` «Fuori dalla partita» (on compact cards it takes the commander line's place).
+- **Inner surfaces (`.card-surface`):**
+  - opaque ink with a gold top hairline, `inset: 0`, enter 180ms (`--duration-surface-in`, opacity and 10px);
+  - focus rings are inset (`outline-offset: -2px`), so they never cross the clip.
+  - **Contatori:** `.counter-column` rows `44px | 1fr | 44px` with a gold hairline border.
+  - **Danni Commander:** `.commander-source` radios, chosen with a gold border, check icon and «Selezionato», then a horizontal 44px stepper.
+- **Compact surfaces (`[data-short]`, card under 200px):**
+  - row layout with a 56px name and life rail;
+  - columns exactly 44 + 35 + 44 = 123px, at least 56px wide, abbreviations VEL ENE ESP RAD C1 C2 MON INI;
+  - opacity-only entry over 140ms.
+- **Rhombus hub:**
+  - `.hub-dismiss` is a transparent full-viewport layer (z 6) that closes on click and consumes it; `.rhombus-hub` is z 7 and the rhombus z 8;
+  - `.rhombus-hub__action` buttons are 56px ink tiles with a gold line, an icon and a 0.6rem uppercase label;
+  - radial at ±86px, entering from 8px toward the centre;
+  - the 2×2 fallback uses 64×56 cells, a 6px gap and a 16px hairline to the rhombus.
+- **Tools (`.hub-tool`):**
+  - ink panel with a gold line and a 140ms crossfade; `.hub-tool__tether` is the hairline to the rhombus when the panel had to move;
+  - `.tool-button` buttons are at least 56px;
+  - `.oriented-result` places copies on a 3×3 grid (0° bottom, 180° top, 90° left, −90° right); results enter over 160ms (dice) or 220ms (coin) as a fade with the gold hairline lighting;
+  - Mana is a 3×2 `.mana-column` grid by default and under 360px, and one row of six from 640px.
+- **Tokens:** `--duration-surface-in` 180, `--duration-surface-out` 140, `--duration-tool-swap` 140, `--duration-dice` 160, `--duration-coin` 220, `--duration-art-fade` 140. The global reduced-motion rule makes them immediate.
+

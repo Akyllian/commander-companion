@@ -85,3 +85,19 @@ export function placePanel(
     scroll: x.scroll || y.scroll,
   }
 }
+
+/** The 2×2 fallback: cells of 64 × 56px with 6px gaps (R2 §7.3). */
+export const MATRIX_SIZE = { width: 2 * 64 + 6, height: 2 * 56 + 6 }
+/** Distance from the rhombus centre to the matrix: past the 56px rhombus, room for the hairline. */
+const MATRIX_GAP = 40
+
+/** Top-left of the 2×2 matrix: in its quadrant beside the rhombus, then kept inside the safe area. */
+export function placeMatrix(centre: Point, quadrant: Quadrant, viewport: Rect, insets: Insets): Point {
+  const safe = safeRect(viewport, insets)
+  const x = quadrant.endsWith('end') ? centre.x + MATRIX_GAP : centre.x - MATRIX_GAP - MATRIX_SIZE.width
+  const y = quadrant.startsWith('bottom') ? centre.y + MATRIX_GAP : centre.y - MATRIX_GAP - MATRIX_SIZE.height
+  return {
+    x: fitAxis(x, MATRIX_SIZE.width, safe.x, safe.width).start,
+    y: fitAxis(y, MATRIX_SIZE.height, safe.y, safe.height).start,
+  }
+}

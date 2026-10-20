@@ -3,7 +3,7 @@ import type React from 'react'
 import { CoinIcon, DiceIcon, ManaIcon, SectionsIcon } from '../components/icons'
 import type { Surface, SurfaceEvent, Tool } from '../match/surface'
 import type { Point } from './centre'
-import { largestQuadrant, radialFits } from './hubGeometry'
+import { largestQuadrant, placeMatrix, radialFits } from './hubGeometry'
 import type { Insets, Rect } from './hubGeometry'
 
 type Action = 'sections' | Tool
@@ -33,14 +33,19 @@ interface RhombusHubProps {
   announcement: string
 }
 
-function HubActions({ returnFocusTo, onEvent, onShowSections }: Pick<RhombusHubProps, 'returnFocusTo' | 'onEvent' | 'onShowSections'>) {
+function HubActions({
+  style,
+  returnFocusTo,
+  onEvent,
+  onShowSections,
+}: Pick<RhombusHubProps, 'returnFocusTo' | 'onEvent' | 'onShowSections'> & { style?: React.CSSProperties }) {
   const groupRef = useRef<HTMLDivElement>(null)
   // On open the focus goes to Sezioni; back from a tool, to that tool's action (R2 §7.4, §8).
   useEffect(() => {
     groupRef.current?.querySelector<HTMLElement>(`[data-action="${returnFocusTo ?? 'sections'}"]`)?.focus()
   }, [returnFocusTo])
   return (
-    <div ref={groupRef} className="rhombus-hub__actions" role="group" aria-label="Strumenti e sezioni">
+    <div ref={groupRef} className="rhombus-hub__actions" style={style} role="group" aria-label="Strumenti e sezioni">
       {ACTIONS.map(({ action, label, Icon }) => (
         <button
           key={action}
@@ -64,6 +69,10 @@ function HubActions({ returnFocusTo, onEvent, onShowSections }: Pick<RhombusHubP
  */
 export function RhombusHub({ id, surface, anchor, viewport, insets, returnFocusTo, onEvent, onShowSections, tool, announcement }: RhombusHubProps) {
   const radial = radialFits(anchor, viewport, insets)
+  const quadrant = radial ? null : largestQuadrant(anchor, viewport, insets)
+  // The matrix sits in its quadrant but never past the margins; offsets are from the rhombus.
+  const matrix = quadrant && placeMatrix(anchor, quadrant, viewport, insets)
+  const matrixStyle = matrix ? { left: matrix.x - anchor.x, top: matrix.y - anchor.y } : undefined
   return (
     <>
       <div
@@ -80,11 +89,11 @@ export function RhombusHub({ id, surface, anchor, viewport, insets, returnFocusT
         id={id}
         className="rhombus-hub"
         data-variant={radial ? 'radial' : 'grid'}
-        data-quadrant={radial ? undefined : largestQuadrant(anchor, viewport, insets)}
+        data-quadrant={quadrant ?? undefined}
         data-surface={surface.kind}
         style={{ left: anchor.x, top: anchor.y }}
       >
-        {surface.kind === 'tool' ? tool : <HubActions returnFocusTo={returnFocusTo} onEvent={onEvent} onShowSections={onShowSections} />}
+        {surface.kind === 'tool' ? tool : <HubActions style={matrixStyle} returnFocusTo={returnFocusTo} onEvent={onEvent} onShowSections={onShowSections} />}
         <p className="sr-only" aria-live="polite" aria-atomic="true">
           {announcement}
         </p>

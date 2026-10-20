@@ -1,5 +1,5 @@
 import fc from 'fast-check'
-import { largestQuadrant, placePanel, radialFits, RADIAL_SIZE, safeRect, VIEWPORT_MARGIN } from './hubGeometry'
+import { largestQuadrant, MATRIX_SIZE, placeMatrix, placePanel, radialFits, RADIAL_SIZE, safeRect, VIEWPORT_MARGIN } from './hubGeometry'
 
 const none = { top: 0, right: 0, bottom: 0, left: 0 }
 const viewport = (width: number, height: number) => ({ x: 0, y: 0, width, height })
@@ -72,6 +72,35 @@ describe('rhombus hub geometry (R2 §7.3, §8)', () => {
           expect(rect.y).toBeGreaterThanOrEqual(safe.y - 1e-9)
           expect(rect.x + rect.width).toBeLessThanOrEqual(safe.x + safe.width + 1e-9)
           expect(rect.y + rect.height).toBeLessThanOrEqual(safe.y + safe.height + 1e-9)
+        },
+      ),
+    )
+  })
+
+  it('opens the 2×2 matrix in its quadrant, kept inside the margins (320px phone)', () => {
+    expect(MATRIX_SIZE).toEqual({ width: 134, height: 118 })
+    // Rhombus at the first seam of a 320×568 column: the top-start matrix would start at x = −14.
+    const placed = placeMatrix({ x: 160, y: 504 }, 'top-start', viewport(320, 568), none)
+    expect(placed).toEqual({ x: 12, y: 504 - 40 - 118 })
+    expect(placeMatrix({ x: 100, y: 100 }, 'bottom-end', viewport(390, 844), none)).toEqual({ x: 140, y: 140 })
+  })
+
+  it('always keeps the matrix inside the safe area', () => {
+    fc.assert(
+      fc.property(
+        fc.integer({ min: 280, max: 1600 }),
+        fc.integer({ min: 280, max: 1200 }),
+        fc.double({ min: 0, max: 1, noNaN: true }),
+        fc.double({ min: 0, max: 1, noNaN: true }),
+        (width, height, fx, fy) => {
+          const centre = { x: fx * width, y: fy * height }
+          const quadrant = largestQuadrant(centre, viewport(width, height), none)
+          const { x, y } = placeMatrix(centre, quadrant, viewport(width, height), none)
+          const safe = safeRect(viewport(width, height), none)
+          expect(x).toBeGreaterThanOrEqual(safe.x)
+          expect(y).toBeGreaterThanOrEqual(safe.y)
+          expect(x + MATRIX_SIZE.width).toBeLessThanOrEqual(safe.x + safe.width + 1e-9)
+          expect(y + MATRIX_SIZE.height).toBeLessThanOrEqual(safe.y + safe.height + 1e-9)
         },
       ),
     )
