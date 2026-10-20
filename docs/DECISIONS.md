@@ -309,3 +309,16 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 - **Revisione ChatGPT (2026-10-20):** due correzioni.
   - Le colonne del selettore seguono la larghezza reale dello sheet (container query): una colonna a 768, 1024 e al 200%, nessun overflow interno.
   - Il radiogroup ha il roving tabindex con frecce, Home e End. Le frecce spostano il focus senza applicare il layout, che si sceglie con Spazio o Invio, perché la scelta chiude lo sheet.
+
+## D-035 — Layout selezionabile anche con due giocatori
+- **Stato:** Richiesta dal product owner (2026-10-20). Implementata da Claude; revisione di ChatGPT approvata (Giocatore 1 in basso, pannelli compatti, anteprime) dopo una correzione P2.
+- **Decisione del product owner:** con due giocatori il comando «Layout» offre `Stesso lato` (predefinito, com'era prima) e `Fronte a fronte`, pensato per il telefono o tablet al centro del tavolo. Con tre giocatori resta la griglia per ora.
+- **Implementazione:**
+  - **Preferenza:** `twoPlayerLayout` (`same-side` | `facing`), separata da `fourPlayerLayout`, così passare da 2 a 4 giocatori ritrova la scelta di ciascun tavolo. Fallback campo per campo.
+  - **Selettore:** stesso foglio «Layout dei giocatori», con due opzioni e anteprime schematiche. Il trigger si chiama «Layout dei due giocatori» o «Layout dei quattro giocatori».
+  - **Fronte a fronte:** due metà orizzontali. Il Giocatore 1 sta sul bordo vicino (0°), il Giocatore 2 di fronte, ruotato di 180°. L'ordine DOM e di tabulazione resta 1→2.
+- **Scelte tecniche da confermare:**
+  - Il Giocatore 1 sta in basso e il 2 in alto.
+  - In Fronte a fronte i pannelli sono sempre compatti e le due metà occupano esattamente lo spazio fra intestazione e piè di pagina, come per Tavolo: con il dispositivo al centro nessuno deve scorrere.
+- **Verifica:** 335 test. Browser a 390×844, 844×390, 768×1024 e 1440: nessuno scroll, nessun overflow orizzontale, nessun pulsante sotto 44 px.
+- **Correzione dalla revisione (P2):** il comando «Layout» compare solo quando le celle visibili coincidono con i giocatori. Mentre la barra «Annulla» di un giocatore rimosso occupa ancora una cella (per esempio da 3 a 2), il comando resta nascosto e la griglia non cambia, così foglio e tavolo non sono mai in disaccordo. C'è un test per il passaggio 3→2.

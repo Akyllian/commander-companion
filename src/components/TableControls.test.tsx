@@ -8,10 +8,10 @@ const setup = ({ compact = false, showLayout = true } = {}) => {
       canUndo={false}
       canRedo={false}
       compact={compact}
-      preferences={{ keepScreenOn: true, fourPlayerLayout: 'grid' }}
+      preferences={{ keepScreenOn: true, fourPlayerLayout: 'grid', twoPlayerLayout: 'same-side' }}
       onPreferencesChange={vi.fn()}
       showPreferences
-      showLayout={showLayout}
+      layoutLabel={showLayout ? 'Layout dei quattro giocatori' : null}
       onOpenLayout={vi.fn()}
       onUndo={vi.fn()}
       onRedo={vi.fn()}
@@ -42,7 +42,7 @@ describe('TableControls layout access (D-034)', () => {
     ])
   })
 
-  it('hides Layout when the table does not have four players', () => {
+  it('hides Layout when the table has neither two nor four players', () => {
     expect(setup({ showLayout: false })).not.toContain('Layout dei quattro giocatori')
   })
 })

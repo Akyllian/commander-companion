@@ -4,6 +4,7 @@ import { createGame, gameReducer } from './game/game'
 import { BACKUP_KEY, STORAGE_KEY } from './game/storage'
 import { updateStore } from './pwa/updates'
 import { installMatchMedia } from './test/matchMedia'
+import { UNDO_BAR_DURATION_MS } from './components/UndoBar'
 
 let clock = 0
 const panel = (name: RegExp) => screen.getByRole('region', { name })
@@ -88,7 +89,8 @@ describe('scoring', () => {
     mode(player, /^vita/i)
     for (let step = 0; step < 8; step += 1) click(player, /riduci di 5 la vita/i)
     expect(badgeOf(player)).toHaveTextContent(/^Sconfitto · 2 condizioni/)
-  })
+    // Eighteen full-app taps: under coverage on a busy machine this can pass 5 s.
+  }, 15_000)
 
   it('summarises Commander damage with the maximum from one commander, not the sum', () => {
     render(<App />)
@@ -687,6 +689,73 @@ describe('four-player seats (D-034)', () => {
     render(<App />)
     expect(document.getElementById('main')).toHaveAttribute('data-layout', 'grid')
     expect(JSON.parse(localStorage.getItem(PREFS) ?? '{}')).toMatchObject({ fourPlayerLayout: 'facing' })
+  })
+})
+
+describe('two-player layouts (D-035)', () => {
+  const PREFS = 'commander-companion.preferences'
+  const seatOf = (name: RegExp) => panel(name).closest('.player-seat') as HTMLElement
+
+  it('offers Stesso lato and Fronte a fronte with two players, saved apart from the four-player choice', () => {
+    localStorage.setItem(PREFS, JSON.stringify({ keepScreenOn: true, fourPlayerLayout: 'table', twoPlayerLayout: 'same-side' }))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(createGame(2)))
+    render(<App />)
+    expect(document.getElementById('main')).toHaveAttribute('data-layout', 'grid')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Layout dei due giocatori' }))
+    const sheet = screen.getByRole('dialog', { name: 'Layout dei giocatori' })
+    expect(within(sheet).getAllByRole('radio').map((option) => option.getAttribute('aria-label'))).toEqual([
+      'Stesso lato: Tutti e due verso di te',
+      'Fronte a fronte: Uno per lato',
+    ])
+    expect(within(sheet).getByRole('radio', { checked: true })).toHaveAccessibleName('Stesso lato: Tutti e due verso di te')
+    fireEvent.click(within(sheet).getByRole('radio', { name: /^fronte a fronte/i }))
+
+    expect(document.getElementById('main')).toHaveAttribute('data-layout', 'two-facing')
+    expect(seatOf(/giocatore 1$/i)).toHaveAttribute('data-seat', 'bottom')
+    expect(seatOf(/giocatore 1$/i)).toHaveAttribute('data-orientation', '0')
+    expect(seatOf(/giocatore 2$/i)).toHaveAttribute('data-seat', 'top')
+    expect(seatOf(/giocatore 2$/i)).toHaveAttribute('data-orientation', '180')
+    expect(screen.getAllByRole('region').map((region) => region.getAttribute('aria-label'))).toEqual([
+      'Segnapunti di Giocatore 1',
+      'Segnapunti di Giocatore 2',
+    ])
+    expect(JSON.parse(localStorage.getItem(PREFS) ?? '{}')).toEqual({
+      keepScreenOn: true,
+      fourPlayerLayout: 'table',
+      twoPlayerLayout: 'facing',
+    })
+  })
+
+  it('uses compact panels face to face, so both fit with the device in the middle', () => {
+    localStorage.setItem(PREFS, JSON.stringify({ keepScreenOn: true, fourPlayerLayout: 'grid', twoPlayerLayout: 'facing' }))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(createGame(2)))
+    render(<App />)
+    expect(screen.getAllByRole('region').every((region) => region.hasAttribute('data-compact'))).toBe(true)
+  })
+
+  it('offers the two-player layout only once the removed third player is gone for good', () => {
+    localStorage.setItem(PREFS, JSON.stringify({ keepScreenOn: true, fourPlayerLayout: 'grid', twoPlayerLayout: 'facing' }))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(createGame(3)))
+    vi.useFakeTimers()
+    render(<App />)
+    click(panel(/giocatore 3/i), /rimuovi giocatore 3/i)
+
+    // The Undo bar still holds the third cell: still a three-cell grid, no two-player trigger.
+    expect(screen.getByText('Giocatore 3 rimosso')).toBeInTheDocument()
+    expect(document.getElementById('main')).toHaveAttribute('data-layout', 'grid')
+    expect(screen.queryByRole('button', { name: /^layout dei/i })).not.toBeInTheDocument()
+
+    act(() => vi.advanceTimersByTime(UNDO_BAR_DURATION_MS))
+    expect(screen.queryByText('Giocatore 3 rimosso')).not.toBeInTheDocument()
+    expect(document.getElementById('main')).toHaveAttribute('data-layout', 'two-facing')
+    expect(screen.getByRole('button', { name: 'Layout dei due giocatori' })).toBeInTheDocument()
+  })
+
+  it('names the trigger for four players at a four-player table', () => {
+    render(<App />)
+    expect(screen.getByRole('button', { name: 'Layout dei quattro giocatori' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Layout dei due giocatori' })).not.toBeInTheDocument()
   })
 })
 
