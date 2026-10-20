@@ -63,6 +63,7 @@ export function MoreScreen({ playerCount, preferences, onPreferencesChange, wake
             <input
               type="checkbox"
               role="switch"
+              aria-checked={preferences.keepScreenOn}
               className="settings-switch"
               aria-describedby={wakeHint}
               checked={preferences.keepScreenOn}
