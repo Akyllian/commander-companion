@@ -386,9 +386,8 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
   - ogni carta toccata riserva il proprio lato o angolo (`data-clear`) senza cambiare proporzioni.
 - **Schermo acceso:** il Wake Lock è attivo solo con Partita visibile.
 - **Verifica:**
-  - 383 test;
+  - 390 test;
   - browser a 390×844, 320×568, 640×400, 768×1024, 844×390, 844×330 e 1440×900, con Griglia, Fronte a fronte, Tavolo, 2 giocatori (stesso lato e fronte a fronte) e 3 giocatori. Nessuna sovrapposizione del rombo con controlli o testi visibili, nessun pulsante sotto 44 px, nessuno scroll orizzontale; le carte non si muovono quando la barra compare.
-- **Da decidere col design:** con il telefono **in verticale** le carte sono impilate in una colonna e il centro del tavolo, quindi il rombo, cade sotto il primo schermo (y≈848 su 844). Al primo avvio né il rombo né il suggerimento sono visibili senza scorrere.
 - **Revisione ChatGPT (design §13), correzioni applicate:**
   1. **Colonna verticale:** se la zona da 64 px intorno al centro non è tutta nel primo schermo, il rombo usa la prima giuntura interna che ci sta. Il punto è ancorato nel documento e non segue lo scroll. A 390×844 e 320×568 il rombo è a y=456, sulla giuntura fra Giocatore 1 e Giocatore 2, visibile subito.
   2. **Suggerimento:** «Tocca ◇ per le sezioni» sopra il rombo, al massimo 9rem, senza timer, nascosto agli screen reader (il pulsante dice già «Mostra le sezioni»). La carta che coprirebbe riserva una fascia libera sul lato rivolto all'etichetta (`data-hint-side`, `--hint-reserve`): fondo della carta sopra in colonna e agli incroci, lati affiancati con due giocatori. Misurato: zero sovrapposizioni a 390×844, 320×568 e 844×390.

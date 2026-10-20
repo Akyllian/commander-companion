@@ -237,7 +237,7 @@ Criteri:
 
 - nessuna etichetta della barra viene troncata o rimossa;
 - nessun target sotto 44 px;
-- barra temporanea e rombo non causano layout shift;
+- barra temporanea e rombo non causano layout shift, salvo il singolo assestamento iniziale del coach label approvato nel §13.2;
 - nessun contenuto indispensabile sotto il rombo;
 - barra nascosta = nessun discendente focalizzabile;
 - contrasto AA: 4,5:1 per etichette, 3:1 per icone e bordi significativi;
@@ -308,6 +308,8 @@ Il suggerimento resta obbligatorio una sola volta, ma diventa un coach label com
 - nessuna sovrapposizione con nome, comandante, vita, pulsanti o controlli;
 - nessun timer: scompare alla prima attivazione del rombo e resta memorizzato come già previsto;
 - `pointer-events: none`; il nome accessibile completo del pulsante resta «Mostra le sezioni».
+
+È accettato un solo assestamento al primo utilizzo: in colonna la carta sopra la giuntura può essere più alta della fascia riservata mentre il coach label è visibile; alla prima attivazione la fascia scompare e il rombo risale una volta. Il cambiamento è immediato, non anima altezza o posizione e non si ripete nelle visite successive.
 
 ### 13.3 Due giocatori: stessa geometria, orientamento diverso
 

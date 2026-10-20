@@ -162,7 +162,7 @@ Icon family: 24×24 viewBox, rounded 1.75px stroke, `currentColor` (muted ivory 
   - `revealed`: fixed over the game, entering in `--duration-nav-in` 180 ms (−8px→0) and leaving in `--duration-nav-out` 140 ms;
   - `hidden`: `hidden` plus `inert`.
   Items are at least 48px, labels 0.72rem (0.68 compact) uppercase with tracking 0.08em. The active item gets gold and a 2px line that lights in place.
-- **Rhombus:** `.shell-rhombus` is a square 56px button containing an SVG diamond (ink, gold line, inner hairline) and a teal sigil that turns gold when expanded. Press: 1px over 90ms. The hint pill sits under it until first use.
+- **Rhombus:** `.shell-rhombus` is a square 56px button containing an SVG diamond (ink, gold line, inner hairline) and a teal sigil that turns gold when expanded. Press: 1px over 90ms. Until the first use, the coach label «Tocca ◇ per le sezioni» sits above it (see Coach label below).
 - **Portrait column (§13.1):** when the 64px zone around the table centre is not on the first screen, the rhombus uses the first inner seam that is fully visible. Measured in document coordinates, it never follows scroll.
 - **Coach label (§13.2):** `.shell-rhombus__hint` reads «Tocca ◇ per le sezioni», sits above the rhombus, is at most 9rem, `aria-hidden` and `pointer-events: none`. Each card it would cover gets `data-hint-side` and `--hint-reserve` (from `hintReserve` in `centre.ts`) and keeps that band free until the first rhombus press.
 - **Free zone:** `useCentreLayout` measures the grid and seats. `.player-seat[data-clear]` pads the card on the touching side or corner (`--centre-clear: 1.75rem`), in the card's own frame.
