@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1040" viewBox="0 0 1600 1040" role="img" aria-labelledby="title desc">
+  <title id="title">Commander Companion — R1 guscio app</title>
+  <desc id="desc">Tavola visiva con navigazione superiore, schermata Altro, placeholder Mazzi e Impara e rombo centrale nei layout a due e quattro giocatori.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#030707"/><stop offset=".55" stop-color="#071313"/><stop offset="1" stop-color="#020505"/></linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#102725"/><stop offset="1" stop-color="#081110"/></linearGradient>
+    <radialGradient id="tealGlow"><stop stop-color="#4fd7ca" stop-opacity=".18"/><stop offset="1" stop-color="#4fd7ca" stop-opacity="0"/></radialGradient>
+    <filter id="goldGlow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <pattern id="stars" width="56" height="56" patternUnits="userSpaceOnUse"><circle cx="8" cy="12" r=".8" fill="#6ebdb7" opacity=".16"/><circle cx="39" cy="31" r=".6" fill="#d8b66b" opacity=".13"/><path d="M8 12 39 31" stroke="#4a817c" stroke-width=".5" opacity=".08"/></pattern>
+    <style>
+      .ui{font-family:Inter,system-ui,sans-serif;fill:#eef1e8}.display{font-family:Georgia,'Times New Roman',serif;fill:#f1dfb8}.muted{fill:#9aa9a4}.gold{fill:#dfbd70}.teal{fill:#69d9cf}.hair{stroke:#846b36;stroke-opacity:.72;fill:none}.thin{stroke-width:1.2}.icon{stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.micro{font-size:10px;letter-spacing:1.2px}.label{font-size:12px}.body{font-size:13px}.screenTitle{font-size:28px}.phone{fill:#020606;stroke:#5a6a66;stroke-width:2}.surface{fill:#071110;stroke:#826b39;stroke-opacity:.62}.player{fill:url(#panel);stroke:#92733a;stroke-opacity:.68}.section{fill:#0b1716;stroke:#68572f;stroke-opacity:.65}.button{fill:#0e2927;stroke:#aa8b48}.danger{fill:#101716;stroke:#917441}.navbg{fill:#06100f;stroke:#756238;stroke-opacity:.65}.safe{fill:#d9b768;fill-opacity:.06;stroke:#d9b768;stroke-opacity:.3;stroke-dasharray:4 4}.diamond{fill:#081312;stroke:#ddb968;stroke-width:1.5}.divider{stroke:#765f34;stroke-opacity:.55}.activeLine{stroke:#e5c578;stroke-width:2;filter:url(#goldGlow)}
+    </style>
+    <g id="heart" class="icon"><path d="M12 20S4 15 4 9.5C4 6.5 7.8 5 10 7.5L12 10l2-2.5C16.2 5 20 6.5 20 9.5 20 15 12 20 12 20Z"/></g>
+    <g id="deck" class="icon"><path d="m5 8 7-4 7 4-7 4-7-4Z"/><path d="m5 12 7 4 7-4M5 16l7 4 7-4"/></g>
+    <g id="book" class="icon"><path d="M4 5.5c3-.8 5.7-.2 8 2v12c-2.3-2.2-5-2.8-8-2V5.5Zm16 0c-3-.8-5.7-.2-8 2v12c2.3-2.2 5-2.8 8-2V5.5Z"/></g>
+    <g id="dots" fill="currentColor"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></g>
+    <g id="nav">
+      <rect class="navbg" width="332" height="62"/>
+      <g transform="translate(30 8)" color="#e4c477"><use href="#heart" width="24" height="24"/><text class="ui micro gold" x="12" y="42" text-anchor="middle">PARTITA</text><path class="activeLine" d="M-14 53h52"/></g>
+      <g transform="translate(112 8)" color="#a9b5b1"><use href="#deck" width="24" height="24"/><text class="ui micro muted" x="12" y="42" text-anchor="middle">MAZZI</text></g>
+      <g transform="translate(194 8)" color="#a9b5b1"><use href="#book" width="24" height="24"/><text class="ui micro muted" x="12" y="42" text-anchor="middle">IMPARA</text></g>
+      <g transform="translate(278 8)" color="#a9b5b1"><use href="#dots" width="24" height="24"/><text class="ui micro muted" x="12" y="42" text-anchor="middle">ALTRO</text></g>
+    </g>
+    <g id="hub">
+      <rect class="diamond" x="-20" y="-20" width="40" height="40" rx="7" transform="rotate(45)"/>
+      <path d="M0-14 5-5 14 0 5 5 0 14-5 5-14 0-5-5Z" fill="none" stroke="#e4bf6e" stroke-width="1.2"/>
+      <path d="M0-9v18M-9 0H9" stroke="#62d2c7" stroke-width="1" opacity=".75"/>
+    </g>
+  </defs>
+
+  <rect width="1600" height="1040" fill="url(#bg)"/><rect width="1600" height="1040" fill="url(#stars)"/>
+  <circle cx="800" cy="165" r="320" fill="url(#tealGlow)"/>
+  <text x="60" y="58" class="display" font-size="31" letter-spacing="4">COMMANDER COMPANION · R1</text>
+  <text x="60" y="86" class="ui muted body">Guscio, navigazione, Altro e rombo centrale — proposta di art direction</text>
+
+  <!-- Phone 1: game tabs revealed -->
+  <g transform="translate(60 120)">
+    <text x="0" y="-18" class="ui micro gold">PARTITA · NAVIGAZIONE RIVELATA</text>
+    <rect class="phone" width="356" height="704" rx="38"/>
+    <g transform="translate(12 18)"><use href="#nav"/></g>
+    <g transform="translate(18 92)">
+      <rect class="player" width="156" height="275" rx="14"/><rect class="player" x="164" width="156" height="275" rx="14"/>
+      <rect class="player" y="283" width="156" height="275" rx="14"/><rect class="player" x="164" y="283" width="156" height="275" rx="14"/>
+      <g class="ui" text-anchor="middle"><text x="78" y="32" class="label">DANNY</text><text x="242" y="32" class="label">GIULIA</text><text x="78" y="315" class="label">PLAYER 3</text><text x="242" y="315" class="label">PLAYER 4</text></g>
+      <g class="display" font-size="62" text-anchor="middle"><text x="78" y="157">40</text><text x="242" y="157">40</text><text x="78" y="440">40</text><text x="242" y="440">40</text></g>
+      <g class="ui" font-size="28" text-anchor="middle"><text x="28" y="157">−</text><text x="128" y="157">+</text><text x="192" y="157">−</text><text x="292" y="157">+</text><text x="28" y="440">−</text><text x="128" y="440">+</text><text x="192" y="440">−</text><text x="292" y="440">+</text></g>
+      <rect class="safe" x="126" y="249" width="68" height="68" rx="18"/><g transform="translate(160 283)"><use href="#hub"/></g>
+    </g>
+    <text x="178" y="681" class="ui muted micro" text-anchor="middle">LA BARRA NON RIDIMENSIONA IL TAVOLO</text>
+  </g>
+
+  <!-- Phone 2: Altro -->
+  <g transform="translate(452 120)">
+    <text x="0" y="-18" class="ui micro gold">ALTRO · IMPOSTAZIONI</text>
+    <rect class="phone" width="356" height="704" rx="38"/>
+    <g transform="translate(12 18)"><use href="#nav"/><rect x="248" y="0" width="84" height="62" fill="#06100f"/><g transform="translate(278 8)" color="#e4c477"><use href="#dots" width="24" height="24"/><text class="ui micro gold" x="12" y="42" text-anchor="middle">ALTRO</text><path class="activeLine" d="M-14 53h52"/></g></g>
+    <g transform="translate(28 106)">
+      <text class="display screenTitle" x="0" y="0">Altro</text><text class="ui muted body" x="0" y="24">Partita, schermo e informazioni</text>
+      <text class="ui micro gold" x="0" y="62">DISPOSIZIONE DEL TAVOLO</text>
+      <rect class="section" y="76" width="300" height="104" rx="12"/>
+      <text class="ui label" x="14" y="100">Layout dei giocatori</text><text class="ui muted micro" x="14" y="120">GRIGLIA · FRONTE A FRONTE · TAVOLO</text>
+      <g transform="translate(18 139)"><rect class="button" width="70" height="28" rx="7"/><text class="ui micro" x="35" y="18" text-anchor="middle">GRIGLIA</text><rect class="section" x="78" width="92" height="28" rx="7"/><text class="ui micro muted" x="124" y="18" text-anchor="middle">DI FRONTE</text><rect class="section" x="178" width="70" height="28" rx="7"/><text class="ui micro muted" x="213" y="18" text-anchor="middle">TAVOLO</text></g>
+      <rect class="section" y="190" width="300" height="54" rx="12"/><text class="ui label" x="14" y="217">Mantieni lo schermo acceso</text><rect x="248" y="204" width="38" height="22" rx="11" fill="#17413d" stroke="#65d6ca"/><circle cx="275" cy="215" r="8" fill="#e9ddbd"/>
+      <text class="ui micro gold" x="0" y="281">NUOVA PARTITA</text>
+      <rect class="section" y="294" width="300" height="104" rx="12"/><text class="ui label" x="14" y="319">Giocatori per la nuova partita</text>
+      <g transform="translate(14 334)"><rect class="section" width="44" height="44" rx="8"/><text class="ui" x="22" y="28" text-anchor="middle">2</text><rect class="section" x="52" width="44" height="44" rx="8"/><text class="ui" x="74" y="28" text-anchor="middle">3</text><rect class="button" x="104" width="44" height="44" rx="8"/><text class="ui" x="126" y="28" text-anchor="middle">4</text><rect class="button" x="158" width="128" height="44" rx="9"/><text class="ui label" x="222" y="27" text-anchor="middle">Nuova partita</text></g>
+      <text class="ui micro gold" x="0" y="436">PARTITA ATTUALE</text><rect class="danger" y="449" width="300" height="48" rx="10"/><text class="ui label" x="150" y="479" text-anchor="middle">Azzera punteggi</text>
+      <text class="ui micro gold" x="0" y="535">INFORMAZIONI</text><path class="divider" d="M0 547h300"/><text class="ui muted micro" x="0" y="569">DATI E ILLUSTRAZIONI DA SCRYFALL</text><text class="ui muted micro" x="0" y="590">FAN CONTENT NON UFFICIALE · VERSIONE 0.1</text>
+    </g>
+  </g>
+
+  <!-- Empty states -->
+  <g transform="translate(844 120)">
+    <text x="0" y="-18" class="ui micro gold">MAZZI E IMPARA · STATI PROVVISORI</text>
+    <rect class="phone" width="356" height="338" rx="32"/><g transform="translate(12 18)"><use href="#nav"/><rect x="84" y="0" width="84" height="62" fill="#06100f"/><g transform="translate(112 8)" color="#e4c477"><use href="#deck" width="24" height="24"/><text class="ui micro gold" x="12" y="42" text-anchor="middle">MAZZI</text><path class="activeLine" d="M-14 53h52"/></g></g>
+    <g transform="translate(42 125)"><g transform="translate(104 0) scale(2.1)" color="#68d7cb"><use href="#deck" width="24" height="24"/></g><text class="display" x="136" y="86" font-size="23" text-anchor="middle">Il tuo grimorio</text><text class="display" x="136" y="111" font-size="23" text-anchor="middle">è in preparazione</text><text class="ui muted body" x="136" y="141" text-anchor="middle">Liste, strategie e mani di prova.</text><rect x="80" y="159" width="112" height="28" rx="14" fill="none" stroke="#8a713c"/><text class="ui micro gold" x="136" y="177" text-anchor="middle">IN PREPARAZIONE</text></g>
+    <g transform="translate(0 366)"><rect class="phone" width="356" height="338" rx="32"/><g transform="translate(12 18)"><use href="#nav"/><rect x="168" y="0" width="84" height="62" fill="#06100f"/><g transform="translate(194 8)" color="#e4c477"><use href="#book" width="24" height="24"/><text class="ui micro gold" x="12" y="42" text-anchor="middle">IMPARA</text><path class="activeLine" d="M-14 53h52"/></g></g><g transform="translate(36 118)"><path d="M12 0v154" stroke="#66d6ca" stroke-opacity=".55"/><g transform="translate(31 0) scale(2.1)" color="#deb96b"><use href="#book" width="24" height="24"/></g><text class="display" x="32" y="76" font-size="23">Una guida che cresce con te</text><text class="ui muted body" x="32" y="104">Le basi, le meccaniche e gli scenari</text><text class="ui muted body" x="32" y="123">interattivi arriveranno qui.</text><rect class="button" x="32" y="142" width="212" height="42" rx="9"/><text class="ui label" x="138" y="168" text-anchor="middle">Riferimento rapido Commander</text></g></g>
+  </g>
+
+  <!-- Layout map -->
+  <g transform="translate(1230 120)">
+    <text x="0" y="-18" class="ui micro gold">ROMBO · POSIZIONE NEI LAYOUT</text>
+    <rect class="surface" width="310" height="704" rx="24"/>
+    <g transform="translate(24 34)"><text class="display" font-size="20">Due · Fronte a fronte</text><g transform="translate(0 18)"><rect class="player" width="262" height="108" rx="11"/><rect class="player" y="116" width="262" height="108" rx="11"/><rect class="safe" x="99" y="80" width="64" height="64" rx="18"/><g transform="translate(131 112)"><use href="#hub"/></g></g></g>
+    <g transform="translate(24 310)"><text class="display" font-size="20">Quattro · Griglia</text><g transform="translate(0 18)"><rect class="player" width="127" height="118" rx="11"/><rect class="player" x="135" width="127" height="118" rx="11"/><rect class="player" y="126" width="127" height="118" rx="11"/><rect class="player" x="135" y="126" width="127" height="118" rx="11"/><rect class="safe" x="99" y="90" width="64" height="64" rx="18"/><g transform="translate(131 122)"><use href="#hub"/></g></g></g>
+    <g transform="translate(24 608)"><path class="divider" d="M0 0h262"/><text class="ui muted micro" y="26">64 × 64 PX RISERVATI · SEMPRE DRITTO</text><text class="ui muted micro" y="45">NESSUN CONTROLLO SOTTO IL ROMBO</text></g>
+  </g>
+
+  <g transform="translate(60 906)"><path class="divider" d="M0 0h1480"/><text class="ui micro gold" y="34">MOTION</text><text class="ui body" x="86" y="34">Barra: 180 ms ingresso · 140 ms uscita · −8 px → 0</text><text class="ui body" x="510" y="34">Sezione: crossfade 140 ms · 2 px</text><text class="ui body" x="820" y="34">Rombo: accensione 140 ms · nessuna rotazione</text><text class="ui muted body" x="1210" y="34">Reduced motion: immediato</text>
+    <text class="ui micro gold" y="72">VINCOLI</text><text class="ui body" x="86" y="72">44 px · WCAG AA · nav non modale · niente glass · focus restituito al rombo · offline</text>
+  </g>
+</svg>
