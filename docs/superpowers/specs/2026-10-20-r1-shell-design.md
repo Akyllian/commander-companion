@@ -2,7 +2,7 @@
 
 Data: 2026-10-20
 
-Stato: **approvata dal product owner** (2026-10-20), con il ponte «Riferimento rapido Commander» in Impara fino a R4. Piano tecnico: [`../plans/2026-10-20-r1-shell.md`](../plans/2026-10-20-r1-shell.md)
+Stato: **approvata dal product owner** (2026-10-20), con il ponte «Riferimento rapido Commander» in Impara fino a R4 e addendum di revisione della PR #20. Piano tecnico: [`../plans/2026-10-20-r1-shell.md`](../plans/2026-10-20-r1-shell.md)
 
 Dipendenza: D-037, `2026-10-20-app-restructure-design.md`
 
@@ -281,3 +281,39 @@ R1 è pronta per il piano tecnico quando il product owner approva:
 7. motion 180/140 ms e reduced motion immediato.
 
 L'implementazione deve poi essere provata sul telefono prima di iniziare R2.
+
+## 13. Addendum di revisione della PR #20
+
+Questo addendum integra il design R1 dopo la verifica dell'implementazione e prevale sui punti incompatibili di D-035/D-038.
+
+### 13.1 Rombo visibile nella colonna verticale
+
+Quando le carte sono impilate in una sola colonna e il centro geometrico del tavolo cade fuori dal viewport iniziale, il rombo non resta al centro dell'intera griglia: usa la **prima giuntura interna completamente visibile**, normalmente quella fra Giocatore 1 e Giocatore 2.
+
+- La zona sicura da 64 × 64 px deve essere interamente dentro il viewport a 320×568 e 390×844 senza scorrere.
+- La posizione scelta resta ancorata alla giuntura nel documento: il rombo non è sticky, non segue lo scroll e non salta da una giuntura all'altra mentre si scorre.
+- Se il centro geometrico è già visibile, resta valida la posizione centrale di R1.
+- Orientamento, target, focus e comportamento della barra non cambiano.
+
+### 13.2 Suggerimento iniziale
+
+La pillola attuale sotto il rombo non è approvata: a 390×844 occupa `y=909,8–932,2`, mentre il nome della carta successiva occupa `y=912,8–956,8`, producendo una sovrapposizione visibile di circa 19 px.
+
+Il suggerimento resta obbligatorio una sola volta, ma diventa un coach label compatto:
+
+- testo visivo: **«Tocca ◇ per le sezioni»**;
+- posizione sopra il rombo, centrata e sempre diritta rispetto al viewport;
+- larghezza massima 9rem; può andare su due righe ma non troncare il testo;
+- il lato inferiore centrale della carta sopra la giuntura riserva una piccola fascia priva di testo e controlli per ospitarlo; può restare visibile soltanto lo sfondo ornamentale;
+- nessuna sovrapposizione con nome, comandante, vita, pulsanti o controlli;
+- nessun timer: scompare alla prima attivazione del rombo e resta memorizzato come già previsto;
+- `pointer-events: none`; il nome accessibile completo del pulsante resta «Mostra le sezioni».
+
+### 13.3 Due giocatori: stessa geometria, orientamento diverso
+
+`Fronte a fronte` a due giocatori riusa esattamente la geometria di `Stesso lato` al breakpoint corrente. Non crea due metà a tutta altezza, non forza pannelli compatti e non allunga le carte.
+
+- `Stesso lato`: entrambi i giocatori a 0°.
+- `Fronte a fronte`: stessa posizione, dimensione, densità e ordine DOM; soltanto il contenuto del giocatore opposto ruota di 180°.
+- Il passaggio fra le due opzioni non deve cambiare altezza del tavolo, scroll, proporzioni o posizione del rombo.
+- Le anteprime del selettore devono condividere la stessa sagoma; la seconda differisce soltanto per il segno di orientamento del giocatore opposto.
