@@ -94,7 +94,7 @@ describe('grouping rapid taps (UX decision 3)', () => {
 
     expect(life(history)).toBe(44)
     expect(history.past).toHaveLength(1)
-    expect(getGroupDelta(history)).toEqual({ target: { kind: 'life', playerId: 'player-1' }, delta: 4, at: 1700 })
+    expect(getGroupDelta(history)).toMatchObject({ target: { kind: 'life', playerId: 'player-1' }, delta: 4, at: 1700 })
 
     history = historyReducer(history, { type: 'undo' })
     expect(life(history)).toBe(40)
@@ -195,7 +195,7 @@ describe('grouping frequent scores (D-033)', () => {
     history = taxTap(history, 0, 2, 100_000)
     history = taxTap(history, 0, 2, 100_300)
     expect(history.present.players[0].commanderTax).toEqual([4, 0])
-    expect(getGroupDelta(history)).toEqual({
+    expect(getGroupDelta(history)).toMatchObject({
       target: { kind: 'commander-tax', playerId: 'player-1', commander: 0 },
       delta: 4,
       at: 100_300,
@@ -231,5 +231,41 @@ describe('grouping frequent scores (D-033)', () => {
     }
     expect(history.past).toHaveLength(3)
     expect(history.group).toBeNull()
+  })
+})
+
+describe('delta details for the badge (D-036)', () => {
+  const hit = (history: History, amount: number, at: number) =>
+    historyReducer(history, {
+      type: 'apply',
+      at,
+      action: { type: 'adjust-commander-damage', playerId: 'player-1', sourcePlayerId: 'player-2', commander: 0, amount },
+    })
+
+  it('mirrors the life change of a Commander damage group', () => {
+    let history = createHistory(createGame(2))
+    history = hit(history, 1, 100_000)
+    history = hit(history, 1, 100_200)
+    expect(getGroupDelta(history)).toMatchObject({ delta: 2, lifeDelta: -2 })
+  })
+
+  it('identifies the group, so a new group on the same value gets a new badge', () => {
+    let history = createHistory(createGame(2))
+    history = hit(history, 1, 100_000)
+    const first = getGroupDelta(history)?.key
+    history = hit(history, 1, 100_200)
+    expect(getGroupDelta(history)?.key).toBe(first)
+    history = hit(history, -1, 100_400)
+    const second = getGroupDelta(history)?.key
+    expect(second).not.toBe(first)
+    // Same value and direction after the window: still a new group, with its own key.
+    history = hit(history, -1, 200_000)
+    expect(getGroupDelta(history)?.key).not.toBe(second)
+  })
+
+  it('has no life mirror for other values', () => {
+    let history = createHistory(createGame(2))
+    history = historyReducer(history, { type: 'apply', at: 0, action: { type: 'adjust-life', playerId: 'player-1', amount: -1 } })
+    expect(getGroupDelta(history)).not.toHaveProperty('lifeDelta')
   })
 })
