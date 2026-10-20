@@ -367,7 +367,7 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 - **Specifica:** [`docs/superpowers/specs/2026-10-20-app-restructure-design.md`](superpowers/specs/2026-10-20-app-restructure-design.md).
 
 ## D-038 — R1: guscio a quattro sezioni (implementazione)
-- **Stato:** Implementata da Claude (2026-10-20) secondo il design R1 approvato (`docs/superpowers/specs/2026-10-20-r1-shell-design.md`) e il piano `docs/superpowers/plans/2026-10-20-r1-shell.md`. In attesa della revisione di ChatGPT prima del merge.
+- **Stato:** Implementata da Claude (2026-10-20) secondo il design R1 approvato (`docs/superpowers/specs/2026-10-20-r1-shell-design.md`) e il piano `docs/superpowers/plans/2026-10-20-r1-shell.md`. Revisione di design finale di ChatGPT superata (2026-10-20), con l'assestamento una tantum del rombo accettato.
 - **Struttura:**
   - Sezioni nell'indirizzo (`#mazzi`, `#impara`, `#altro`; senza hash è Partita): il ricaricamento resta sulla sezione e il tasto Indietro torna alla precedente.
   - La partita resta montata e viene solo nascosta, quindi i pannelli non si rimontano mai.
