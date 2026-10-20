@@ -109,7 +109,7 @@ export function MoreScreen({ playerCount, preferences, onPreferencesChange, wake
       <section className="settings-group settings-group--info" aria-labelledby="altro-info">
         <h2 id="altro-info">Informazioni</h2>
         <p className="settings-info__name">
-          Commander Companion <span className="settings-info__version">Versione {__APP_VERSION__}</span>
+          Commander Companion <span className="settings-info__version">Versione {APP_VERSION}</span>
         </p>
         <p>Dati e illustrazioni delle carte da Scryfall</p>
         <p className="fan-content-notice" lang="en">

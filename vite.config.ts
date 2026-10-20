@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => {
   return {
     base,
     // Shown in Altro → Informazioni (R1).
-    define: { __APP_VERSION__: JSON.stringify(pkg.version) },
+    define: { APP_VERSION: JSON.stringify(pkg.version) },
     plugins: [
       react(),
       VitePWA({
