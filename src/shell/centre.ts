@@ -59,7 +59,7 @@ export function rhombusPoint(grid: Box, panels: Box[], firstScreen?: Box, reach 
   const visible = panels
     .flatMap((panel) => seamsAround(panel, panels, centre))
     .filter((seam) => zoneInside(seam, reach, firstScreen))
-    .sort((a, b) => a.y - b.y || a.x - b.x)
+    .toSorted((a, b) => a.y - b.y || a.x - b.x)
   return visible[0] ?? point
 }
 
