@@ -3013,3 +3013,172 @@ button:hover:not(:disabled) {
   bottom: -6px;
   rotate: 45deg;
 }
+
+/* ── Rhombus tools (R2 §8): Dadi, Mana, Moneta ──────────────────────────────────────────────── */
+.hub-tool {
+  position: fixed;
+  z-index: 7;
+  display: grid;
+  gap: var(--space-3);
+  width: max-content;
+  padding: var(--space-3);
+  overflow: hidden;
+  border: 1px solid var(--color-gold-line);
+  border-radius: var(--radius-md);
+  color: var(--color-ivory);
+  background: var(--color-ink);
+  box-shadow: var(--shadow-panel);
+  opacity: 1;
+  transition: opacity var(--duration-tool-swap) var(--ease-out);
+}
+
+@starting-style {
+  .hub-tool {
+    opacity: 0;
+  }
+}
+
+/* Too large for the free area: only the panel scrolls, never the page. */
+.hub-tool[data-scroll] {
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.hub-tool__tether {
+  position: fixed;
+  z-index: 7;
+  height: 1px;
+  background: var(--color-gold-line);
+  transform-origin: 0 50%;
+  pointer-events: none;
+}
+
+.hub-tool__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.hub-tool__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hub-tool__back {
+  min-height: 2.75rem;
+  font-size: 0.78rem;
+}
+
+.dice-tool,
+.coin-tool {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+}
+
+.dice-tool__dice {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.hub-tool[data-narrow] .dice-tool__dice {
+  flex-direction: column;
+}
+
+.tool-button {
+  min-width: 56px;
+  min-height: 56px;
+  padding-inline: var(--space-4);
+  border-color: var(--color-gold-line);
+  font-size: 1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.tool-button--wide {
+  padding-inline: var(--space-5);
+}
+
+/* The result: one token per seat edge, the same value turned (R2 §8.1). */
+.oriented-result {
+  display: grid;
+  grid-template-areas: 'bottom';
+  justify-items: center;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.oriented-result[data-copies='2'] {
+  grid-template-areas:
+    'top'
+    'bottom';
+}
+
+.oriented-result[data-copies='4'] {
+  grid-template-areas:
+    '. top .'
+    'left . right'
+    '. bottom .';
+}
+
+.oriented-result__copy {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-bottom: 1px solid var(--color-gold-line);
+}
+
+.oriented-result__copy[data-orientation='0'] {
+  grid-area: bottom;
+}
+
+.oriented-result__copy[data-orientation='180'] {
+  grid-area: top;
+  rotate: 180deg;
+}
+
+.oriented-result__copy[data-orientation='90'] {
+  grid-area: left;
+  rotate: 90deg;
+}
+
+.oriented-result__copy[data-orientation='-90'] {
+  grid-area: right;
+  rotate: -90deg;
+}
+
+.tool-result__label {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.tool-result__value {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.tool-result--dice .oriented-result__copy {
+  animation: result-in var(--duration-dice) var(--ease-out);
+}
+
+.tool-result--coin .oriented-result__copy {
+  align-items: center;
+  animation: result-in var(--duration-coin) var(--ease-out);
+}
+
+/* Fade and a lit gold hairline; no 3D, no bounce. */
+@keyframes result-in {
+  from {
+    border-bottom-color: transparent;
+    opacity: 0;
+  }
+}

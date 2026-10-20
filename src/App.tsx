@@ -24,6 +24,9 @@ import { SectionNav } from './shell/SectionNav'
 import type { Point } from './shell/centre'
 import type { Insets, Rect } from './shell/hubGeometry'
 import { RhombusHub } from './shell/RhombusHub'
+import { CoinTool } from './tools/CoinTool'
+import { DiceTool } from './tools/DiceTool'
+import { ToolFrame } from './tools/ToolFrame'
 import { readSafeInsets } from './shell/safeInsets'
 import { ShellRhombus } from './shell/ShellRhombus'
 import type { Section } from './shell/sections'
@@ -35,6 +38,7 @@ type PendingConfirmation = { kind: 'new-game'; playerCount: number } | { kind: '
 const NAV_ID = 'sezioni'
 const HUB_ID = 'strumenti'
 const RHOMBUS = '.shell-rhombus'
+const TOOL_TITLES: Record<Tool, string> = { dice: 'Dadi', mana: 'Mana', coin: 'Moneta' }
 
 /**
  * The app shell (D-037, R1): four sections behind a top bar. The game view stays mounted and is
@@ -57,6 +61,9 @@ export default function App() {
   const focusAfterClose = useRef<string | null>(null)
   // The tool last opened from the hub: «Torna agli strumenti» refocuses its action (R2 §8).
   const [lastTool, setLastTool] = useState<Tool | null>(null)
+  // The hub's single live region (R2 §11); a repeated result changes invisibly so it is spoken again.
+  const [announcement, setAnnouncement] = useState('')
+  const announce = (text: string) => setAnnouncement((previous) => (previous === text ? `${text}\u200b` : text))
   const [section, navigate] = useSection()
   const compact = useCompactDensity()
   const rhombusRef = useRef<HTMLButtonElement>(null)
@@ -333,7 +340,22 @@ export default function App() {
             returnFocusTo={surface.kind === 'hub' ? lastTool : null}
             onEvent={onHubEvent}
             onShowSections={showSections}
-            announcement=""
+            announcement={announcement}
+            tool={
+              surface.kind === 'tool' && (
+                <ToolFrame
+                  key={surface.tool}
+                  title={TOOL_TITLES[surface.tool]}
+                  anchor={hubFrame.anchor}
+                  viewport={hubFrame.viewport}
+                  insets={hubFrame.insets}
+                  onBack={() => dispatchSurface({ type: 'back-to-hub' })}
+                >
+                  {surface.tool === 'dice' && <DiceTool layout={layout} announce={announce} />}
+                  {surface.tool === 'coin' && <CoinTool layout={layout} announce={announce} />}
+                </ToolFrame>
+              )
+            }
           />
         )}
       </main>
