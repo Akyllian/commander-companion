@@ -39,7 +39,6 @@ export function RulesDialog({ open, onClose }: RulesDialogProps) {
               <span className="rule-id">{item.id}</span>
               <div className="rule-content">
                 <h4 id={`rule-${item.id}`}>{item.title}</h4>
-                {item.status === 'not-tracked' && <p className="rule-status">Non tracciata dall’app</p>}
                 <p>
                   {item.body.map((part, index) => (
                     <Fragment key={index}>

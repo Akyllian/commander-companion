@@ -88,7 +88,10 @@ function isPlayerV2(value: unknown): value is Omit<PlayerState, 'commanders'> {
   )
 }
 
-function parseV4(value: Record<string, unknown>): GameState | null {
+type PlayerV4 = Omit<PlayerState, 'rad' | 'commanderTax'>
+
+/** Validated v4 players (unique ids, known damage sources), or null. */
+function parseV4Players(value: Record<string, unknown>): PlayerV4[] | null {
   if (!isPlayerList(value.players) || !value.players.every(isPlayerV4)) return null
 
   const players = value.players
@@ -102,7 +105,30 @@ function parseV4(value: Record<string, unknown>): GameState | null {
     }),
   )
 
-  return referencesAreValid ? { version: GAME_SCHEMA_VERSION, players } : null
+  return referencesAreValid ? players : null
+}
+
+const isTax = (value: unknown) => isCount(value) && (value as number) % 2 === 0
+
+function isPlayerV5(value: PlayerV4): value is PlayerState {
+  const { rad, commanderTax } = value as unknown as Record<string, unknown>
+  return (
+    isCount(rad) &&
+    Array.isArray(commanderTax) &&
+    commanderTax.length === 2 &&
+    commanderTax.every(isTax) &&
+    (value.hasPartner || commanderTax[1] === 0)
+  )
+}
+
+function parseV5(value: Record<string, unknown>): GameState | null {
+  const players = parseV4Players(value)
+  if (!players || !players.every(isPlayerV5)) return null
+  const isOwner = (owner: unknown): owner is string | null =>
+    owner === null || (typeof owner === 'string' && players.some((player) => player.id === owner))
+  const { monarchPlayerId, initiativePlayerId } = value
+  if (!isOwner(monarchPlayerId) || !isOwner(initiativePlayerId)) return null
+  return { version: GAME_SCHEMA_VERSION, players, monarchPlayerId, initiativePlayerId }
 }
 
 interface PlayerV1 {
@@ -140,9 +166,9 @@ function migrateV1(value: Record<string, unknown>): GameState | null {
   if (!isPlayerList(value.players) || !value.players.every(isPlayerV1)) return null
 
   const migrated = {
-    version: GAME_SCHEMA_VERSION,
+    version: 4,
     players: value.players.map(
-      (player): PlayerState => ({
+      (player): PlayerV4 => ({
         id: player.id,
         name: normalizePlayerName(player.name),
         life: clampInt(player.life, LIFE_MIN, LIFE_MAX),
@@ -162,16 +188,16 @@ function migrateV1(value: Record<string, unknown>): GameState | null {
     ),
   }
 
-  // Re-validate the result with the current rules (unique ids, known sources, no self damage).
-  return parseV4(migrated)
+  // Re-validate the result with the v4 rules (unique ids, known sources, no self damage).
+  return migrateV4(migrated)
 }
 
 /** Schema v2 → v4: players gain two empty commander slots. */
 function migrateV2(value: Record<string, unknown>): GameState | null {
   if (!isPlayerList(value.players) || !value.players.every(isPlayerV2)) return null
-  return parseV4({
+  return migrateV4({
     ...value,
-    version: GAME_SCHEMA_VERSION,
+    version: 4,
     players: value.players.map((player) => ({ ...player, commanders: [null, null] })),
   })
 }
@@ -179,13 +205,24 @@ function migrateV2(value: Record<string, unknown>): GameState | null {
 /** Schema v3 → v4: the single `commander` becomes slot 1 of `commanders` (D-027). */
 function migrateV3(value: Record<string, unknown>): GameState | null {
   if (!isPlayerList(value.players) || !value.players.every(isPlayerV3)) return null
-  return parseV4({
+  return migrateV4({
     ...value,
-    version: GAME_SCHEMA_VERSION,
+    version: 4,
     players: value.players.map((player) => {
       const { commander, ...rest } = player as Record<string, unknown>
       return { ...rest, commanders: [commander, null] }
     }),
+  })
+}
+
+/** Schema v4 → v5: zero rad and Commander tax, nobody holds Monarch or Initiative (D-033). */
+function migrateV4(value: Record<string, unknown>): GameState | null {
+  const players = parseV4Players(value)
+  if (!players) return null
+  return parseV5({
+    players: players.map((player) => ({ ...player, rad: 0, commanderTax: [0, 0] })),
+    monarchPlayerId: null,
+    initiativePlayerId: null,
   })
 }
 
@@ -194,8 +231,13 @@ export function parseStoredGame(value: unknown): { game: GameState; migrated: bo
   if (!isRecord(value)) return null
 
   if (value.version === GAME_SCHEMA_VERSION) {
-    const game = parseV4(value)
+    const game = parseV5(value)
     return game && { game, migrated: false }
+  }
+
+  if (value.version === 4) {
+    const game = migrateV4(value)
+    return game && { game, migrated: true }
   }
 
   if (value.version === 3) {

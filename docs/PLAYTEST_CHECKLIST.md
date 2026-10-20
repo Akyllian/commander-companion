@@ -104,7 +104,7 @@ Tutti i passi superati tranne uno. Nessun problema di gravità alta, quindi la F
 | 9.1 | Tocca «Regole» (in verticale e in orizzontale) | si apre «Regole Commander» con 3 gruppi e 7 regole, numeri di regola e data | | |
 | 9.2 | Chiudi con ✕ (o Esc su tastiera) | la partita è identica, Annulla funziona come prima | | |
 | 9.3 | Modalità aereo, riapri l'app, apri «Regole» | tutto il contenuto disponibile | | |
-| 9.4 | VoiceOver / TalkBack sulla tassa del comandante | legge «due mana generici» e «Non tracciata dall'app» | | |
+| 9.4 | VoiceOver / TalkBack sulla tassa del comandante | legge «due mana generici»; nessuna etichetta «Non tracciata» (D-033) | | |
 
 ## 10. Arte del comandante (Fase 2c)
 
@@ -121,3 +121,21 @@ Tutti i passi superati tranne uno. Nessun problema di gravità alta, quindi la F
 | 10.9 | In orizzontale, apri Dettagli → Comandante e mazzo | campo e Cerca restano sulla stessa riga; risultati scorrono con lo sheet, nessun secondo modal | | |
 | 10.10 | Attiva Partner e assegna due comandanti | arte 1 a sinistra e arte 2 a destra, split statico; entrambi i crediti nello sheet; nessuna alternanza | | |
 | 10.11 | Su telefono, prova Zimone, Giada e una coppia Partner chiara; osserva vita e testi alla normale distanza d’uso | composito finale ≥4,5:1; nessuna toppa, capsula, bordo di maschera o alone tipografico riconoscibile; vita dominante e arte ancora leggibile | | |
+
+## 11. Dock dei punteggi (Fase 2e, D-033)
+
+| # | Passi | Risultato atteso | iPhone | Android |
+| --- | --- | --- | --- | --- |
+| 11.1 | Su ogni pannello guarda la striscia sotto la vita | Vita, Commander, Veleno, Energia, Esperienza, Radiazioni, Tassa, poi Monarca e Iniziativa; Vita selezionata all'avvio | | |
+| 11.2 | Tocca Veleno, poi +1 tre volte e −1 una volta | il valore resta sul pannello (2), nessun pannello si apre; Annulla toglie il gruppo di tocchi in un passo | | |
+| 11.3 | Ripeti con Energia, Esperienza e Radiazioni | ognuno conta da 0, mai sotto zero | | |
+| 11.4 | Tocca Commander, scegli un avversario, +1 cinque volte | i danni da quel comandante salgono a 5, la vita scende di 5; un solo Annulla ripristina entrambi | | |
+| 11.5 | Con un avversario Partner, scegli «Comandante 2» e segna danni | il Comandante 1 resta a 0; la striscia mostra «massimo N/21», mai la somma | | |
+| 11.6 | Tocca Tassa e premi +{2} due volte | mostra +{4}; la vita non cambia; con Partner le due tasse sono separate | | |
+| 11.7 | Rimuovi Partner con tassa del Comandante 2 > 0 | non è possibile finché la tassa non torna a 0 (lo dice il testo sotto l'interruttore) | | |
+| 11.8 | Tocca Monarca su un giocatore, poi su un altro | la corona passa al secondo, il primo la perde; toccarla di nuovo sul possessore la toglie | | |
+| 11.9 | Dai Monarca e Iniziativa allo stesso giocatore | li tiene entrambi | | |
+| 11.10 | Partita → Azzera punteggi | tornano a zero vita/danni/segnalini/tassa; Monarca e Iniziativa tolti; nomi, Partner e comandanti invariati | | |
+| 11.11 | In orizzontale (4 giocatori) | icone dei modi nella riga del nome, nome leggibile; i controlli restano ≥44 px; nessuna sovrapposizione | | |
+| 11.12 | Ruota il telefono e torna indietro | ogni pannello ricorda il modo e l'avversario scelti | | |
+| 11.13 | Riduci movimento attivo | i cambi di modo sono immediati | | |

@@ -51,9 +51,8 @@ describe('RulesDialog', () => {
     expect(dialog.querySelectorAll('details, [role="tab"], input[type="search"]')).toHaveLength(0)
 
     const tax = within(dialog).getByRole('article', { name: 'Tassa del comandante' })
-    expect(within(tax).getByText('Non tracciata dall’app')).toBeInTheDocument()
-    expect(within(tax).getByRole('img', { name: 'due mana generici' })).toHaveTextContent('{2}')
-    expect(within(dialog).getAllByText('Non tracciata dall’app')).toHaveLength(1)
+    expect(within(tax).getAllByRole('img', { name: 'due mana generici' })[0]).toHaveTextContent('{2}')
+    expect(within(dialog).queryByText('Non tracciata dall’app')).not.toBeInTheDocument()
 
     fireEvent(dialog, new Event('cancel', { cancelable: true }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()

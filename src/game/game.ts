@@ -1,5 +1,13 @@
 import { GAME_SCHEMA_VERSION, PLAYER_ACCENTS } from './types'
-import type { CommanderArt, CommanderDamageBySource, CommanderSlots, GameAction, GameState, PlayerState } from './types'
+import type {
+  CommanderArt,
+  CommanderDamageBySource,
+  CommanderSlots,
+  CommanderTaxBySlot,
+  GameAction,
+  GameState,
+  PlayerState,
+} from './types'
 
 export const MIN_PLAYERS = 2
 export const MAX_PLAYERS = 4
@@ -16,6 +24,9 @@ export const NAME_MAX_LENGTH = 28
 export const LIFE_MIN = -999_999
 export const LIFE_MAX = 999_999
 export const COUNTER_MAX = 999_999
+/** Commander tax moves in steps of two generic mana (rule 903.8). */
+export const COMMANDER_TAX_STEP = 2
+const COMMANDER_TAX_MAX = COUNTER_MAX - (COUNTER_MAX % COMMANDER_TAX_STEP)
 
 export type DefeatReason = 'life' | 'poison' | 'commander-damage'
 
@@ -63,11 +74,15 @@ export function createGame(playerCount = DEFAULT_PLAYERS): GameState {
       poison: 0,
       energy: 0,
       experience: 0,
+      rad: 0,
       accent: PLAYER_ACCENTS[index],
       hasPartner: false,
       commanderDamage: {},
       commanders: [null, null],
+      commanderTax: [0, 0],
     })),
+    monarchPlayerId: null,
+    initiativePlayerId: null,
   }
 }
 
@@ -89,11 +104,15 @@ export function isPlayerDefeated(player: PlayerState): boolean {
   return getDefeatReasons(player).length > 0
 }
 
-/** A partner can be removed only while no player has recorded damage from it. */
+/** A partner can be removed only while no player has recorded damage from it and its tax is zero. */
 export function canRemovePartner(state: GameState, playerId: string): boolean {
-  if (!state.players.some((player) => player.id === playerId)) return false
+  const owner = state.players.find((player) => player.id === playerId)
+  if (!owner || owner.commanderTax[1] !== 0) return false
   return state.players.every((player) => (player.commanderDamage[playerId]?.[1] ?? 0) === 0)
 }
+
+const TABLE_ROLE_KEYS = { monarch: 'monarchPlayerId', initiative: 'initiativePlayerId' } as const
+
 
 function updatePlayer(
   state: GameState,
@@ -156,6 +175,24 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       })
     }
 
+    case 'adjust-commander-tax': {
+      if (!isValidAmount(action.amount) || action.amount % COMMANDER_TAX_STEP !== 0) return state
+      return updatePlayer(state, action.playerId, (player) => {
+        if (action.commander === 1 && !player.hasPartner) return player
+        const value = clamp(player.commanderTax[action.commander] + action.amount, 0, COMMANDER_TAX_MAX)
+        if (value === player.commanderTax[action.commander]) return player
+        const commanderTax: CommanderTaxBySlot = [player.commanderTax[0], player.commanderTax[1]]
+        commanderTax[action.commander] = value
+        return { ...player, commanderTax }
+      })
+    }
+
+    case 'set-table-role': {
+      const key = TABLE_ROLE_KEYS[action.role]
+      if (action.playerId !== null && !state.players.some((player) => player.id === action.playerId)) return state
+      return state[key] === action.playerId ? state : { ...state, [key]: action.playerId }
+    }
+
     case 'set-partner': {
       if (!action.hasPartner && !canRemovePartner(state, action.playerId)) return state
       return updatePlayer(state, action.playerId, (player) => {
@@ -202,6 +239,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       return {
         ...state,
+        monarchPlayerId: state.monarchPlayerId === action.playerId ? null : state.monarchPlayerId,
+        initiativePlayerId: state.initiativePlayerId === action.playerId ? null : state.initiativePlayerId,
         players: state.players
           .filter((player) => player.id !== action.playerId)
           .map((player) => {
@@ -220,8 +259,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           poison: 0,
           energy: 0,
           experience: 0,
+          rad: 0,
           commanderDamage: {},
+          commanderTax: [0, 0],
         })),
+        monarchPlayerId: null,
+        initiativePlayerId: null,
       }
   }
 }

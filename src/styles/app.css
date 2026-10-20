@@ -1283,16 +1283,6 @@ input[type='checkbox'] {
 }
 
 /* A capability boundary, not an error: neutral fill, gold outline, never red. */
-.rule-status {
-  justify-self: start;
-  margin-bottom: var(--space-1);
-  padding: 0 var(--space-2);
-  border: 1px solid var(--color-accent);
-  border-radius: var(--radius-round);
-  background: var(--color-surface-raised);
-  font-size: 0.75rem;
-  line-height: 1.25rem;
-}
 
 /* Textual mana notation: 24px token, neutral fill, gold outline. */
 .mana-cost {
@@ -2256,4 +2246,350 @@ button:hover:not(:disabled) {
   margin: var(--space-1) 0 0;
   color: var(--color-text-muted);
   font-size: 0.6875rem;
+}
+
+/* ---- Direct scoring dock (D-033) ----
+   One continuous dark strip with gold hairlines; the active mode gets teal plus a gold underline
+   (shape, not colour alone). Life stays the largest number; dock values stay ≤ 60% of it. */
+.score-dock {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.score-dock + .player-details {
+  margin-top: var(--space-4);
+}
+
+.score-modes {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  border: 1px solid var(--color-gold-hairline);
+  border-radius: var(--radius-md);
+  background: color-mix(in oklch, var(--color-ink) 82%, transparent);
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.score-modes::-webkit-scrollbar {
+  display: none;
+}
+
+.score-mode {
+  position: relative;
+  display: grid;
+  flex: 0 0 auto;
+  align-content: center;
+  justify-items: center;
+  gap: 0.125rem;
+  min-width: 4.25rem;
+  min-height: var(--button-height);
+  padding: var(--space-1) var(--space-2);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 650;
+  scroll-snap-align: start;
+}
+
+.score-mode + .score-mode {
+  border-inline-start: 1px solid var(--color-gold-hairline);
+}
+
+.score-mode:hover:not(:disabled) {
+  border-color: var(--color-gold-hairline);
+  background: color-mix(in oklch, var(--color-gold) 6%, transparent);
+  color: var(--color-ivory);
+}
+
+.score-mode:focus-visible {
+  z-index: 1;
+  outline-offset: -3px;
+}
+
+.score-mode[aria-pressed='true'] {
+  background: color-mix(in oklch, var(--color-primary) 16%, var(--color-ink));
+  box-shadow: inset 0 -2px 0 var(--color-gold);
+  color: var(--color-ivory);
+}
+
+.score-mode[aria-pressed='true'] .button-icon {
+  color: var(--color-primary);
+}
+
+.score-mode__value {
+  color: var(--color-ivory);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 720;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.score-mode__value .mana-cost {
+  min-width: 1.15rem;
+  height: 1.15rem;
+  font-size: 0.68rem;
+}
+
+.score-modes__divider {
+  flex: 0 0 1px;
+  margin: var(--space-2) var(--space-1);
+  background: var(--color-gold-line);
+}
+
+.score-modes__divider + .score-mode {
+  border-inline-start: 0;
+}
+
+/* Table roles: a held role fills its icon and keeps the gold underline; text says which. */
+.score-role[data-held] {
+  background: color-mix(in oklch, var(--color-gold) 14%, var(--color-ink));
+  box-shadow: inset 0 -2px 0 var(--color-gold);
+  color: var(--color-gold-bright);
+}
+
+.score-role[data-held] .button-icon {
+  fill: color-mix(in oklch, var(--color-gold) 35%, transparent);
+  animation: role-arrive var(--duration-fast) var(--ease-out);
+}
+
+@keyframes role-arrive {
+  from {
+    opacity: 0;
+  }
+}
+
+.score-sources {
+  display: flex;
+  gap: var(--space-1);
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.score-sources::-webkit-scrollbar {
+  display: none;
+}
+
+.score-source {
+  --source-accent: var(--color-primary);
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--button-height);
+  max-width: 14rem;
+  padding: 0 var(--space-3) 0 var(--space-2);
+  background: color-mix(in oklch, var(--color-ink) 78%, transparent);
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.score-source[data-accent='gold'] {
+  --source-accent: var(--primitive-gold-500);
+}
+
+.score-source[data-accent='violet'] {
+  --source-accent: var(--primitive-violet-500);
+}
+
+.score-source[data-accent='ember'] {
+  --source-accent: var(--primitive-ember-500);
+}
+
+.score-source[aria-pressed='true'] {
+  border-color: var(--color-primary);
+  box-shadow: inset 0 -2px 0 var(--color-gold);
+  color: var(--color-ivory);
+}
+
+.score-source__art,
+.score-source__sigil {
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid var(--source-accent);
+  border-radius: var(--radius-round);
+}
+
+.score-source__art {
+  object-fit: cover;
+}
+
+.score-source__sigil {
+  background:
+    radial-gradient(circle, var(--source-accent) 0 22%, transparent 24%),
+    color-mix(in oklch, var(--source-accent) 14%, var(--color-ink));
+}
+
+.score-source__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.score-source__slot {
+  display: inline-grid;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  place-items: center;
+  border: 1px solid var(--color-gold-line);
+  border-radius: var(--radius-round);
+  font-size: 0.68rem;
+}
+
+.score-source__value {
+  color: var(--color-ivory);
+  font-variant-numeric: tabular-nums;
+  font-weight: 720;
+}
+
+.score-hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+
+/* Same height as the life row, so switching modes never moves the panel below it. */
+.score-adjust {
+  display: grid;
+  grid-template-columns: minmax(3rem, 1fr) minmax(5rem, 2fr) minmax(3rem, 1fr);
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 3.25rem;
+}
+
+.score-adjust--empty {
+  display: grid;
+  place-items: center;
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.score-adjust .score-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.125rem;
+}
+
+.score-adjust__value,
+.score-adjust__source {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.score-adjust__value output {
+  color: var(--color-ivory);
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.score-adjust__value .delta-badge {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.25rem;
+}
+
+/* Motion (D-033): a new mode fades in and settles 2px; a new source only fades. 120 ms, no layout
+   movement; the global reduced-motion rule makes both immediate. */
+.score-adjust__value {
+  animation: score-mode-settle var(--duration-mode) var(--ease-out);
+}
+
+.score-adjust__source {
+  animation: score-source-fade var(--duration-mode) var(--ease-out);
+}
+
+@keyframes score-mode-settle {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+}
+
+@keyframes score-source-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Compact density: the strip shares the identity row as icons with accessible names; only the
+   strip and the source row scroll sideways, controls keep 44px. */
+.player-panel[data-compact] .player-panel__header .name-field {
+  /* The name keeps ~10 characters; the strip gives way and scrolls instead. */
+  flex: 1 0 7.5rem;
+  max-width: 14rem;
+}
+
+.player-panel[data-compact] .score-modes {
+  flex: 0 1 auto;
+  border-radius: var(--radius-sm);
+}
+
+.player-panel[data-compact] .score-mode {
+  min-width: var(--button-height);
+  padding: 0;
+}
+
+.player-panel[data-compact] .score-mode__label,
+.player-panel[data-compact] .score-mode__value,
+.player-panel[data-compact] .score-hint {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.player-panel[data-compact] .score-sources {
+  justify-self: center;
+  width: 100%;
+  max-width: 24rem;
+}
+
+.score-rail--mode {
+  grid-template-columns: minmax(0, 3fr) minmax(4rem, 2fr);
+}
+
+.score-rail--mode .score-adjust {
+  grid-template-columns: var(--button-height) minmax(2.5rem, 1fr) var(--button-height);
+  gap: var(--space-1);
+  min-height: var(--button-height);
+}
+
+.score-rail--mode .score-adjust__value output {
+  font-size: 1.6rem;
+}
+
+/* Mana tokens keep the utility face and lining figures, even inside display-serif values. */
+.score-dock .mana-cost,
+.score-rail .mana-cost {
+  font-family: var(--font-ui);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.score-adjust__value .mana-cost {
+  min-width: 2rem;
+  height: 2rem;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.score-adjust__value output {
+  display: inline-flex;
+  align-items: center;
 }

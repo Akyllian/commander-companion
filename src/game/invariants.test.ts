@@ -17,7 +17,7 @@ const action: fc.Arbitrary<GameAction> = fc.oneof(
   fc.record({
     type: fc.constant('adjust-counter' as const),
     playerId,
-    counter: fc.constantFrom('poison' as const, 'energy' as const, 'experience' as const),
+    counter: fc.constantFrom('poison' as const, 'energy' as const, 'experience' as const, 'rad' as const),
     amount,
   }),
   fc.record({
@@ -26,6 +26,17 @@ const action: fc.Arbitrary<GameAction> = fc.oneof(
     sourcePlayerId: playerId,
     commander: fc.constantFrom(0 as const, 1 as const),
     amount,
+  }),
+  fc.record({
+    type: fc.constant('adjust-commander-tax' as const),
+    playerId,
+    commander: fc.constantFrom(0 as const, 1 as const),
+    amount: fc.oneof(amount, fc.integer({ min: -6, max: 6 }).map((value) => value * 2)),
+  }),
+  fc.record({
+    type: fc.constant('set-table-role' as const),
+    role: fc.constantFrom('monarch' as const, 'initiative' as const),
+    playerId: fc.option(playerId, { nil: null }),
   }),
   fc.record({ type: fc.constant('set-partner' as const), playerId, hasPartner: fc.boolean() }),
   fc.record({
@@ -72,9 +83,24 @@ describe('reducer invariants (property-based)', () => {
         for (const player of run(players, actions).players) {
           expect(player.life).toBeGreaterThanOrEqual(LIFE_MIN)
           expect(player.life).toBeLessThanOrEqual(LIFE_MAX)
-          for (const value of [player.poison, player.energy, player.experience]) {
+          for (const value of [player.poison, player.energy, player.experience, player.rad, ...player.commanderTax]) {
             expect(Number.isSafeInteger(value) && value >= 0 && value <= COUNTER_MAX).toBe(true)
           }
+          expect(player.commanderTax.every((value) => value % 2 === 0)).toBe(true)
+          expect(player.hasPartner || player.commanderTax[1] === 0).toBe(true)
+        }
+      }),
+      { numRuns: 1000 },
+    )
+  })
+
+  it('only gives table roles to players still at the table', () => {
+    fc.assert(
+      fc.property(scenario, ({ players, actions }) => {
+        const game = run(players, actions)
+        const ids = game.players.map((player) => player.id)
+        for (const owner of [game.monarchPlayerId, game.initiativePlayerId]) {
+          expect(owner === null || ids.includes(owner)).toBe(true)
         }
       }),
       { numRuns: 1000 },

@@ -1,4 +1,4 @@
-import { COMMANDER_DAMAGE_LIMIT, LIFE_DEFEAT_LIMIT, POISON_LIMIT, STARTING_LIFE } from '../game/game'
+import { COMMANDER_DAMAGE_LIMIT, COMMANDER_TAX_STEP, LIFE_DEFEAT_LIMIT, POISON_LIMIT, STARTING_LIFE } from '../game/game'
 
 /**
  * Quick rules reference (Phase 2a, spec 2026-10-18). Static and bundled, so it works offline.
@@ -23,7 +23,6 @@ export interface RuleItem {
   title: string
   body: readonly RuleTextPart[]
   references: readonly string[]
-  status?: 'not-tracked'
 }
 
 export interface RuleGroup {
@@ -52,6 +51,8 @@ export const RULE_GROUPS: readonly RuleGroup[] = [
 
 const plain = (text: string): RuleTextPart => ({ text })
 const strong = (text: string): RuleTextPart => ({ text, emphasis: true })
+/** The {2} of rule 903.8, from the same constant the tax buttons use. */
+const taxMana = (): RuleTextPart => ({ text: `{${COMMANDER_TAX_STEP}}`, emphasis: true, accessibleLabel: 'due mana generici' })
 
 export const RULE_ITEMS: readonly RuleItem[] = [
   {
@@ -118,12 +119,13 @@ export const RULE_ITEMS: readonly RuleItem[] = [
     title: 'Tassa del comandante',
     body: [
       plain('Lanciare un comandante dalla zona di comando costa '),
-      { text: '{2}', emphasis: true, accessibleLabel: 'due mana generici' },
+      taxMana(),
       strong(' in più'),
-      plain(' per ogni volta precedente in cui è stato lanciato da lì.'),
+      plain(' per ogni volta precedente in cui è stato lanciato da lì. Nell’app la segni con «Tassa»: ogni tocco aggiunge '),
+      taxMana(),
+      plain('; con Partner ogni comandante ha la sua tassa.'),
     ],
     references: ['Regola 903.8'],
-    status: 'not-tracked',
   },
 ]
 

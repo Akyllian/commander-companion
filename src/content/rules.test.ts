@@ -1,4 +1,4 @@
-import { COMMANDER_DAMAGE_LIMIT, LIFE_DEFEAT_LIMIT, POISON_LIMIT, STARTING_LIFE } from '../game/game'
+import { COMMANDER_DAMAGE_LIMIT, COMMANDER_TAX_STEP, LIFE_DEFEAT_LIMIT, POISON_LIMIT, STARTING_LIFE } from '../game/game'
 import {
   RULE_GROUPS,
   RULE_ITEMS,
@@ -56,7 +56,7 @@ describe('rules content (spec 2026-10-18)', () => {
       [
         'R7',
         'Tassa del comandante',
-        'Lanciare un comandante dalla zona di comando costa {2} in più per ogni volta precedente in cui è stato lanciato da lì.',
+        'Lanciare un comandante dalla zona di comando costa {2} in più per ogni volta precedente in cui è stato lanciato da lì. Nell’app la segni con «Tassa»: ogni tocco aggiunge {2}; con Partner ogni comandante ha la sua tassa.',
         ['Regola 903.8'],
       ],
     ])
@@ -71,9 +71,12 @@ describe('rules content (spec 2026-10-18)', () => {
     expect(emphasised('R6')).toEqual([String(COMMANDER_DAMAGE_LIMIT)])
   })
 
-  it('marks only R7 as not tracked, with a spoken mana cost', () => {
-    expect(RULE_ITEMS.filter((item) => item.status).map((item) => [item.id, item.status])).toEqual([['R7', 'not-tracked']])
-    const mana = byId('R7').body.find((part) => part.accessibleLabel)
-    expect(mana).toMatchObject({ text: '{2}', accessibleLabel: 'due mana generici' })
+  it('explains the tracked Commander tax, step and Partner included (D-033)', () => {
+    expect(RULE_ITEMS.some((item) => 'status' in item)).toBe(false)
+    const manaCosts = byId('R7').body.filter((part) => part.accessibleLabel)
+    expect(manaCosts[0]).toMatchObject({ text: `{${COMMANDER_TAX_STEP}}`, accessibleLabel: 'due mana generici' })
+    expect(rulePlainText(byId('R7'))).toContain('Tassa')
+    expect(rulePlainText(byId('R7'))).toContain('Partner')
+    expect(rulePlainText(byId('R7'))).not.toContain('Non tracciata')
   })
 })

@@ -113,3 +113,13 @@ Icon family: 24×24 viewBox, rounded 1.75px stroke, `currentColor` (muted ivory 
 | Picker results | `.commander-results` | continuous list, max 5; 48×48 `art_crop`, name, visible credit; no nested scroll |
 | Compact credit | `.player-details-sheet .commander-credit` | visible in Details/picker, intentionally absent from the 123px panel |
 | Partner art | two art slots | static 50/50 split, Commander 1 left / Commander 2 right, subtle 48%→52% diagonal seam; never alternate |
+
+## Direct scoring dock (D-033) — implemented, awaiting design review
+
+- **Structure:** every panel has one `Punteggio di <nome>` group: modes `Vita`, `Commander`, `Veleno`, `Energia`, `Esperienza`, `Radiazioni`, `Tassa`, a gold divider, then `Monarca` and `Iniziativa`. Each is a real button with `aria-pressed`. Commander and Partner tax add a source row; the adjustment bar sits below.
+- **Material:** one continuous strip on ink at 82% with gold hairline separators (`.score-modes`). Active mode: teal-tinted ink, ivory text, teal icon and a 2px gold underline, so the state reads by shape too. A held role fills its icon at 35% gold and keeps the underline.
+- **Hierarchy:** life keeps its size and stays visible in every mode. Dock values are display serif at 2.25rem standard and 1.6rem compact, at most 60% of life. Mana uses the existing `.mana-cost` token in the utility face with lining figures.
+- **Sizes:** modes, sources and steppers are ≥ 44×44 px. The standard adjustment bar has the life row's 3.25rem height. In compact, the strip shares the identity row as icons with accessible names, and the name keeps at least 7.5rem.
+- **Overflow:** only the strip and the source row scroll sideways. A partial last item signals more content, and scrollbars are hidden. The page never scrolls horizontally. In compact, Commander/Tax add one row, so 844×390 may scroll vertically when both grid rows use those modes.
+- **Motion:** `--duration-mode` is 120 ms. A new mode fades the value and settles it 2px; a new source only fades it. Role transfer fades the icon in over 140 ms. No layout motion. The global reduced-motion rule makes all of these immediate.
+- **Manual check:** 320×568, 390×844, 768, 1440, 844×390, 844×330 and ≈200% zoom (640×400), with no art, bright art, Partner art and long names. Verified in the browser for this PR: no page-level horizontal scroll and no dock button under 44px.
