@@ -26,6 +26,8 @@ import type { Insets, Rect } from './shell/hubGeometry'
 import { RhombusHub } from './shell/RhombusHub'
 import { CoinTool } from './tools/CoinTool'
 import { DiceTool } from './tools/DiceTool'
+import { EMPTY_POOL } from './tools/mana'
+import { ManaTool } from './tools/ManaTool'
 import { ToolFrame } from './tools/ToolFrame'
 import { readSafeInsets } from './shell/safeInsets'
 import { ShellRhombus } from './shell/ShellRhombus'
@@ -63,6 +65,8 @@ export default function App() {
   const [lastTool, setLastTool] = useState<Tool | null>(null)
   // The hub's single live region (R2 §11); a repeated result changes invisibly so it is spoken again.
   const [announcement, setAnnouncement] = useState('')
+  // Shared mana: kept across tool closes and sections, never saved; a new game empties it (R2 §8.2).
+  const [mana, setMana] = useState(EMPTY_POOL)
   const announce = (text: string) => setAnnouncement((previous) => (previous === text ? `${text}\u200b` : text))
   const [section, navigate] = useSection()
   const compact = useCompactDensity()
@@ -288,6 +292,7 @@ export default function App() {
     if (pending?.kind === 'new-game') {
       dispatchHistory({ type: 'replace', game: createGame(pending.playerCount) })
       startNewMatch()
+      setMana(EMPTY_POOL)
     }
     if (pending?.kind === 'reset') dispatch({ type: 'reset-game' })
     setPending(null)
@@ -352,6 +357,7 @@ export default function App() {
                   onBack={() => dispatchSurface({ type: 'back-to-hub' })}
                 >
                   {surface.tool === 'dice' && <DiceTool layout={layout} announce={announce} />}
+                  {surface.tool === 'mana' && <ManaTool pool={mana} onChange={setMana} announce={announce} />}
                   {surface.tool === 'coin' && <CoinTool layout={layout} announce={announce} />}
                 </ToolFrame>
               )

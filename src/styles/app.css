@@ -3182,3 +3182,60 @@ button:hover:not(:disabled) {
     opacity: 0;
   }
 }
+
+/* Mana: 3 × 2 by default; one row of six only when the panel has room for six 44px columns. */
+.mana-tool {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  container-type: inline-size;
+}
+
+.mana-tool__pool {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(3.25rem, auto));
+  gap: var(--space-2);
+}
+
+@media (min-width: 40rem) {
+  .hub-tool:not([data-narrow]) .mana-tool__pool {
+    grid-template-columns: repeat(6, minmax(3.25rem, auto));
+  }
+}
+
+.mana-column {
+  display: grid;
+  grid-template-rows: 2.75rem auto 2.75rem;
+  justify-items: center;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--color-gold-hairline);
+  border-radius: var(--radius-sm);
+}
+
+.mana-column__value {
+  display: grid;
+  justify-items: center;
+}
+
+.mana-column__value .button-icon {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.mana-column__value strong {
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.mana-column__type {
+  color: var(--color-text-muted);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+}
+
+.mana-tool__reset {
+  min-height: 2.75rem;
+  border: 1px solid color-mix(in oklch, var(--color-gold) 40%, transparent);
+}

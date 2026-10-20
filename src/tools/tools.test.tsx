@@ -84,3 +84,69 @@ describe('Moneta (R2 §8.3)', () => {
     expect(live()).toHaveTextContent('Moneta: Testa')
   })
 })
+
+describe('Mana (R2 §8.2)', () => {
+  const add = (label: string) => fireEvent.click(screen.getByRole('button', { name: `Aggiungi 1 mana ${label}` }))
+  const value = (label: string) => within(screen.getByRole('group', { name: label })).getByTestId('mana-value')
+
+  it('offers six vertical steppers and a reset that is disabled at zero', () => {
+    render(<App />)
+    openTool('Mana')
+    for (const label of ['Bianco', 'Blu', 'Nero', 'Rosso', 'Verde', 'Incolore']) {
+      const group = screen.getByRole('group', { name: label })
+      expect(within(group).getAllByRole('button').map((button) => button.getAttribute('aria-label'))).toEqual([
+        `Aggiungi 1 mana ${label}`,
+        `Togli 1 mana ${label}`,
+      ])
+    }
+    expect(screen.getByRole('button', { name: 'Azzera mana' })).toBeDisabled()
+  })
+
+  it('resets at once, without a dialog, and announces it', () => {
+    render(<App />)
+    openTool('Mana')
+    add('Rosso')
+    add('Rosso')
+    expect(value('Rosso')).toHaveTextContent('2')
+    const reset = screen.getByRole('button', { name: 'Azzera mana' })
+    expect(reset).toBeEnabled()
+    fireEvent.click(reset)
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(value('Rosso')).toHaveTextContent('0')
+    expect(live()).toHaveTextContent('Mana azzerato')
+  })
+
+  it('keeps the pool across closing the tool and changing section, but not a score reset', () => {
+    render(<App />)
+    openTool('Mana')
+    add('Verde')
+    fireEvent.keyDown(window, { key: 'Escape' })
+    fireEvent.click(rhombus())
+    fireEvent.click(screen.getByRole('button', { name: 'Sezioni' }))
+    fireEvent.click(within(screen.getByRole('navigation', { name: 'Sezioni' })).getByRole('link', { name: 'Altro' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Azzera punteggi' }))
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Azzera punteggi' }))
+    fireEvent.click(within(screen.getByRole('navigation', { name: 'Sezioni' })).getByRole('link', { name: 'Partita' }))
+    openTool('Mana')
+    expect(value('Verde')).toHaveTextContent('1')
+  })
+
+  it('starts empty after a confirmed new game and after a reload', () => {
+    const first = render(<App />)
+    openTool('Mana')
+    add('Blu')
+    fireEvent.click(screen.getByRole('button', { name: 'Torna agli strumenti' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Sezioni' }))
+    fireEvent.click(within(screen.getByRole('navigation', { name: 'Sezioni' })).getByRole('link', { name: 'Altro' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Nuova partita' }))
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Nuova partita' }))
+    fireEvent.click(within(screen.getByRole('navigation', { name: 'Sezioni' })).getByRole('link', { name: 'Partita' }))
+    openTool('Mana')
+    expect(value('Blu')).toHaveTextContent('0')
+    add('Blu')
+    first.unmount()
+    render(<App />)
+    openTool('Mana')
+    expect(value('Blu')).toHaveTextContent('0')
+  })
+})
