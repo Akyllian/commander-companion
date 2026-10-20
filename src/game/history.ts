@@ -14,6 +14,8 @@ export type GroupTarget =
 export interface HistoryGroup {
   key: string
   target: GroupTarget
+  /** Time of the first tap: with `key`, it identifies one burst for the delta badge (D-036). */
+  startedAt: number
   /** Time of the latest tap in the group, in the caller's clock (ms). */
   at: number
 }
@@ -90,12 +92,27 @@ function readTarget(game: GameState, target: GroupTarget): number {
   }
 }
 
+export interface GroupDelta {
+  /** Unique per burst, so a new burst on the same value gets a fresh badge. */
+  key: string
+  target: GroupTarget
+  delta: number
+  at: number
+  /** Commander damage also moves life: the mirrored life change of the same burst (D-036). */
+  lifeDelta?: number
+}
+
 /** Cumulative change of the open group, for the temporary "+7" indicator. */
-export function getGroupDelta(history: History): { target: GroupTarget; delta: number; at: number } | null {
+export function getGroupDelta(history: History): GroupDelta | null {
   const base = history.past.at(-1)
   if (!history.group || !base) return null
-  const { target, at } = history.group
-  return { target, at, delta: readTarget(history.present, target) - readTarget(base, target) }
+  const { target, at, key, startedAt } = history.group
+  const result: GroupDelta = { key: `${key}@${startedAt}`, target, at, delta: readTarget(history.present, target) - readTarget(base, target) }
+  if (target.kind === 'commander') {
+    const life = { kind: 'life', playerId: target.playerId } as const
+    result.lifeDelta = readTarget(history.present, life) - readTarget(base, life)
+  }
+  return result
 }
 
 /**
@@ -119,7 +136,7 @@ export function historyReducer(history: History, action: HistoryAction): History
         past: continues ? history.past : pushPast(history.past, history.present),
         present: next,
         future: [],
-        group: group && { ...group, at: action.at },
+        group: group && { ...group, startedAt: continues && history.group ? history.group.startedAt : action.at, at: action.at },
       }
     }
 

@@ -322,3 +322,33 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
   - In Fronte a fronte i pannelli sono sempre compatti e le due metà occupano esattamente lo spazio fra intestazione e piè di pagina, come per Tavolo: con il dispositivo al centro nessuno deve scorrere.
 - **Verifica:** 335 test. Browser a 390×844, 844×390, 768×1024 e 1440: nessuno scroll, nessun overflow orizzontale, nessun pulsante sotto 44 px.
 - **Correzione dalla revisione (P2):** il comando «Layout» compare solo quando le celle visibili coincidono con i giocatori. Mentre la barra «Annulla» di un giocatore rimosso occupa ancora una cella (per esempio da 3 a 2), il comando resta nascosto e la griglia non cambia, così foglio e tavolo non sono mai in disaccordo. C'è un test per il passaggio 3→2.
+
+## D-036 — Delta cumulativo più evidente (proposta)
+- **Stato:** Approvata (2026-10-20). Proposta di Claude su richiesta del design; domande aperte decise dal product owner; implementata da Claude; revisione finale di ChatGPT approvata (verifica indipendente: 353 test, coverage 97,65%, build PWA).
+- **Risposte del product owner:**
+  1. Le dimensioni proposte vanno bene per ora; si potranno ritoccare dopo la prova.
+  2. Con i danni Commander il badge compare **anche speculare sulla vita**: `+N` sul valore Commander (danni ricevuti) e `−N` sulla vita, nello stesso gruppo.
+  3. Il dock usa un solo annuncio assestato per raffica, senza live region a ogni tocco.
+- **Sintesi:**
+  - Si riusano raggruppamento e finestra di 700 ms della cronologia.
+  - `DeltaBadge` resta montato per tutto il gruppo e aggiorna il numero sul posto (oggi si rimonta e lampeggia a ogni tocco).
+  - Ingresso 90 ms con 2 px di assestamento, permanenza 700 ms dall'ultimo tocco, uscita 160 ms solo in opacità; immediato con reduced motion.
+  - Dimensioni proporzionali al valore ma subordinate. Nessun cambio di layout.
+  - Il badge resta `aria-hidden`; il dock passa a un solo annuncio assestato per raffica.
+- **Ipotesi successive, non da implementare:** sheet Dettagli ancorato al pannello e sigillo centrale con al massimo quattro azioni nei layout da tavolo. Il sigillo richiederebbe di modificare D-034, che vuole il centro libero da comandi indispensabili.
+- **Proposta:** [`docs/superpowers/specs/2026-10-20-cumulative-delta-proposal.md`](superpowers/specs/2026-10-20-cumulative-delta-proposal.md).
+- **Implementazione:**
+  - `getGroupDelta` aggiunge `key`, unica per raffica, e per i danni Commander `lifeDelta`.
+  - `DeltaSlot`/`DeltaBadge`: un badge per raffica che aggiorna il numero sul posto, resta 700 ms dall'ultimo tocco, poi esce in 160 ms solo in opacità. Se la raffica successiva riguarda un altro valore, il badge precedente finisce comunque la sua uscita.
+  - Badge speculare sulla vita per i danni Commander.
+  - Annunci: gli `<output>` del dock sono `aria-live="off"`. Ogni pannello ha **una sola** regione `polite` che parla una volta per raffica assestata. Cambiare modo o sorgente non annuncia nulla. I danni Commander producono un solo annuncio con danni e vita (`Giocatore 1: 3 danni Commander da Giocatore 2; vita 37`). Le variazioni di vita fuori da una raffica (Annulla, Ripeti, Azzera, altra scheda) sono ancora annunciate una volta.
+  - Token `--duration-delta-in: 90ms` e `--duration-delta-out: 160ms`; dimensioni 1,05 / 0,9 / 0,85 rem.
+- **Aggiustamenti dalla verifica visiva:**
+  - Nel dock il badge sta accanto al numero, non sopra le cifre.
+  - Nel binario compatto il badge della vita sale sopra le cifre: misurati 13 px di margine dalle cifre, senza toccare la striscia dei modi né il pulsante +1.
+- **Verifica:** 353 test (347 alla prima consegna, più i test sugli annunci della seconda revisione). Browser a 390×844 e 844×390, anche con Fronte a fronte ruotato: nessun cambio di layout durante i tocchi.
+- **Seconda revisione ChatGPT (2026-10-20):** visual e motion approvati. Corretti gli annunci:
+  - nessun aggiornamento della live region dopo il solo cambio di modo o di sorgente;
+  - un solo annuncio finale per la raffica Commander, al posto di due regioni (vita e dock) aggiornate insieme.
+
+  Test aggiunti per questi tre casi.

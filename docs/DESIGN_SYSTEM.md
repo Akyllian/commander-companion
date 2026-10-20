@@ -140,3 +140,16 @@ Icon family: 24×24 viewBox, rounded 1.75px stroke, `currentColor` (muted ivory 
 - **Access:** the same `Layout` trigger appears with two players, named `Layout dei due giocatori`. The sheet shows `Stesso lato` (`Tutti e due verso di te`) and `Fronte a fronte` (`Uno per lato`), with the same option, preview and keyboard pattern as D-034.
 - **Geometry:** `main[data-layout='two-facing']`, one column, two equal rows (`top` = player 2 at 180°, `bottom` = player 1 at 0°). The shell becomes a flex column, so the two halves share exactly the space between header and footer. Compact panels are used in every density.
 - **Preference:** `twoPlayerLayout`, stored apart from `fourPlayerLayout`.
+
+## Cumulative delta (D-036) — implemented, awaiting design review
+
+- **Lifecycle:** one `.delta-badge` per tap burst (`DeltaSlot`, keyed by the history group). It enters once (`--duration-delta-in` 90 ms, opacity and 2px). Later taps change only its number. It stays 700 ms after the last tap, then `data-phase="exit"` fades it over `--duration-delta-out` 160 ms. Reduced motion makes both immediate.
+- **Placement:** overlays the value and never reflows:
+  - standard life: right of the number, 1.05rem;
+  - compact rail: above the number's top-right corner, 0.9rem;
+  - dock value: right of the number, 0.85rem.
+- **Commander damage:** the dock badge on the Commander value and a mirrored badge on life, both from the same burst.
+- **Speech:** badges are `aria-hidden` and dock outputs are `aria-live="off"`. Each panel has exactly one polite `.score-announcement` region (`useScoreAnnouncement`):
+  - it speaks once per settled burst, keyed by the history group, never for a mode or source change;
+  - Commander damage says damage and life together;
+  - life changes outside a burst (Undo, Redo, reset, another tab) are spoken once they settle.

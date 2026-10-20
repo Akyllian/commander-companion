@@ -5,6 +5,7 @@ import { BACKUP_KEY, STORAGE_KEY } from './game/storage'
 import { updateStore } from './pwa/updates'
 import { installMatchMedia } from './test/matchMedia'
 import { UNDO_BAR_DURATION_MS } from './components/UndoBar'
+import { DELTA_EXIT_MS } from './components/DeltaBadge'
 
 let clock = 0
 const panel = (name: RegExp) => screen.getByRole('region', { name })
@@ -239,6 +240,22 @@ describe('announcements', () => {
     act(() => vi.advanceTimersByTime(700))
     expect(announcement).toHaveTextContent('Giocatore 1: 42 punti vita')
   })
+
+  it('speaks a Commander burst once, then the life restored by Undo (D-036)', () => {
+    vi.useFakeTimers()
+    render(<App />)
+    const player = panel(/giocatore 1/i)
+    const live = player.querySelector('.score-announcement') as HTMLElement
+    mode(player, /^commander/i)
+    click(player, /aumenta danni commander da giocatore 2 a giocatore 1/i)
+    click(player, /aumenta danni commander da giocatore 2 a giocatore 1/i)
+    act(() => vi.advanceTimersByTime(700))
+    expect(live).toHaveTextContent('Giocatore 1: 2 danni Commander da Giocatore 2; vita 38')
+
+    fireEvent.click(screen.getByRole('button', { name: /annulla ultima azione/i }))
+    act(() => vi.advanceTimersByTime(700))
+    expect(live).toHaveTextContent('Giocatore 1: 40 punti vita')
+  })
 })
 
 describe('persistence and system notices', () => {
@@ -302,6 +319,8 @@ describe('rapid taps (UX decision 3)', () => {
     expect(within(player).getByTestId('delta-badge')).toHaveTextContent('+3')
 
     act(() => vi.advanceTimersByTime(700))
+    expect(within(player).getByTestId('delta-badge')).toHaveAttribute('data-phase', 'exit')
+    act(() => vi.advanceTimersByTime(DELTA_EXIT_MS))
     expect(within(player).queryByTestId('delta-badge')).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /annulla ultima azione/i }))
@@ -317,13 +336,18 @@ describe('rapid taps (UX decision 3)', () => {
     mode(player, /^veleno/i)
     click(player, /aumenta veleno di giocatore 1/i)
     click(player, /aumenta veleno di giocatore 1/i)
-    expect(within(player).getByTestId('delta-badge')).toHaveTextContent('+2')
+    const dockBadge = () => player.querySelector('.score-adjust .delta-badge:not([data-phase])')
+    const lifeBadge = () => player.querySelector('.life-value .delta-badge:not([data-phase])')
+    expect(dockBadge()).toHaveTextContent('+2')
     mode(player, /^commander/i)
     click(player, /^giocatore 3/i)
     click(player, /aumenta danni commander da giocatore 3 a giocatore 1/i)
-    expect(within(player).getByTestId('delta-badge')).toHaveTextContent('+1')
+    expect(dockBadge()).toHaveTextContent('+1')
+    // D-036: the same burst also shows, mirrored, on life.
+    expect(lifeBadge()).toHaveTextContent('−1')
     click(player, /riduci danni commander da giocatore 3 a giocatore 1/i)
-    expect(within(player).getByTestId('delta-badge')).toHaveTextContent('−1')
+    expect(dockBadge()).toHaveTextContent('−1')
+    expect(lifeBadge()).toHaveTextContent('+1')
   })
 })
 

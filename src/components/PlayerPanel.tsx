@@ -1,14 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import type React from 'react'
 import { getDefeatReasons } from '../game/game'
-import { GROUP_WINDOW_MS } from '../game/history'
+import type { GroupDelta } from '../game/history'
 import type { GameAction, PlayerState } from '../game/types'
 import { deltaFor } from './DeltaBadge'
-import type { PanelDelta } from './DeltaBadge'
 import { ModalSideSheet } from './ModalSideSheet'
 import { useArtImage } from '../media/useCommanderArt'
 import { CommanderLine, DeckConfigSection, DefeatBadge, RemoveIcon } from './PlayerSections'
 import { QuickScoreDock, ScoreAdjust, ScoreModeStrip, ScoreSourceRow, useScoreSelection } from './QuickScoreDock'
+import { useScoreAnnouncement } from './useScoreAnnouncement'
 
 export type { PanelDelta } from './DeltaBadge'
 
@@ -18,21 +18,12 @@ interface PlayerPanelProps {
   playerCount: number
   canRemovePartner: boolean
   /** The open tap group, when it concerns this player. */
-  delta: PanelDelta | null
+  delta: GroupDelta | null
   /** Compact landscape: score rail on the panel, everything else in the details sheet. */
   compact?: boolean
   monarchPlayerId: string | null
   initiativePlayerId: string | null
   dispatch: (action: GameAction) => void
-}
-
-function useSettledValue<T>(value: T, delay: number): T {
-  const [settled, setSettled] = useState(value)
-  useEffect(() => {
-    const timer = window.setTimeout(() => setSettled(value), delay)
-    return () => window.clearTimeout(timer)
-  }, [value, delay])
-  return settled
 }
 
 function DetailsIcon() {
@@ -72,7 +63,7 @@ export function PlayerPanel({
   const partnerArt = useArtImage(player.hasPartner ? (player.commanders[1]?.cardId ?? null) : null)
   const defeatReasons = getDefeatReasons(player)
   const defeated = defeatReasons.length > 0
-  const settledLife = useSettledValue(player.life, GROUP_WINDOW_MS)
+  const spoken = useScoreAnnouncement(player, opponents, delta)
   const canRemove = playerCount > 2
   const remove = () => dispatch({ type: 'remove-player', playerId: player.id })
 
@@ -115,18 +106,24 @@ export function PlayerPanel({
     </button>
   )
 
+  // Commander damage also moves life: the same burst shows, mirrored, on life (D-036).
+  const lifeDelta =
+    delta?.target.kind === 'commander' && delta.lifeDelta !== undefined
+      ? { key: `${delta.key}:life`, target: { kind: 'life', playerId: player.id } as const, delta: delta.lifeDelta, at: delta.at }
+      : delta
   const lifeValue = (
     <span className="life-value">
       <strong key={bloom} className="life-total" data-testid="life-total" data-bloom={bloom > 0 || undefined}>
         {player.life}
       </strong>
-      {deltaFor(delta, { kind: 'life', playerId: player.id })}
+      {deltaFor(lifeDelta, { kind: 'life', playerId: player.id })}
     </span>
   )
 
+  // The panel's only live region: one announcement per settled burst (D-036).
   const announcement = (
-    <span className="sr-only" aria-live="polite" aria-atomic="true">
-      {`${player.name}: ${settledLife} punti vita`}
+    <span className="sr-only score-announcement" aria-live="polite" aria-atomic="true">
+      {spoken}
     </span>
   )
 

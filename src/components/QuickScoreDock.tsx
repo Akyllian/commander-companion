@@ -46,7 +46,7 @@ export interface ScoreSelection {
   setTaxSlot: (slot: CommanderIndex) => void
 }
 
-const COUNTER_LABELS: Record<CounterKey, string> = {
+export const COUNTER_LABELS: Record<CounterKey, string> = {
   poison: 'Veleno',
   energy: 'Energia',
   experience: 'Esperienza',
@@ -71,7 +71,7 @@ const ROLES: Array<{ role: TableRole; label: string; Icon: () => React.JSX.Eleme
 export const COMMANDER_HINT = 'Registra qui solo i danni da combattimento del comandante: riducono anche i punti vita.'
 
 const isCounter = (mode: ScoreMode): mode is CounterKey => mode in COUNTER_LABELS
-const slotName = (slot: CommanderIndex) => `Comandante ${slot + 1}`
+export const slotName = (slot: CommanderIndex) => `Comandante ${slot + 1}`
 
 function damageSources(opponents: PlayerState[]): SourceOption[] {
   return opponents.flatMap((opponent) =>
@@ -347,6 +347,7 @@ function stepperFor(player: PlayerState, selection: ScoreSelection): Stepper | n
 /** The in-place adjustment bar of the active mode: life rail in Vita, `[−] value [+]` otherwise. */
 export function ScoreAdjust({ player, selection, delta, dispatch, lifeControls }: AdjustProps) {
   if (selection.mode === 'life') return <>{lifeControls}</>
+  // Outputs stay silent: the panel speaks each settled burst once (D-036).
   const stepper = stepperFor(player, selection)
   if (!stepper) return <p className="score-adjust score-adjust--empty">Nessun avversario</p>
   return (
@@ -357,7 +358,9 @@ export function ScoreAdjust({ player, selection, delta, dispatch, lifeControls }
       {/* Keyed twice: a new mode fades and settles 2px, a new source only fades (120 ms, D-033). */}
       <span className="score-adjust__value" key={selection.mode}>
         <span className="score-adjust__source" key={stepper.key}>
-          <output aria-label={stepper.output.label}>{stepper.output.text}</output>
+          <output aria-label={stepper.output.label} aria-live="off">
+            {stepper.output.text}
+          </output>
           {deltaFor(delta, stepper.target)}
         </span>
       </span>

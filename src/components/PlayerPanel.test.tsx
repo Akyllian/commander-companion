@@ -1,12 +1,16 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
+import { createHistory, getGroupDelta, GROUP_WINDOW_MS, historyReducer } from '../game/history'
 import { useReducer } from 'react'
 import { canRemovePartner, createGame, gameReducer } from '../game/game'
-import type { GameState } from '../game/types'
+import type { GameAction, GameState } from '../game/types'
 import { PlayerPanel } from './PlayerPanel'
 
-/** The real reducer behind every panel, like App without history and persistence. */
+/** The real reducer and tap grouping behind every panel, like App without persistence. */
 function Table({ initial, compact = false }: { initial: GameState; compact?: boolean }) {
-  const [game, dispatch] = useReducer(gameReducer, initial)
+  const [history, dispatchHistory] = useReducer(historyReducer, initial, createHistory)
+  const dispatch = (action: GameAction) => dispatchHistory({ type: 'apply', action, at: Date.now() })
+  const game = history.present
+  const groupDelta = getGroupDelta(history)
   return (
     <>
       {game.players.map((player) => (
@@ -16,7 +20,7 @@ function Table({ initial, compact = false }: { initial: GameState; compact?: boo
           opponents={game.players.filter((opponent) => opponent.id !== player.id)}
           playerCount={game.players.length}
           canRemovePartner={canRemovePartner(game, player.id)}
-          delta={null}
+          delta={groupDelta?.target.playerId === player.id ? groupDelta : null}
           compact={compact}
           monarchPlayerId={game.monarchPlayerId}
           initiativePlayerId={game.initiativePlayerId}
@@ -177,4 +181,90 @@ it('keeps scoring out of the compact details sheet (D-033)', () => {
   expect(within(sheet).queryByRole('button', { name: /aumenta/i })).not.toBeInTheDocument()
   expect(within(sheet).getByText('Comandante e mazzo')).toBeInTheDocument()
   expect(within(sheet).getByRole('button', { name: /rimuovi giocatore/i })).toBeInTheDocument()
+})
+
+describe('settled announcement (D-036)', () => {
+  beforeEach(() => vi.useFakeTimers())
+  afterEach(() => vi.useRealTimers())
+
+  const live = (name: string) => panel(name).querySelector('.score-announcement') as HTMLElement
+  /** Every text the live region takes while `run` executes (one entry per mutation batch). */
+  const recordLive = async (name: string, run: () => void) => {
+    const texts: string[] = []
+    const observer = new MutationObserver(() => texts.push(live(name).textContent ?? ''))
+    observer.observe(live(name), { childList: true, characterData: true, subtree: true })
+    run()
+    await act(async () => {
+      vi.advanceTimersByTime(GROUP_WINDOW_MS * 2)
+      await Promise.resolve()
+    })
+    observer.disconnect()
+    return texts
+  }
+
+  it('keeps one polite region per panel, and silent dock outputs', () => {
+    render(<Table initial={createGame(2)} />)
+    fireEvent.click(mode('Giocatore 1', /^veleno/i))
+    expect(panel('Giocatore 1').querySelectorAll('[aria-live="polite"]')).toHaveLength(1)
+    expect(within(panel('Giocatore 1')).getByRole('status', { name: /veleno di giocatore 1/i })).toHaveAttribute('aria-live', 'off')
+  })
+
+  it('announces a counter burst once, after it settles', async () => {
+    render(<Table initial={createGame(2)} />)
+    fireEvent.click(mode('Giocatore 1', /^veleno/i))
+    const texts = await recordLive('Giocatore 1', () => {
+      for (let tap = 0; tap < 3; tap += 1) press('Giocatore 1', /^aumenta veleno di giocatore 1/i)
+    })
+    expect(texts).toEqual(['Giocatore 1: veleno 3'])
+  })
+
+  it('announces nothing after only changing mode', async () => {
+    render(<Table initial={createGame(2)} />)
+    const texts = await recordLive('Giocatore 1', () => {
+      fireEvent.click(mode('Giocatore 1', /^veleno/i))
+      fireEvent.click(mode('Giocatore 1', /^tassa/i))
+      fireEvent.click(mode('Giocatore 1', /^commander/i))
+    })
+    expect(texts).toEqual([])
+  })
+
+  it('announces nothing after only changing source', async () => {
+    render(<Table initial={createGame(3)} />)
+    fireEvent.click(mode('Giocatore 1', /^commander/i))
+    const texts = await recordLive('Giocatore 1', () => {
+      fireEvent.click(within(panel('Giocatore 1')).getByRole('button', { name: /^giocatore 3/i }))
+      fireEvent.click(within(panel('Giocatore 1')).getByRole('button', { name: /^giocatore 2/i }))
+    })
+    expect(texts).toEqual([])
+  })
+
+  it('makes a Commander burst one final announcement with damage and life', async () => {
+    render(<Table initial={createGame(2)} />)
+    fireEvent.click(mode('Giocatore 1', /^commander/i))
+    const texts = await recordLive('Giocatore 1', () => {
+      for (let tap = 0; tap < 3; tap += 1) press('Giocatore 1', /^aumenta danni commander da giocatore 2 a giocatore 1/i)
+    })
+    expect(texts).toEqual(['Giocatore 1: 3 danni Commander da Giocatore 2; vita 37'])
+  })
+
+  it('names a single point of damage, the Partner slot and the tax in mana', async () => {
+    const partner = gameReducer(createGame(2), { type: 'set-partner', playerId: 'player-2', hasPartner: true })
+    render(<Table initial={partner} />)
+    fireEvent.click(mode('Giocatore 1', /^commander/i))
+    fireEvent.click(within(panel('Giocatore 1')).getByRole('button', { name: /^giocatore 2, comandante 2/i }))
+    const damage = await recordLive('Giocatore 1', () =>
+      press('Giocatore 1', /^aumenta danni commander da giocatore 2, comandante 2 a giocatore 1/i),
+    )
+    expect(damage).toEqual(['Giocatore 1: 1 danno Commander da Giocatore 2, Comandante 2; vita 39'])
+
+    fireEvent.click(mode('Giocatore 2', /^tassa/i))
+    const tax = await recordLive('Giocatore 2', () => press('Giocatore 2', /^aumenta di 2 mana la tassa del comandante 1 di giocatore 2/i))
+    expect(tax).toEqual(['Giocatore 2: tassa del Comandante 1, più 2 mana'])
+  })
+
+  it('announces a life burst as the settled life total', async () => {
+    render(<Table initial={createGame(2)} />)
+    const texts = await recordLive('Giocatore 1', () => press('Giocatore 1', /^aumenta di 1 la vita di giocatore 1/i))
+    expect(texts).toEqual(['Giocatore 1: 41 punti vita'])
+  })
 })
