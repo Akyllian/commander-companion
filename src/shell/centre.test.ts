@@ -18,6 +18,11 @@ describe('rhombusPoint (R1)', () => {
     expect(rhombusPoint(box(0, 0, 300, 616), stacked)).toEqual({ x: 150, y: 204 })
   })
 
+  it('snaps to the nearest side seam when three cards stand in one row (compact landscape)', () => {
+    const row = [box(0, 0, 200, 300), box(208, 0, 408, 300), box(416, 0, 616, 300)]
+    expect(rhombusPoint(box(0, 0, 616, 300), row)).toEqual({ x: 204, y: 150 })
+  })
+
   it('keeps the centre of an empty Tavolo centre cell', () => {
     const table = [box(0, 0, 408, 120), box(0, 128, 140, 528), box(268, 128, 408, 528), box(0, 536, 408, 656)]
     expect(rhombusPoint(box(0, 0, 408, 656), table)).toEqual({ x: 204, y: 328 })

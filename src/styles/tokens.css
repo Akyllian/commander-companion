@@ -44,6 +44,9 @@
   --radius-lg: 1.125rem;
   --radius-round: 999rem;
   --duration-mode: 120ms;
+  /* Section bar (R1): enters over 180 ms, leaves over 140 ms. */
+  --duration-nav-in: 180ms;
+  --duration-nav-out: 140ms;
   /* Cumulative delta badge (D-036): enter once, then a short opacity-only exit. */
   --duration-delta-in: 90ms;
   --duration-delta-out: 160ms;

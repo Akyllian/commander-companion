@@ -170,3 +170,17 @@ Tutti i passi superati tranne uno. Nessun problema di gravità alta, quindi la F
 | 14.3 | Veleno +1, poi subito Energia +1 | il badge del veleno si dissolve, quello dell'energia compare | | |
 | 14.4 | VoiceOver, 4 tocchi rapidi su Veleno | un solo annuncio finale («veleno 4»), non quattro | | |
 | 14.5 | Riduci movimento attivo | il badge compare e scompare senza movimento | | |
+
+## 15. Guscio a quattro sezioni (R1, D-038)
+
+| # | Passi | Risultato atteso | iPhone | Android |
+| --- | --- | --- | --- | --- |
+| 15.1 | Apri l'app la prima volta, in orizzontale | solo le carte; al centro il sigillo con «Tocca il sigillo per le sezioni» | | |
+| 15.2 | Tocca il sigillo | in alto compaiono Partita, Mazzi, Impara, Altro; le carte non si muovono | | |
+| 15.3 | Tocca di nuovo il sigillo (o Partita) | la barra sparisce; il suggerimento non torna più | | |
+| 15.4 | Vai in Altro, poi usa il tasto Indietro | torni alla partita con gli stessi punteggi | | |
+| 15.5 | In Altro: cambia layout, poi Nuova partita con 2 giocatori | il layout si applica subito; la nuova partita chiede conferma | | |
+| 15.6 | In Altro: Azzera punteggi | chiede conferma, poi tutto torna a 40 | | |
+| 15.7 | Schermo acceso attivo, resta in Altro qualche minuto | lo schermo può spegnersi; tornando in Partita resta acceso | | |
+| 15.8 | Impara → Riferimento rapido Commander | si aprono le Regole come prima | | |
+| 15.9 | Telefono in verticale | annota se il sigillo è facile da trovare (oggi è a metà pagina) | | |

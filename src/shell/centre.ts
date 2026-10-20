@@ -24,22 +24,28 @@ type Side = 'top' | 'bottom' | 'start' | 'end'
 
 const inside = (point: Point, box: Box) => point.x > box.left && point.x < box.right && point.y > box.top && point.y < box.bottom
 const overlapsX = (a: Box, b: Box) => a.left < b.right && b.left < a.right
+const overlapsY = (a: Box, b: Box) => a.top < b.bottom && b.top < a.bottom
 
-/** The centre of the table; when it falls inside a card (odd stacks), the nearest seam of that card. */
+/**
+ * The centre of the table; when it falls inside a card (an odd stack or row), the nearest seam
+ * between that card and a neighbour, above/below or beside it.
+ */
 export function rhombusPoint(grid: Box, panels: Box[]): Point {
   const centre = { x: (grid.left + grid.right) / 2, y: (grid.top + grid.bottom) / 2 }
   const host = panels.find((panel) => inside(centre, panel))
   if (!host) return centre
   const seams = panels
-    .filter((other) => other !== host && overlapsX(other, host))
-    .flatMap((other) => {
-      if (other.bottom <= host.top) return [(other.bottom + host.top) / 2]
-      if (other.top >= host.bottom) return [(host.bottom + other.top) / 2]
+    .filter((other) => other !== host)
+    .flatMap((other): Point[] => {
+      if (overlapsX(other, host) && other.bottom <= host.top) return [{ x: centre.x, y: (other.bottom + host.top) / 2 }]
+      if (overlapsX(other, host) && other.top >= host.bottom) return [{ x: centre.x, y: (host.bottom + other.top) / 2 }]
+      if (overlapsY(other, host) && other.right <= host.left) return [{ x: (other.right + host.left) / 2, y: centre.y }]
+      if (overlapsY(other, host) && other.left >= host.right) return [{ x: (host.right + other.left) / 2, y: centre.y }]
       return []
     })
   if (seams.length === 0) return centre
-  const y = seams.reduce((best, seam) => (Math.abs(seam - centre.y) < Math.abs(best - centre.y) ? seam : best))
-  return { x: centre.x, y }
+  const distance = (point: Point) => Math.hypot(point.x - centre.x, point.y - centre.y)
+  return seams.reduce((best, seam) => (distance(seam) < distance(best) ? seam : best))
 }
 
 // Viewport side → the card's own side, for each turn of the card's content.

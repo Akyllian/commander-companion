@@ -153,3 +153,17 @@ Icon family: 24×24 viewBox, rounded 1.75px stroke, `currentColor` (muted ivory 
   - it speaks once per settled burst, keyed by the history group, never for a mode or source change;
   - Commander damage says damage and life together;
   - life changes outside a burst (Undo, Redo, reset, another tab) are spoken once they settle.
+
+## App shell (R1, D-038) — implemented, awaiting design review
+
+- **Sections:** `src/shell/sections.ts` defines the order Partita, Mazzi, Impara, Altro and the address `#mazzi|#impara|#altro` (no hash means Partita). `useSection` follows Back and Forward.
+- **Bar:** `.section-nav[data-state]`:
+  - `persistent`: sticky ink band with a gold hairline;
+  - `revealed`: fixed over the game, entering in `--duration-nav-in` 180 ms (−8px→0) and leaving in `--duration-nav-out` 140 ms;
+  - `hidden`: `hidden` plus `inert`.
+  Items are at least 48px, labels 0.72rem (0.68 compact) uppercase with tracking 0.08em. The active item gets gold and a 2px line that lights in place.
+- **Rhombus:** `.shell-rhombus` is a square 56px button containing an SVG diamond (ink, gold line, inner hairline) and a teal sigil that turns gold when expanded. Press: 1px over 90ms. The hint pill sits under it until first use.
+- **Free zone:** `useCentreLayout` measures the grid and seats. `.player-seat[data-clear]` pads the card on the touching side or corner (`--centre-clear: 1.75rem`), in the card's own frame.
+- **Altro:** `.screen` is a 46rem column. `.settings-group` titles are gold uppercase 0.75rem; `.settings-row` rows are at least 52px. The reset sits in its own group 24px below a hairline. Also `.settings-switch`, `.segmented` and `.primary-button`.
+- **Placeholders:** `.placeholder-screen` with a 3rem line icon (teal for Mazzi, gold for Impara) and a serif heading. Mazzi has a `In preparazione` pill; Impara has the `.rules-bridge` button.
+- **Notices:** `.app-notices[data-placement]`, `inline` under the bar outside the game, `toast` fixed above the bottom safe area during play.

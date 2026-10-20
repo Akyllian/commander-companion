@@ -95,7 +95,7 @@ Ordine proposto per il nuovo lavoro: `2e (accesso diretto) → 2d (layout manual
 
 | Fase | Contenuto | Stato |
 | --- | --- | --- |
-| R1 — Guscio | Schede Partita/Mazzi/Impara/Altro, Impostazioni, rimozione di intestazione, ingranaggio, Annulla/Ripeti | attende il design di ChatGPT |
+| R1 — Guscio | Schede Partita/Mazzi/Impara/Altro, Impostazioni, rimozione di intestazione, ingranaggio, Annulla/Ripeti | implementata (D-038), in revisione design |
 | R2 — Partita | Carta giocatore del mockup, tendina contatori, rombo con Dadi, Mana e Testa o croce, arte casuale | dopo R1 |
 | R3 — Mazzi | Import da testo e Scryfall, offline, categorie automatiche, note, mano di prova, collegamento al giocatore | dopo R2 |
 | R4 — Impara | Manuale interattivo che assorbe le Regole | dopo R1 |
