@@ -70,7 +70,7 @@ Riportate come date, con il numero della domanda del questionario.
 
 **Mazzi**
 - Un mazzo è la lista delle carte, il comandante e le note di strategia scritte dal product owner (D20, D23).
-- Fonti: Moxfield, Archidekt, testo incollato, Scryfall. Dopo il caricamento con internet il mazzo resta consultabile offline (D21). Vedi il limite tecnico in §7.1.
+- Fonti: l'**export di testo** di Moxfield e Archidekt (o qualunque lista «quantità nome»), incollato nell'app, e la ricerca Scryfall carta per carta. Niente import da link (decisione del product owner dopo la verifica in §7.1). I dati delle carte arrivano da Scryfall; dopo il caricamento con internet il mazzo resta consultabile offline (D21).
 - Le categorie le calcola l'app dalle carte del mazzo, con un insieme riconosciuto dalle carte (D22, risposta 14).
 - Mano di prova: 7 carte con mulligan, mostrando nomi e ritagli d'arte, mai carte intere (D25).
 - Il mazzo si collega al pannello di un giocatore e ne imposta comandante e arte, ma il pannello resta modificabile (D28).
@@ -130,7 +130,7 @@ Ogni fase si apre con il design di ChatGPT e si chiude con una PR revisionata e 
 - **Archidekt:** l'API consente richieste solo da `http://localhost:3000`, quindi il browser blocca la nostra app.
 - **Scryfall:** consente richieste da qualunque sito.
 
-Senza un server proprio (escluso: niente cloud) **non si può importare da un link** Moxfield o Archidekt. Si può invece importare l'**export di testo** che entrambi offrono («1 Sol Ring», ecc.), incollandolo; i dati di ogni carta arrivano poi da Scryfall. Decisione richiesta al product owner (§9).
+Senza un server proprio (escluso: niente cloud) **non si può importare da un link** Moxfield o Archidekt. **Deciso (2026-10-20):** si importa solo l'**export di testo** che entrambi offrono («1 Sol Ring», ecc.), incollandolo; i dati di ogni carta arrivano poi da Scryfall.
 
 ### 7.2 Altri vincoli
 - **Dati delle carte:** nome, costo, tipo, testo, colori e ritaglio d'arte arrivano da Scryfall (`/cards/collection`, 75 carte per richiesta) e si salvano in IndexedDB, come l'arte dei comandanti (D-026).
@@ -154,4 +154,4 @@ Senza un server proprio (escluso: niente cloud) **non si può importare da un li
 
 ## 9. Domande ancora aperte per il product owner
 
-1. **Import da link:** visto §7.1, va bene importare da Moxfield e Archidekt **incollando l'export di testo**, invece che dal link?
+Nessuna: l'import da link è stato sostituito dall'import di testo (2026-10-20).
