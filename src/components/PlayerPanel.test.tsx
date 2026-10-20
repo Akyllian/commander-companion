@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
+import { GROUP_WINDOW_MS } from '../game/history'
 import { useReducer } from 'react'
 import { canRemovePartner, createGame, gameReducer } from '../game/game'
 import type { GameState } from '../game/types'
@@ -177,4 +178,38 @@ it('keeps scoring out of the compact details sheet (D-033)', () => {
   expect(within(sheet).queryByRole('button', { name: /aumenta/i })).not.toBeInTheDocument()
   expect(within(sheet).getByText('Comandante e mazzo')).toBeInTheDocument()
   expect(within(sheet).getByRole('button', { name: /rimuovi giocatore/i })).toBeInTheDocument()
+})
+
+describe('settled dock announcement (D-036)', () => {
+  afterEach(() => vi.useRealTimers())
+
+  it('announces a burst once, after it settles, instead of every tap', () => {
+    vi.useFakeTimers()
+    render(<Table initial={createGame(2)} />)
+    fireEvent.click(mode('Giocatore 1', /^veleno/i))
+    const output = within(panel('Giocatore 1')).getByRole('status', { name: /veleno di giocatore 1/i })
+    expect(output).toHaveAttribute('aria-live', 'off')
+
+    const live = panel('Giocatore 1').querySelector('.score-announcement') as HTMLElement
+    expect(live).toHaveAttribute('aria-live', 'polite')
+    for (let tap = 0; tap < 3; tap += 1) press('Giocatore 1', /^aumenta veleno di giocatore 1/i)
+    expect(live).not.toHaveTextContent('veleno 3')
+    act(() => vi.advanceTimersByTime(GROUP_WINDOW_MS))
+    expect(live).toHaveTextContent('Giocatore 1: veleno 3')
+  })
+
+  it('announces Commander damage with its source and the tax in mana', () => {
+    vi.useFakeTimers()
+    render(<Table initial={createGame(2)} />)
+    fireEvent.click(mode('Giocatore 1', /^commander/i))
+    press('Giocatore 1', /^aumenta danni commander da giocatore 2 a giocatore 1/i)
+    act(() => vi.advanceTimersByTime(GROUP_WINDOW_MS))
+    const live = panel('Giocatore 1').querySelector('.score-announcement') as HTMLElement
+    expect(live).toHaveTextContent('Giocatore 1: danni Commander da Giocatore 2, 1')
+
+    fireEvent.click(mode('Giocatore 1', /^tassa/i))
+    press('Giocatore 1', /^aumenta di 2 mana la tassa del comandante 1 di giocatore 1/i)
+    act(() => vi.advanceTimersByTime(GROUP_WINDOW_MS))
+    expect(live).toHaveTextContent('Giocatore 1: tassa del Comandante 1, più 2 mana')
+  })
 })

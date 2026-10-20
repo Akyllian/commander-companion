@@ -4,8 +4,10 @@ import { COMMANDER_DAMAGE_LIMIT, COMMANDER_TAX_STEP } from '../game/game'
 import type { GroupTarget } from '../game/history'
 import type { CommanderIndex, CounterKey, GameAction, PlayerState, TableRole } from '../game/types'
 import { useArtImage } from '../media/useCommanderArt'
+import { GROUP_WINDOW_MS } from '../game/history'
 import { deltaFor } from './DeltaBadge'
 import type { PanelDelta } from './DeltaBadge'
+import { useSettledValue } from './useSettledValue'
 import {
   CommanderDamageIcon,
   CrownIcon,
@@ -281,6 +283,8 @@ interface Stepper {
   output: { label: string; text: React.ReactNode }
   target: GroupTarget
   key: string
+  /** Spoken once the burst settles (D-036), e.g. "Giocatore 1: veleno 3". */
+  announce: string
 }
 
 function stepperFor(player: PlayerState, selection: ScoreSelection): Stepper | null {
@@ -296,6 +300,7 @@ function stepperFor(player: PlayerState, selection: ScoreSelection): Stepper | n
       output: { label: `${label} di ${player.name}`, text: player[mode] },
       target: { kind: 'counter', playerId: player.id, counter: mode },
       key: mode,
+      announce: `${player.name}: ${lower} ${player[mode]}`,
     }
   }
   if (mode === 'commander') {
@@ -317,6 +322,7 @@ function stepperFor(player: PlayerState, selection: ScoreSelection): Stepper | n
       },
       target: { kind: 'commander', playerId: player.id, sourcePlayerId: source.playerId, commander: source.commander },
       key: `commander-${source.playerId}-${source.commander}`,
+      announce: `${player.name}: danni Commander da ${source.label}, ${player.commanderDamage[source.playerId]?.[source.commander] ?? 0}`,
     }
   }
   if (mode === 'tax') {
@@ -339,6 +345,7 @@ function stepperFor(player: PlayerState, selection: ScoreSelection): Stepper | n
       output: { label: `Tassa del ${slotName(slot)} di ${player.name}: più ${value} mana`, text: <>+<ManaSymbol value={value} /></> },
       target: { kind: 'commander-tax', playerId: player.id, commander: slot },
       key: `tax-${slot}`,
+      announce: `${player.name}: tassa del ${slotName(slot)}, più ${value} mana`,
     }
   }
   return null
@@ -346,18 +353,35 @@ function stepperFor(player: PlayerState, selection: ScoreSelection): Stepper | n
 
 /** The in-place adjustment bar of the active mode: life rail in Vita, `[−] value [+]` otherwise. */
 export function ScoreAdjust({ player, selection, delta, dispatch, lifeControls }: AdjustProps) {
-  if (selection.mode === 'life') return <>{lifeControls}</>
-  const stepper = stepperFor(player, selection)
+  const stepper = selection.mode === 'life' ? null : stepperFor(player, selection)
+  // One polite announcement per burst; the outputs themselves stay silent (D-036).
+  const announcement = useSettledValue(stepper?.announce ?? '', GROUP_WINDOW_MS)
+  const live = (
+    <span className="sr-only score-announcement" aria-live="polite" aria-atomic="true">
+      {announcement}
+    </span>
+  )
+  if (selection.mode === 'life') {
+    return (
+      <>
+        {lifeControls}
+        {live}
+      </>
+    )
+  }
   if (!stepper) return <p className="score-adjust score-adjust--empty">Nessun avversario</p>
   return (
     <div className="score-adjust" role="group" aria-label={stepper.label} data-mode={selection.mode}>
+      {live}
       <button type="button" className="score-button score-button--primary" aria-label={stepper.down.label} onClick={() => dispatch(stepper.down.action)}>
         {stepper.down.text}
       </button>
       {/* Keyed twice: a new mode fades and settles 2px, a new source only fades (120 ms, D-033). */}
       <span className="score-adjust__value" key={selection.mode}>
         <span className="score-adjust__source" key={stepper.key}>
-          <output aria-label={stepper.output.label}>{stepper.output.text}</output>
+          <output aria-label={stepper.output.label} aria-live="off">
+            {stepper.output.text}
+          </output>
           {deltaFor(delta, stepper.target)}
         </span>
       </span>
