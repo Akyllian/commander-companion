@@ -5,7 +5,7 @@ import { PlayerPanel } from './components/PlayerPanel'
 import { PlayerSeat } from './components/PlayerSeat'
 import type { TableLayout } from './components/PlayerSeat'
 import { RulesDialog } from './components/RulesDialog'
-import { getArtStore, pruneArt } from './media/artStore'
+import { useMatchArt } from './media/useMatchArt'
 import { canRemovePartner, createGame } from './game/game'
 import { createHistory, getGroupDelta, historyReducer } from './game/history'
 import { loadGame, requestPersistentStorage, saveGame, subscribeToExternalChanges } from './game/storage'
@@ -57,12 +57,8 @@ export default function App() {
   // oxlint-disable-next-line react/set-state-in-effect -- the result comes from an external system (storage).
   useEffect(() => setSaveFailed(!saveGame(game)), [game])
 
-  // Drop cached art no current player uses.
-  useEffect(() => {
-    const store = getArtStore()
-    const keep = new Set(initial.game.players.flatMap((player) => player.commanders.flatMap((slot) => (slot ? [slot.cardId] : []))))
-    if (store) void pruneArt(store, keep).catch(() => undefined)
-  }, [initial])
+  // Random art for seats without a commander, fixed for the whole match (D-039).
+  const { startNew: startNewMatch } = useMatchArt(game.players)
 
   useEffect(() => {
     void requestPersistentStorage()
@@ -175,7 +171,10 @@ export default function App() {
   ))
 
   const confirm = () => {
-    if (pending?.kind === 'new-game') dispatchHistory({ type: 'replace', game: createGame(pending.playerCount) })
+    if (pending?.kind === 'new-game') {
+      dispatchHistory({ type: 'replace', game: createGame(pending.playerCount) })
+      startNewMatch()
+    }
     if (pending?.kind === 'reset') dispatch({ type: 'reset-game' })
     setPending(null)
   }

@@ -31,6 +31,34 @@ export class ScryfallError extends Error {
 
 type Fetch = typeof fetch
 
+/** Scryfall asks for 50–100 ms between requests; the app keeps at least 125 ms (D-039). */
+export const SCRYFALL_MIN_INTERVAL_MS = 125
+
+type Limiter = <T>(task: () => Promise<T>) => Promise<T>
+
+/** Runs tasks one at a time, each starting at least `minIntervalMs` after the previous one. */
+export function createRateLimiter(
+  minIntervalMs: number,
+  now: () => number = () => performance.now(),
+  wait: (ms: number) => Promise<void> = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+): Limiter {
+  let queue: Promise<unknown> = Promise.resolve()
+  let lastStart = Number.NEGATIVE_INFINITY
+  return (task) => {
+    const run = queue.then(async () => {
+      const delay = lastStart + minIntervalMs - now()
+      if (delay > 0) await wait(delay)
+      lastStart = now()
+      return task()
+    })
+    queue = run.catch(() => undefined)
+    return run
+  }
+}
+
+/** Shared by every request to the Scryfall API (search and random art). */
+const scryfallLimiter = createRateLimiter(SCRYFALL_MIN_INTERVAL_MS)
+
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 
@@ -55,9 +83,11 @@ export async function searchCommanders(query: string, fetchImpl: Fetch = fetch):
 
   let response: Response
   try {
-    response = await fetchImpl(`${API}/cards/search?q=${encodeURIComponent(`is:commander ${q}`)}&order=name`, {
-      headers: { Accept: 'application/json' },
-    })
+    response = await scryfallLimiter(() =>
+      fetchImpl(`${API}/cards/search?q=${encodeURIComponent(`is:commander ${q}`)}&order=name`, {
+        headers: { Accept: 'application/json' },
+      }),
+    )
   } catch {
     throw new ScryfallError('network', 'Scryfall is unreachable')
   }
@@ -70,6 +100,22 @@ export async function searchCommanders(query: string, fetchImpl: Fetch = fetch):
     .map(toCandidate)
     .filter((candidate): candidate is CommanderCandidate => candidate !== null)
     .slice(0, MAX_RESULTS)
+}
+
+/** One random card with art, for a seat without a commander (R2 §4.2). */
+export async function fetchRandomCandidate(fetchImpl: Fetch = fetch): Promise<CommanderCandidate> {
+  let response: Response
+  try {
+    response = await scryfallLimiter(() =>
+      fetchImpl(`${API}/cards/random?q=${encodeURIComponent('has:art -is:digital')}`, { headers: { Accept: 'application/json' } }),
+    )
+  } catch {
+    throw new ScryfallError('network', 'Scryfall is unreachable')
+  }
+  if (!response.ok) throw new ScryfallError('response', `Scryfall answered ${response.status}`)
+  const candidate = toCandidate(await response.json())
+  if (!candidate) throw new ScryfallError('response', 'Random card without usable art')
+  return candidate
 }
 
 export async function downloadArt(url: string, fetchImpl: Fetch = fetch): Promise<Blob> {

@@ -5,6 +5,9 @@ import { BACKUP_KEY, STORAGE_KEY } from './game/storage'
 import { updateStore } from './pwa/updates'
 import { installMatchMedia } from './test/matchMedia'
 import { DELTA_EXIT_MS } from './components/DeltaBadge'
+import { MATCH_KEY } from './match/presentation'
+import { setArtStoreForTests } from './media/artStore'
+import type { ArtStore } from './media/artStore'
 
 let clock = 0
 const panel = (name: RegExp) => screen.getByRole('region', { name })
@@ -855,5 +858,50 @@ describe('app shell (D-037, R1)', () => {
     expect(document.querySelector('.app-header, .brand, .app-footer')).toBeNull()
     expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument()
     expect(screen.queryByRole('group', { name: 'Controlli partita' })).not.toBeInTheDocument()
+  })
+})
+
+describe('random art per seat (R2 §4.2, D-039)', () => {
+  const cardId = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`
+  const art = (n: number) => ({ cardId: cardId(n), name: `Carta ${n}`, artist: `Artista ${n}` })
+  const storedMatch = () => JSON.parse(localStorage.getItem(MATCH_KEY) ?? 'null') as { matchId: string; randomArtBySeat: Record<string, unknown> }
+
+  afterEach(() => {
+    setArtStoreForTests(undefined)
+    vi.unstubAllGlobals()
+  })
+
+  it('changes the match only on a confirmed new game, never on a score reset', () => {
+    render(<App />)
+    const first = storedMatch().matchId
+    expect(first).toBeTruthy()
+    resetScores()
+    expect(storedMatch().matchId).toBe(first)
+    newGame(4)
+    expect(storedMatch().matchId).not.toBe(first)
+  })
+
+  it('offline, gives seats unused cached spares and keeps them out of the prune', async () => {
+    const keys = new Set([cardId(8), cardId(9), cardId(77)])
+    const store: ArtStore = {
+      get: async (id) => (keys.has(id) ? { bytes: new ArrayBuffer(1), type: 'image/jpeg', veil: { name: 0, life: 0 } } : undefined),
+      put: async (id) => void keys.add(id),
+      delete: vi.fn(async (id: string) => void keys.delete(id)),
+      keys: async () => [...keys],
+    }
+    setArtStoreForTests(store)
+    const fetchMock = vi.fn(() => Promise.reject(new TypeError('offline')))
+    vi.stubGlobal('fetch', fetchMock)
+    localStorage.setItem(MATCH_KEY, JSON.stringify({ version: 1, matchId: 'm1', randomArtBySeat: {}, spareArt: [art(8), art(9)] }))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(createGame(2)))
+    render(<App />)
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    })
+    expect(fetchMock).toHaveBeenCalledOnce()
+    expect(storedMatch().randomArtBySeat).toEqual({ 'player-1': art(8), 'player-2': art(9) })
+    expect(store.delete).toHaveBeenCalledWith(cardId(77))
+    expect(store.delete).not.toHaveBeenCalledWith(cardId(8))
+    expect(store.delete).not.toHaveBeenCalledWith(cardId(9))
   })
 })
