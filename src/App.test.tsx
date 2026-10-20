@@ -748,6 +748,7 @@ describe('two-player layouts (D-035)', () => {
       keepScreenOn: true,
       fourPlayerLayout: 'table',
       twoPlayerLayout: 'facing',
+      rhombusHintSeen: false,
     })
   })
 
