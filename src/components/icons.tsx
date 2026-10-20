@@ -205,3 +205,43 @@ export function DetailsIcon() {
     </svg>
   )
 }
+
+/** Rhombus hub actions (R2 §7.2): line icons, monochrome. */
+export function SectionsIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="button-icon">
+      <rect x="4" y="4" width="6.5" height="6.5" rx="1.5" />
+      <rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5" />
+      <rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5" />
+      <rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5" />
+    </svg>
+  )
+}
+
+export function DiceIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="button-icon">
+      <rect x="4" y="4" width="16" height="16" rx="3" />
+      <circle cx="9" cy="9" r="1" />
+      <circle cx="15" cy="15" r="1" />
+      <circle cx="12" cy="12" r="1" />
+    </svg>
+  )
+}
+
+export function ManaIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="button-icon">
+      <path d="M12 3.5c3 3.6 5.5 6.8 5.5 10a5.5 5.5 0 0 1-11 0c0-3.2 2.5-6.4 5.5-10Z" />
+    </svg>
+  )
+}
+
+export function CoinIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="button-icon">
+      <circle cx="12" cy="12" r="8" />
+      <circle cx="12" cy="12" r="5" />
+    </svg>
+  )
+}

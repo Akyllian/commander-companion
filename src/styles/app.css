@@ -2861,3 +2861,155 @@ button:hover:not(:disabled) {
 .player-panel[data-compact][data-out] .player-commander {
   display: none;
 }
+
+/* ── Rhombus hub (R2 §7): screen-oriented, non-modal, no scrim ────────────────────────────── */
+/* Transparent: it only catches the tap outside, closes the hub and consumes that tap. */
+.hub-dismiss {
+  position: fixed;
+  z-index: 6;
+  inset: 0;
+  background: transparent;
+}
+
+.player-grid .shell-rhombus-slot {
+  z-index: 8;
+}
+
+.rhombus-hub {
+  position: fixed;
+  z-index: 7;
+  width: 0;
+  height: 0;
+}
+
+.rhombus-hub__actions {
+  position: absolute;
+}
+
+.rhombus-hub__action {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  width: 56px;
+  min-width: 56px;
+  height: 56px;
+  min-height: 56px;
+  padding: 0;
+  border: 1px solid var(--color-gold-line);
+  border-radius: var(--radius-md);
+  color: var(--color-ivory);
+  background: var(--color-ink);
+  box-shadow: var(--shadow-panel-compact);
+  font-size: 0.6rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--duration-surface-in) var(--ease-out),
+    transform var(--duration-surface-in) var(--ease-out);
+}
+
+.rhombus-hub__action .button-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+/* Radial A: Sezioni above, Dadi left, Mana right, Moneta below; ≤ 8px of radial travel. */
+.rhombus-hub[data-variant='radial'] .rhombus-hub__action {
+  position: absolute;
+  translate: -50% -50%;
+}
+
+.rhombus-hub[data-variant='radial'] [data-action='sections'] {
+  top: -86px;
+  left: 0;
+  --from: 0 8px;
+}
+
+.rhombus-hub[data-variant='radial'] [data-action='dice'] {
+  top: 0;
+  left: -86px;
+  --from: 8px 0;
+}
+
+.rhombus-hub[data-variant='radial'] [data-action='mana'] {
+  top: 0;
+  left: 86px;
+  --from: -8px 0;
+}
+
+.rhombus-hub[data-variant='radial'] [data-action='coin'] {
+  top: 86px;
+  left: 0;
+  --from: 0 -8px;
+}
+
+@starting-style {
+  .rhombus-hub__action {
+    opacity: 0;
+    transform: translate(var(--from, 0 0));
+  }
+}
+
+/* Fallback B: a 2×2 matrix in the largest free quadrant, tied to the rhombus by a short hairline. */
+.rhombus-hub[data-variant='grid'] .rhombus-hub__actions {
+  display: grid;
+  grid-template-columns: repeat(2, 64px);
+  grid-auto-rows: 56px;
+  gap: 6px;
+}
+
+.rhombus-hub[data-variant='grid'] .rhombus-hub__action {
+  width: 64px;
+}
+
+.rhombus-hub[data-quadrant$='end'] .rhombus-hub__actions {
+  left: 40px;
+}
+
+.rhombus-hub[data-quadrant$='start'] .rhombus-hub__actions {
+  right: 40px;
+}
+
+.rhombus-hub[data-quadrant^='bottom'] .rhombus-hub__actions {
+  top: 40px;
+}
+
+.rhombus-hub[data-quadrant^='top'] .rhombus-hub__actions {
+  bottom: 40px;
+}
+
+.rhombus-hub[data-variant='grid'] .rhombus-hub__actions::before {
+  position: absolute;
+  width: 16px;
+  height: 1px;
+  background: var(--color-gold-line);
+  content: '';
+}
+
+.rhombus-hub[data-quadrant='bottom-end'] .rhombus-hub__actions::before {
+  top: -6px;
+  left: -14px;
+  rotate: 45deg;
+}
+
+.rhombus-hub[data-quadrant='bottom-start'] .rhombus-hub__actions::before {
+  top: -6px;
+  right: -14px;
+  rotate: -45deg;
+}
+
+.rhombus-hub[data-quadrant='top-end'] .rhombus-hub__actions::before {
+  bottom: -6px;
+  left: -14px;
+  rotate: -45deg;
+}
+
+.rhombus-hub[data-quadrant='top-start'] .rhombus-hub__actions::before {
+  right: -14px;
+  bottom: -6px;
+  rotate: 45deg;
+}

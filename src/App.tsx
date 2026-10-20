@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react'
 import { AppNotices } from './components/AppNotices'
 import { ConfirmDialog } from './components/ConfirmDialog'
 import { PlayerPanel } from './components/PlayerPanel'
@@ -6,6 +6,7 @@ import { PlayerSeat } from './components/PlayerSeat'
 import type { TableLayout } from './components/PlayerSeat'
 import { RulesDialog } from './components/RulesDialog'
 import { blocksSeats, CLOSED, surfaceReducer } from './match/surface'
+import type { SurfaceEvent, Tool } from './match/surface'
 import { useMatchArt } from './media/useMatchArt'
 import { canRemovePartner, createGame } from './game/game'
 import { createHistory, getGroupDelta, historyReducer } from './game/history'
@@ -20,6 +21,10 @@ import { DecksScreen } from './shell/DecksScreen'
 import { LearnScreen } from './shell/LearnScreen'
 import { MoreScreen } from './shell/MoreScreen'
 import { SectionNav } from './shell/SectionNav'
+import type { Point } from './shell/centre'
+import type { Insets, Rect } from './shell/hubGeometry'
+import { RhombusHub } from './shell/RhombusHub'
+import { readSafeInsets } from './shell/safeInsets'
 import { ShellRhombus } from './shell/ShellRhombus'
 import type { Section } from './shell/sections'
 import { useCentreLayout } from './shell/useCentreLayout'
@@ -28,6 +33,8 @@ import { useSection } from './shell/useSection'
 type PendingConfirmation = { kind: 'new-game'; playerCount: number } | { kind: 'reset' } | null
 
 const NAV_ID = 'sezioni'
+const HUB_ID = 'strumenti'
+const RHOMBUS = '.shell-rhombus'
 
 /**
  * The app shell (D-037, R1): four sections behind a top bar. The game view stays mounted and is
@@ -48,6 +55,8 @@ export default function App() {
   const [surface, dispatchSurface] = useReducer(surfaceReducer, CLOSED)
   // Where focus goes once the surface that held it is gone.
   const focusAfterClose = useRef<string | null>(null)
+  // The tool last opened from the hub: «Torna agli strumenti» refocuses its action (R2 §8).
+  const [lastTool, setLastTool] = useState<Tool | null>(null)
   const [section, navigate] = useSection()
   const compact = useCompactDensity()
   const rhombusRef = useRef<HTMLButtonElement>(null)
@@ -102,17 +111,22 @@ export default function App() {
     document.querySelector<HTMLElement>(`[data-section="${section}"] h1`)?.focus()
   }, [section])
 
-  const toggleBar = (byKeyboard: boolean) => {
+  // The rhombus opens or closes the hub; hub and bar are never open together (R2 §7.4).
+  const toggleHub = () => {
     if (showHint) updatePreferences({ ...preferences, rhombusHintVersion: RHOMBUS_HINT_VERSION })
-    if (revealed) {
-      setRevealed(false)
-      return
-    }
-    focusBarNext.current = byKeyboard
+    setRevealed(false)
+    setLastTool(null)
+    dispatchSurface({ type: 'toggle-hub' })
+  }
+
+  // «Sezioni» closes the hub, reveals the R1 bar and focuses the current section in it.
+  const showSections = () => {
+    dispatchSurface({ type: 'close' })
+    focusBarNext.current = true
     setRevealed(true)
   }
 
-  // Opening the bar from the keyboard moves focus to the current section in it.
+  // Opening the bar from «Sezioni» moves focus to the current section in it.
   useEffect(() => {
     if (!revealed || !focusBarNext.current) return
     focusBarNext.current = false
@@ -127,13 +141,52 @@ export default function App() {
 
   const dispatch = (action: GameAction) => dispatchHistory({ type: 'apply', action, at: performance.now() })
 
-  /** Closes the active surface; a card panel hands focus back to its trigger (R2 §11). */
+  /**
+   * Closes the active surface. A card panel hands focus back to its trigger (R2 §11); the hub and
+   * its tools hand it to the rhombus, never to a control that just unmounted (R2 §8).
+   */
   const closeSurface = () => {
-    if (surface.kind === 'counters' || surface.kind === 'commander') {
-      focusAfterClose.current = `[data-player-id="${surface.playerId}"] [data-surface-trigger="${surface.kind}"]`
-    }
+    focusAfterClose.current =
+      surface.kind === 'counters' || surface.kind === 'commander'
+        ? `[data-player-id="${surface.playerId}"] [data-surface-trigger="${surface.kind}"]`
+        : RHOMBUS
     dispatchSurface({ type: 'close' })
   }
+
+  const onHubEvent = (event: SurfaceEvent) => {
+    if (event.type === 'close') return closeSurface()
+    if (event.type === 'open' && event.surface.kind === 'tool') setLastTool(event.surface.tool)
+    dispatchSurface(event)
+  }
+
+  // The hub is placed in the viewport from the rhombus' live position (R2 §7.3, §8).
+  const hubOpen = blocksSeats(surface)
+  const [hubFrame, setHubFrame] = useState<{ anchor: Point; viewport: Rect; insets: Insets } | null>(null)
+  useLayoutEffect(() => {
+    if (!hubOpen) return
+    let frame = 0
+    const measure = () => {
+      const box = rhombusRef.current?.getBoundingClientRect()
+      if (!box) return
+      setHubFrame({
+        anchor: { x: box.left + box.width / 2, y: box.top + box.height / 2 },
+        viewport: { x: 0, y: 0, width: window.innerWidth, height: window.innerHeight },
+        insets: readSafeInsets(),
+      })
+    }
+    const schedule = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(measure)
+    }
+    measure()
+    window.addEventListener('resize', schedule)
+    window.addEventListener('scroll', schedule, true)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('resize', schedule)
+      window.removeEventListener('scroll', schedule, true)
+    }
+  }, [hubOpen])
 
   useEffect(() => {
     if (surface.kind !== 'closed' || !focusAfterClose.current) return
@@ -262,14 +315,27 @@ export default function App() {
       >
         {cells}
         <ShellRhombus
-          expanded={revealed}
-          controlsId={NAV_ID}
+          expanded={hubOpen}
+          controlsId={HUB_ID}
           // The label hides while a surface is open; its reserved band stays, so no card moves.
           showHint={showHint && surface.kind === 'closed'}
-          onToggle={toggleBar}
+          onToggle={toggleHub}
           buttonRef={rhombusRef}
           style={centre.point ? { left: centre.point.x, top: centre.point.y } : undefined}
         />
+        {hubOpen && hubFrame && (
+          <RhombusHub
+            id={HUB_ID}
+            surface={surface}
+            anchor={hubFrame.anchor}
+            viewport={hubFrame.viewport}
+            insets={hubFrame.insets}
+            returnFocusTo={surface.kind === 'hub' ? lastTool : null}
+            onEvent={onHubEvent}
+            onShowSections={showSections}
+            announcement=""
+          />
+        )}
       </main>
 
       <section className="app-view" data-section="mazzi" hidden={section !== 'mazzi'}>

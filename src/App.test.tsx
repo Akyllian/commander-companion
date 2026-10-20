@@ -29,10 +29,11 @@ const removePlayer = (scope: HTMLElement) => {
   fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Rimuovi giocatore' }))
 }
 
-/** Opens a section the way a player does: from the game, the rhombus first reveals the bar. */
+/** Opens a section the way a player does: from the game, rhombus → «Sezioni» reveals the bar (R2 §7.4). */
 const goTo = (name: 'Partita' | 'Mazzi' | 'Impara' | 'Altro') => {
   if (!screen.queryByRole('navigation', { name: 'Sezioni' })) {
-    fireEvent.click(screen.getByRole('button', { name: 'Mostra le sezioni' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Apri strumenti e sezioni' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Sezioni' }))
   }
   fireEvent.click(within(screen.getByRole('navigation', { name: 'Sezioni' })).getByRole('link', { name }))
 }
@@ -755,50 +756,108 @@ describe('Fan Content Policy (D-025)', () => {
   })
 })
 
-describe('app shell (D-037, R1)', () => {
+describe('app shell (D-037, R1, R2 §7)', () => {
   const nav = () => screen.queryByRole('navigation', { name: 'Sezioni' })
-  const rhombus = () => screen.getByRole('button', { name: /le sezioni$/ })
+  const rhombus = () => screen.getByRole('button', { name: /^(apri strumenti e sezioni|chiudi strumenti)$/i })
+  const hub = () => document.getElementById('strumenti')
+  const sections = () => fireEvent.click(screen.getByRole('button', { name: 'Sezioni' }))
 
   afterEach(() => {
     Reflect.deleteProperty(navigator, 'wakeLock')
   })
 
-  it('opens on the game with the bar hidden, and the rhombus reveals it without remounting the table', () => {
+  it('opens on the game with the bar hidden; the rhombus opens the hub without remounting the table', () => {
     render(<App />)
     const table = panel(/giocatore 1/i)
     expect(nav()).toBeNull()
     expect(document.getElementById('sezioni')).toHaveAttribute('hidden')
+    expect(rhombus()).toHaveAccessibleName('Apri strumenti e sezioni')
     expect(rhombus()).toHaveAttribute('aria-expanded', 'false')
 
     fireEvent.click(rhombus())
-    expect(nav()).toBeInTheDocument()
-    expect(rhombus()).toHaveAccessibleName('Nascondi le sezioni')
+    expect(hub()).toBeInTheDocument()
+    expect(rhombus()).toHaveAccessibleName('Chiudi strumenti')
+    expect(rhombus()).toHaveAttribute('aria-controls', 'strumenti')
+    expect(screen.getByRole('button', { name: 'Sezioni' })).toHaveFocus()
     expect(panel(/giocatore 1/i)).toBe(table)
-    expect(within(nav() as HTMLElement).getByRole('link', { name: 'Partita' })).toHaveAttribute('aria-current', 'page')
+    // The cards cannot be reached or tapped while the hub is open (R2 §7.2).
+    for (const seat of document.querySelectorAll('.player-seat')) expect(seat).toHaveAttribute('inert')
+
+    fireEvent.click(rhombus())
+    expect(hub()).toBeNull()
+    for (const seat of document.querySelectorAll('.player-seat')) expect(seat).not.toHaveAttribute('inert')
   })
 
-  it('hides the revealed bar with Esc, with Partita or with the rhombus, keeping focus on the rhombus', () => {
+  it('reveals the bar from «Sezioni» with focus on Partita, never with the hub open', () => {
     render(<App />)
     fireEvent.click(rhombus())
+    sections()
+    expect(hub()).toBeNull()
+    expect(nav()).toBeInTheDocument()
+    expect(within(nav() as HTMLElement).getByRole('link', { name: 'Partita' })).toHaveFocus()
+    expect(within(nav() as HTMLElement).getByRole('link', { name: 'Partita' })).toHaveAttribute('aria-current', 'page')
+
+    fireEvent.click(rhombus())
+    expect(nav()).toBeNull()
+    expect(hub()).toBeInTheDocument()
+  })
+
+  it('closes the hub with Escape or a tap outside, focusing the rhombus, without touching a card', () => {
+    render(<App />)
+    fireEvent.click(rhombus())
+    fireEvent.keyDown(window, { key: 'Escape' })
+    expect(hub()).toBeNull()
+    expect(rhombus()).toHaveFocus()
+
+    fireEvent.click(rhombus())
+    fireEvent.click(document.querySelector('[data-hub-dismiss]') as HTMLElement)
+    expect(hub()).toBeNull()
+    expect(rhombus()).toHaveFocus()
+    expect(life(/giocatore 1/i)).toHaveTextContent('40')
+  })
+
+  it('opening the hub closes a card panel (one surface at a time)', () => {
+    render(<App />)
+    openCounters(panel(/giocatore 1/i))
+    fireEvent.click(rhombus())
+    expect(document.querySelector('[data-drawer]')).toBeNull()
+    expect(hub()).toBeInTheDocument()
+  })
+
+  it('re-measures the hub on resize and picks the 2×2 matrix when the radial does not fit', async () => {
+    render(<App />)
+    const button = rhombus()
+    vi.spyOn(button, 'getBoundingClientRect').mockReturnValue(DOMRect.fromRect({ x: 167, y: 428, width: 56, height: 56 }))
+    vi.stubGlobal('innerWidth', 390)
+    vi.stubGlobal('innerHeight', 844)
+    fireEvent.click(button)
+    expect(hub()).toHaveAttribute('data-variant', 'radial')
+
+    vi.stubGlobal('innerWidth', 844)
+    vi.stubGlobal('innerHeight', 390)
+    vi.spyOn(button, 'getBoundingClientRect').mockReturnValue(DOMRect.fromRect({ x: 394, y: 40, width: 56, height: 56 }))
+    await act(async () => {
+      window.dispatchEvent(new Event('resize'))
+      await new Promise((resolve) => requestAnimationFrame(resolve))
+    })
+    expect(hub()).toHaveAttribute('data-variant', 'grid')
+    vi.unstubAllGlobals()
+  })
+
+  it('hides the revealed bar with Esc or Partita, keeping focus on the rhombus', () => {
+    render(<App />)
+    fireEvent.click(rhombus())
+    sections()
     within(nav() as HTMLElement).getByRole('link', { name: 'Mazzi' }).focus()
     fireEvent.keyDown(document.activeElement as Element, { key: 'Escape' })
     expect(nav()).toBeNull()
     expect(rhombus()).toHaveFocus()
 
     fireEvent.click(rhombus())
+    sections()
     fireEvent.click(within(nav() as HTMLElement).getByRole('link', { name: 'Partita' }))
     expect(nav()).toBeNull()
     expect(rhombus()).toHaveFocus()
-
-    fireEvent.click(rhombus())
-    fireEvent.click(rhombus())
-    expect(nav()).toBeNull()
-  })
-
-  it('moves focus into the bar when the rhombus is used from the keyboard', () => {
-    render(<App />)
-    fireEvent.click(rhombus(), { detail: 0 })
-    expect(within(nav() as HTMLElement).getByRole('link', { name: 'Partita' })).toHaveFocus()
   })
 
   it('keeps the bar outside the game, keeps the scores, and follows Back', () => {
@@ -827,7 +886,8 @@ describe('app shell (D-037, R1)', () => {
 
   it('moves focus to the new title after choosing a section from the keyboard', () => {
     render(<App />)
-    fireEvent.click(rhombus(), { detail: 0 })
+    fireEvent.click(rhombus())
+    sections()
     fireEvent.click(within(nav() as HTMLElement).getByRole('link', { name: 'Mazzi' }), { detail: 0 })
     expect(screen.getByRole('heading', { level: 1, name: 'Mazzi' })).toHaveFocus()
   })
