@@ -12,7 +12,7 @@ Documento vivo: si aggiorna alla fine di ogni fase. Ultimo aggiornamento: 2026-1
 | 1.6 | Layout compatto in orizzontale | ✅ implementata (D-020) — in attesa di prova su iPhone e revisione visiva |
 | 2a | Riferimento rapido alle regole | ✅ implementata (D-021) — in attesa di revisione visiva |
 | 2.v | Identità visiva canonica: font serif, palette, illustrazioni ([riferimento](art-direction/CANONICAL_ART_DIRECTION.md)) | ✅ implementata (D-024), tranne le strisce illustrate: attendono immagini originali |
-| 2b | Cronologia partite | da iniziare |
+| 2b | Cronologia partite | ❌ eliminata (D-037) |
 | 2c | Arte del comandante da Scryfall (C2.1) | ✅ implementata (D-026), revisione D-027 implementata (D-028); strisce delle Regole rimandate |
 | 2d | Layout manuale a 4 giocatori | ✅ implementato e approvato (D-034); prova al tavolo da fare |
 | 2e | Dock diretto per punteggi frequenti | ✅ implementato e approvato (D-033); prova al tavolo da fare |
@@ -59,18 +59,8 @@ App per il **proprio gruppo di gioco**, solo in **italiano**: niente store, nien
 - **Design:** dove si apre il pannello, come è strutturato, come si accede in orizzontale.
 - **Uscita:** contenuto verificato da Claude contro le Comprehensive Rules in vigore; consultabile offline.
 
-### Fase 2b — Cronologia partite *(solo locale)*
-- **Dominio:**
-  - nuovo concetto di **fine partita**: o un'azione esplicita «Termina partita», o la proposta automatica quando resta un solo giocatore non sconfitto. Da decidere con il design;
-  - record immutabile: data, durata, giocatori, vincitore, cause di sconfitta.
-- **Persistenza:**
-  - storage separato dalla partita attiva, con chiave e versione proprie;
-  - validazione come in `parseStoredGame` (`src/game/storage.ts`);
-  - limite di record (per esempio 200), così `localStorage` basta e non serve IndexedDB. Si rivaluta con D-002;
-  - cancellazione del singolo record e di tutto.
-- **Rischi:** l'inizio della partita deve essere tracciato, quindi la partita attiva passa allo schema v3 con `startedAt`, con una migrazione pura dalla v2 sul modello di `migrateV1`.
-- **Design:** quando proporre la fine partita, schermata cronologia, conferma di cancellazione.
-- **Uscita:** coverage al 100% sul nuovo modulo; test property-based: ogni partita conclusa produce un record valido.
+### Fase 2b — Cronologia partite
+- **Eliminata** dal product owner il 2026-10-20 (D-037).
 
 ### Fase 2c — Immagini dei giocatori
 - **Persistenza:**
@@ -97,4 +87,15 @@ App per il **proprio gruppo di gioco**, solo in **italiano**: niente store, nien
 - **Uscita:** tutti i valori approvati modificabili dalla schermata principale, verificati a 320, 768, 1440, 844×390 e zoom 200%.
 
 ### Ordine e dipendenze
-Ordine proposto per il nuovo lavoro: `2e (accesso diretto) → 2d (layout manuale) → 2b (cronologia)`. Aggiornamento 2026-10-20: 2e, 2d, 2f e 2g sono fatti; la prossima fase è la 2b. Il dock risponde al problema di gioco più frequente; il layout usa poi il dock definitivo nei pannelli ruotati. Le due specifiche restano implementabili e verificabili separatamente.
+Ordine proposto per il nuovo lavoro: `2e (accesso diretto) → 2d (layout manuale) → 2b (cronologia)`. Aggiornamento 2026-10-20: 2e, 2d, 2f e 2g sono fatti; la 2b è eliminata. Il lavoro prosegue con la ristrutturazione D-037 (fasi R1–R4, sotto). Il dock risponde al problema di gioco più frequente; il layout usa poi il dock definitivo nei pannelli ruotati. Le due specifiche restano implementabili e verificabili separatamente.
+
+## Ristrutturazione D-037 — verso il progetto iniziale
+
+[Specifica](superpowers/specs/2026-10-20-app-restructure-design.md). Ogni fase parte dal design di ChatGPT, segue un piano tecnico, si chiude con una PR revisionata e la prova sul telefono.
+
+| Fase | Contenuto | Stato |
+| --- | --- | --- |
+| R1 — Guscio | Schede Partita/Mazzi/Impara/Altro, Impostazioni, rimozione di intestazione, ingranaggio, Annulla/Ripeti | attende il design di ChatGPT |
+| R2 — Partita | Carta giocatore del mockup, tendina contatori, rombo con Dadi, Mana e Testa o croce, arte casuale | dopo R1 |
+| R3 — Mazzi | Import da testo e Scryfall, offline, categorie automatiche, note, mano di prova, collegamento al giocatore | dopo R2 |
+| R4 — Impara | Manuale interattivo che assorbe le Regole | dopo R1 |
