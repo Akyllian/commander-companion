@@ -4,6 +4,7 @@ import { createGame, gameReducer } from './game/game'
 import { BACKUP_KEY, STORAGE_KEY } from './game/storage'
 import { updateStore } from './pwa/updates'
 import { installMatchMedia } from './test/matchMedia'
+import { UNDO_BAR_DURATION_MS } from './components/UndoBar'
 
 let clock = 0
 const panel = (name: RegExp) => screen.getByRole('region', { name })
@@ -731,6 +732,24 @@ describe('two-player layouts (D-035)', () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(createGame(2)))
     render(<App />)
     expect(screen.getAllByRole('region').every((region) => region.hasAttribute('data-compact'))).toBe(true)
+  })
+
+  it('offers the two-player layout only once the removed third player is gone for good', () => {
+    localStorage.setItem(PREFS, JSON.stringify({ keepScreenOn: true, fourPlayerLayout: 'grid', twoPlayerLayout: 'facing' }))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(createGame(3)))
+    vi.useFakeTimers()
+    render(<App />)
+    click(panel(/giocatore 3/i), /rimuovi giocatore 3/i)
+
+    // The Undo bar still holds the third cell: still a three-cell grid, no two-player trigger.
+    expect(screen.getByText('Giocatore 3 rimosso')).toBeInTheDocument()
+    expect(document.getElementById('main')).toHaveAttribute('data-layout', 'grid')
+    expect(screen.queryByRole('button', { name: /^layout dei/i })).not.toBeInTheDocument()
+
+    act(() => vi.advanceTimersByTime(UNDO_BAR_DURATION_MS))
+    expect(screen.queryByText('Giocatore 3 rimosso')).not.toBeInTheDocument()
+    expect(document.getElementById('main')).toHaveAttribute('data-layout', 'two-facing')
+    expect(screen.getByRole('button', { name: 'Layout dei due giocatori' })).toBeInTheDocument()
   })
 
   it('names the trigger for four players at a four-player table', () => {

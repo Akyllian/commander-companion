@@ -121,7 +121,10 @@ export default function App() {
       : cellCount === 2 && preferences.twoPlayerLayout === 'facing'
         ? 'two-facing'
         : 'grid'
-  const layoutTable = game.players.length === 4 ? 'four' : game.players.length === 2 ? 'two' : null
+  // The trigger follows what is on screen: while a removed player's Undo bar still holds a cell,
+  // the table keeps its previous arrangement, so no selector for the new count yet (D-035 review).
+  const settledCount = cellCount === game.players.length ? cellCount : null
+  const layoutTable = settledCount === 4 ? 'four' : settledCount === 2 ? 'two' : null
   // With the device in the middle of the table every player must fit without scrolling, so
   // Tavolo and two players face to face always use compact panels (D-034, D-035).
   const panelDensity = compact || layout === 'table' || layout === 'two-facing'
