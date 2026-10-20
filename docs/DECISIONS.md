@@ -324,7 +324,11 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 - **Correzione dalla revisione (P2):** il comando «Layout» compare solo quando le celle visibili coincidono con i giocatori. Mentre la barra «Annulla» di un giocatore rimosso occupa ancora una cella (per esempio da 3 a 2), il comando resta nascosto e la griglia non cambia, così foglio e tavolo non sono mai in disaccordo. C'è un test per il passaggio 3→2.
 
 ## D-036 — Delta cumulativo più evidente (proposta)
-- **Stato:** Proposta di Claude (2026-10-20), richiesta dal design. **Non implementata**: attende l'approvazione.
+- **Stato:** Proposta di Claude (2026-10-20), richiesta dal design. Il product owner ha approvato le domande aperte (2026-10-20); implementata da Claude, in attesa della revisione di ChatGPT prima del merge.
+- **Risposte del product owner:**
+  1. Le dimensioni proposte vanno bene per ora; si potranno ritoccare dopo la prova.
+  2. Con i danni Commander il badge compare **anche speculare sulla vita**: `−N` sul valore Commander e `−N` sulla vita, nello stesso gruppo.
+  3. Il dock usa un solo annuncio assestato per raffica, senza live region a ogni tocco.
 - **Sintesi:**
   - Si riusano raggruppamento e finestra di 700 ms della cronologia.
   - `DeltaBadge` resta montato per tutto il gruppo e aggiorna il numero sul posto (oggi si rimonta e lampeggia a ogni tocco).

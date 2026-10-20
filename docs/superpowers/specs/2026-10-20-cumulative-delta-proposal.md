@@ -1,7 +1,7 @@
 # Commander Companion — Delta cumulativo più evidente (proposta D-036)
 
 Data: 2026-10-20
-Stato: **proposta**, da approvare prima di implementare
+Stato: **approvata dal product owner** (2026-10-20), con il badge speculare sulla vita per i danni Commander (risposta 2)
 Decisione: D-036
 Vincoli: restano invariate D-033 (dock), D-034 e D-035 (layout) e la direzione dark-fantasy oro/teal. Non si copiano la ruota multicolore, i comandi solo icona, le zone di tocco invisibili né gli sfondi liberi dell'app di riferimento.
 
@@ -52,7 +52,7 @@ Il badge resta montato per tutto il gruppo, legato al bersaglio e non al tocco. 
 | Valore del dock (D-033) | 2,25 / 1,6 rem | 0,85 rem, altezza 1,5 rem |
 
 - Posizione: angolo in alto a destra del valore attivo, nel verso del pannello, quindi ruota con il pannello in Fronte a fronte e Tavolo. Mai sopra i pulsanti ±.
-- Quando i danni Commander riducono anche la vita, il badge compare solo sul valore attivo (Commander). La vita si aggiorna con il bagliore D-024 già esistente; un secondo badge renderebbe più affollato il punto in cui si sta toccando.
+- Quando i danni Commander riducono anche la vita, il badge compare sul valore Commander **e, speculare, sulla vita** (decisione del product owner). Entrambi mostrano la variazione effettiva dello stesso gruppo ed escono insieme.
 
 ### 2.4 Screen reader
 - Il badge resta `aria-hidden`: è decorativo.
