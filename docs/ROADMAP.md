@@ -14,9 +14,10 @@ Documento vivo: si aggiorna alla fine di ogni fase. Ultimo aggiornamento: 2026-1
 | 2.v | Identità visiva canonica: font serif, palette, illustrazioni ([riferimento](art-direction/CANONICAL_ART_DIRECTION.md)) | ✅ implementata (D-024), tranne le strisce illustrate: attendono immagini originali |
 | 2b | Cronologia partite | da iniziare |
 | 2c | Arte del comandante da Scryfall (C2.1) | ✅ implementata (D-026), revisione D-027 implementata (D-028); strisce delle Regole rimandate |
-| 2d | Layout manuale a 4 giocatori | implementato (D-034), in revisione design; prova al tavolo da fare |
-| 2e | Dock diretto per punteggi frequenti | implementato (D-033), in revisione design; prova al tavolo da fare |
-| 2f | Layout a 2 giocatori (Stesso lato / Fronte a fronte) | implementato (D-035), in revisione design |
+| 2d | Layout manuale a 4 giocatori | ✅ implementato e approvato (D-034); prova al tavolo da fare |
+| 2e | Dock diretto per punteggi frequenti | ✅ implementato e approvato (D-033); prova al tavolo da fare |
+| 2f | Layout a 2 giocatori (Stesso lato / Fronte a fronte) | ✅ implementato e approvato (D-035); prova al tavolo da fare |
+| 2g | Delta cumulativo più evidente | ✅ implementato e approvato (D-036); prova su telefono da fare |
 
 Sito: https://akyllian.github.io/commander-companion/
 
@@ -96,4 +97,4 @@ App per il **proprio gruppo di gioco**, solo in **italiano**: niente store, nien
 - **Uscita:** tutti i valori approvati modificabili dalla schermata principale, verificati a 320, 768, 1440, 844×390 e zoom 200%.
 
 ### Ordine e dipendenze
-Ordine proposto per il nuovo lavoro: `2e (accesso diretto) → 2d (layout manuale) → 2b (cronologia)`. Il dock risponde al problema di gioco più frequente; il layout usa poi il dock definitivo nei pannelli ruotati. Le due specifiche restano implementabili e verificabili separatamente.
+Ordine proposto per il nuovo lavoro: `2e (accesso diretto) → 2d (layout manuale) → 2b (cronologia)`. Aggiornamento 2026-10-20: 2e, 2d, 2f e 2g sono fatti; la prossima fase è la 2b. Il dock risponde al problema di gioco più frequente; il layout usa poi il dock definitivo nei pannelli ruotati. Le due specifiche restano implementabili e verificabili separatamente.

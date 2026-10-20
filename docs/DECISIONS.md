@@ -324,7 +324,7 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 - **Correzione dalla revisione (P2):** il comando «Layout» compare solo quando le celle visibili coincidono con i giocatori. Mentre la barra «Annulla» di un giocatore rimosso occupa ancora una cella (per esempio da 3 a 2), il comando resta nascosto e la griglia non cambia, così foglio e tavolo non sono mai in disaccordo. C'è un test per il passaggio 3→2.
 
 ## D-036 — Delta cumulativo più evidente (proposta)
-- **Stato:** Proposta di Claude (2026-10-20), richiesta dal design. Il product owner ha approvato le domande aperte (2026-10-20); implementata da Claude, in attesa della revisione di ChatGPT prima del merge.
+- **Stato:** Approvata (2026-10-20). Proposta di Claude su richiesta del design; domande aperte decise dal product owner; implementata da Claude; revisione finale di ChatGPT approvata (verifica indipendente: 353 test, coverage 97,65%, build PWA).
 - **Risposte del product owner:**
   1. Le dimensioni proposte vanno bene per ora; si potranno ritoccare dopo la prova.
   2. Con i danni Commander il badge compare **anche speculare sulla vita**: `+N` sul valore Commander (danni ricevuti) e `−N` sulla vita, nello stesso gruppo.
@@ -346,7 +346,7 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 - **Aggiustamenti dalla verifica visiva:**
   - Nel dock il badge sta accanto al numero, non sopra le cifre.
   - Nel binario compatto il badge della vita sale sopra le cifre: misurati 13 px di margine dalle cifre, senza toccare la striscia dei modi né il pulsante +1.
-- **Verifica:** 347 test. Browser a 390×844 e 844×390, anche con Fronte a fronte ruotato: nessun cambio di layout durante i tocchi.
+- **Verifica:** 353 test (347 alla prima consegna, più i test sugli annunci della seconda revisione). Browser a 390×844 e 844×390, anche con Fronte a fronte ruotato: nessun cambio di layout durante i tocchi.
 - **Seconda revisione ChatGPT (2026-10-20):** visual e motion approvati. Corretti gli annunci:
   - nessun aggiornamento della live region dopo il solo cambio di modo o di sorgente;
   - un solo annuncio finale per la raffica Commander, al posto di due regioni (vita e dock) aggiornate insieme.
