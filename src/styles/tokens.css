@@ -44,6 +44,9 @@
   --radius-lg: 1.125rem;
   --radius-round: 999rem;
   --duration-mode: 120ms;
+  /* Cumulative delta badge (D-036): enter once, then a short opacity-only exit. */
+  --duration-delta-in: 90ms;
+  --duration-delta-out: 160ms;
   --duration-fast: 140ms;
   --duration-normal: 220ms;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);

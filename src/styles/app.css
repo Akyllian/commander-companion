@@ -1376,9 +1376,16 @@ input[type='checkbox'] {
 
 /* ---- Motion recipes: only --duration-fast/normal and --ease-out; never geometry ---- */
 
-/* Life delta: local to the changed number, no layout movement. */
+/* Cumulative delta (D-036): enters once per burst (90 ms, 2px settle), then only its number
+   changes; 700 ms after the last tap it fades out over 160 ms without moving. It overlays the
+   value's corner, so nothing reflows. Reduced motion makes both steps immediate. */
 .delta-badge {
-  animation: delta-in var(--duration-fast) var(--ease-out);
+  animation: delta-in var(--duration-delta-in) var(--ease-out);
+  transition: opacity var(--duration-delta-out) var(--ease-out);
+}
+
+.delta-badge[data-phase='exit'] {
+  opacity: 0;
 }
 
 @keyframes delta-in {
@@ -2837,4 +2844,31 @@ button:hover:not(:disabled) {
 
 .player-grid[data-layout='two-facing'] > [data-seat='bottom'] {
   grid-area: bottom;
+}
+
+/* Delta sizes (D-036): clearly visible, always far smaller than the value it belongs to. */
+.life-value .delta-badge {
+  min-width: 2.75rem;
+  min-height: 1.9rem;
+  font-size: 1.05rem;
+}
+
+.score-rail .life-value .delta-badge {
+  /* Above the digits' top corner: the compact rail has no free space beside the number. */
+  top: -1.05rem;
+  right: -1rem;
+  min-width: 2.4rem;
+  min-height: 1.6rem;
+  font-size: 0.9rem;
+}
+
+.score-adjust__value .delta-badge {
+  /* Beside the number, never over its digits. */
+  top: -0.6rem;
+  right: auto;
+  left: 100%;
+  min-width: 2.25rem;
+  min-height: 1.5rem;
+  margin-left: 0.25rem;
+  font-size: 0.85rem;
 }

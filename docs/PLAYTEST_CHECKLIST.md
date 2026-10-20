@@ -160,3 +160,13 @@ Tutti i passi superati tranne uno. Nessun problema di gravità alta, quindi la F
 | 13.1 | Nuova partita a 2, tocca «Layout» | due opzioni: Stesso lato (selezionata) e Fronte a fronte | | |
 | 13.2 | Scegli Fronte a fronte, telefono al centro del tavolo | Giocatore 1 leggibile dal tuo lato, Giocatore 2 dal lato opposto; nessuno deve scorrere | | |
 | 13.3 | Passa a 4 giocatori e torna a 2 | ognuno ritrova il proprio layout | | |
+
+## 14. Delta cumulativo (D-036)
+
+| # | Passi | Risultato atteso | iPhone | Android |
+| --- | --- | --- | --- | --- |
+| 14.1 | Tocca −1 sulla vita 5 volte in fretta | un solo badge che passa da −1 a −5 senza lampeggiare; sparisce in dissolvenza poco dopo l'ultimo tocco | | |
+| 14.2 | Commander, +1 tre volte | +3 sul valore Commander e −3 sulla vita, insieme | | |
+| 14.3 | Veleno +1, poi subito Energia +1 | il badge del veleno si dissolve, quello dell'energia compare | | |
+| 14.4 | VoiceOver, 4 tocchi rapidi su Veleno | un solo annuncio finale («veleno 4»), non quattro | | |
+| 14.5 | Riduci movimento attivo | il badge compare e scompare senza movimento | | |

@@ -337,3 +337,13 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
   - Il badge resta `aria-hidden`; il dock passa a un solo annuncio assestato per raffica.
 - **Ipotesi successive, non da implementare:** sheet Dettagli ancorato al pannello e sigillo centrale con al massimo quattro azioni nei layout da tavolo. Il sigillo richiederebbe di modificare D-034, che vuole il centro libero da comandi indispensabili.
 - **Proposta:** [`docs/superpowers/specs/2026-10-20-cumulative-delta-proposal.md`](superpowers/specs/2026-10-20-cumulative-delta-proposal.md).
+- **Implementazione:**
+  - `getGroupDelta` aggiunge `key`, unica per raffica, e per i danni Commander `lifeDelta`.
+  - `DeltaSlot`/`DeltaBadge`: un badge per raffica che aggiorna il numero sul posto, resta 700 ms dall'ultimo tocco, poi esce in 160 ms solo in opacità. Se la raffica successiva riguarda un altro valore, il badge precedente finisce comunque la sua uscita.
+  - Badge speculare sulla vita per i danni Commander.
+  - Dock: gli `<output>` sono `aria-live="off"`; un'unica regione `polite` annuncia il valore assestato (`Giocatore 1: veleno 3`).
+  - Token `--duration-delta-in: 90ms` e `--duration-delta-out: 160ms`; dimensioni 1,05 / 0,9 / 0,85 rem.
+- **Aggiustamenti dalla verifica visiva:**
+  - Nel dock il badge sta accanto al numero, non sopra le cifre.
+  - Nel binario compatto il badge della vita sale sopra le cifre: misurati 13 px di margine dalle cifre, senza toccare la striscia dei modi né il pulsante +1.
+- **Verifica:** 347 test. Browser a 390×844 e 844×390, anche con Fronte a fronte ruotato: nessun cambio di layout durante i tocchi.
