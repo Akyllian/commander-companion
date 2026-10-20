@@ -352,3 +352,16 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
   - un solo annuncio finale per la raffica Commander, al posto di due regioni (vita e dock) aggiornate insieme.
 
   Test aggiunti per questi tre casi.
+
+## D-037 — Ristrutturazione verso il progetto iniziale (Partita, Mazzi, Impara, Altro)
+- **Stato:** Approvata dal product owner (2026-10-20). Da disegnare con ChatGPT fase per fase, poi da implementare.
+- **Decisione:** l'app torna alla struttura del mockup iniziale, «molto simile, non al pixel».
+  - Quattro schede: Partita, Mazzi, Impara, Altro (con Impostazioni).
+  - In partita le schede sono nascoste; un rombo centrale le mostra e apre Dadi (d6, d20), Mana (cinque colori più incolore) e Testa o croce.
+  - Carte giocatore con ±1, corona del Monarca e una tendina interna con tutti i contatori.
+  - Mazzi importati da testo e Scryfall, con categorie automatiche, note e mano di prova solo a ritagli.
+  - Impara: manuale interattivo che assorbe le Regole.
+- **Supera:** Annulla e Ripeti (D-003) e la barra Annulla dopo la rimozione (D-014); intestazione e pulsanti di D-016, D-022 e D-034; il pulsante Regole (D-021, assorbita da Impara); l'interazione del dock D-033. La Fase 2b (cronologia) è eliminata.
+- **Conferma:** D-019, D-025, D-034/D-035 (geometrie), D-036.
+- **Import mazzi:** solo da testo incollato. Moxfield (403) e Archidekt (origine consentita solo `localhost:3000`) non si possono leggere da un link senza un server.
+- **Specifica:** [`docs/superpowers/specs/2026-10-20-app-restructure-design.md`](superpowers/specs/2026-10-20-app-restructure-design.md).

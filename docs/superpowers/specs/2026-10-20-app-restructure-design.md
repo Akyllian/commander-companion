@@ -1,8 +1,8 @@
 # Commander Companion — Ristrutturazione verso il progetto iniziale
 
 Data: 2026-10-20
-Stato: **bozza da approvare** dal product owner; poi design di ChatGPT schermata per schermata, poi piano tecnico
-Decisione proposta: D-037 (sostituisce in parte D-003, D-014, D-016, D-021, D-033; conferma D-019, D-025, D-034, D-035, D-036)
+Stato: **approvata dal product owner** (2026-10-20); prossimo passo: design di ChatGPT per la fase R1, poi piano tecnico
+Decisione: D-037 (sostituisce in parte D-003, D-014, D-016, D-021, D-033; conferma D-019, D-025, D-034, D-035, D-036)
 
 ## 1. Intento
 
