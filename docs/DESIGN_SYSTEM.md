@@ -149,4 +149,7 @@ Icon family: 24×24 viewBox, rounded 1.75px stroke, `currentColor` (muted ivory 
   - compact rail: above the number's top-right corner, 0.9rem;
   - dock value: right of the number, 0.85rem.
 - **Commander damage:** the dock badge on the Commander value and a mirrored badge on life, both from the same burst.
-- **Speech:** badges are `aria-hidden`. Dock outputs are `aria-live="off"`, and one `.score-announcement` region speaks the settled value 700 ms after the burst.
+- **Speech:** badges are `aria-hidden` and dock outputs are `aria-live="off"`. Each panel has exactly one polite `.score-announcement` region (`useScoreAnnouncement`):
+  - it speaks once per settled burst, keyed by the history group, never for a mode or source change;
+  - Commander damage says damage and life together;
+  - life changes outside a burst (Undo, Redo, reset, another tab) are spoken once they settle.

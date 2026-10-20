@@ -240,6 +240,22 @@ describe('announcements', () => {
     act(() => vi.advanceTimersByTime(700))
     expect(announcement).toHaveTextContent('Giocatore 1: 42 punti vita')
   })
+
+  it('speaks a Commander burst once, then the life restored by Undo (D-036)', () => {
+    vi.useFakeTimers()
+    render(<App />)
+    const player = panel(/giocatore 1/i)
+    const live = player.querySelector('.score-announcement') as HTMLElement
+    mode(player, /^commander/i)
+    click(player, /aumenta danni commander da giocatore 2 a giocatore 1/i)
+    click(player, /aumenta danni commander da giocatore 2 a giocatore 1/i)
+    act(() => vi.advanceTimersByTime(700))
+    expect(live).toHaveTextContent('Giocatore 1: 2 danni Commander da Giocatore 2; vita 38')
+
+    fireEvent.click(screen.getByRole('button', { name: /annulla ultima azione/i }))
+    act(() => vi.advanceTimersByTime(700))
+    expect(live).toHaveTextContent('Giocatore 1: 40 punti vita')
+  })
 })
 
 describe('persistence and system notices', () => {

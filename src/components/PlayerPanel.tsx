@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import type React from 'react'
 import { getDefeatReasons } from '../game/game'
-import { GROUP_WINDOW_MS } from '../game/history'
 import type { GroupDelta } from '../game/history'
 import type { GameAction, PlayerState } from '../game/types'
 import { deltaFor } from './DeltaBadge'
@@ -9,7 +8,7 @@ import { ModalSideSheet } from './ModalSideSheet'
 import { useArtImage } from '../media/useCommanderArt'
 import { CommanderLine, DeckConfigSection, DefeatBadge, RemoveIcon } from './PlayerSections'
 import { QuickScoreDock, ScoreAdjust, ScoreModeStrip, ScoreSourceRow, useScoreSelection } from './QuickScoreDock'
-import { useSettledValue } from './useSettledValue'
+import { useScoreAnnouncement } from './useScoreAnnouncement'
 
 export type { PanelDelta } from './DeltaBadge'
 
@@ -64,7 +63,7 @@ export function PlayerPanel({
   const partnerArt = useArtImage(player.hasPartner ? (player.commanders[1]?.cardId ?? null) : null)
   const defeatReasons = getDefeatReasons(player)
   const defeated = defeatReasons.length > 0
-  const settledLife = useSettledValue(player.life, GROUP_WINDOW_MS)
+  const spoken = useScoreAnnouncement(player, opponents, delta)
   const canRemove = playerCount > 2
   const remove = () => dispatch({ type: 'remove-player', playerId: player.id })
 
@@ -121,9 +120,10 @@ export function PlayerPanel({
     </span>
   )
 
+  // The panel's only live region: one announcement per settled burst (D-036).
   const announcement = (
-    <span className="sr-only" aria-live="polite" aria-atomic="true">
-      {`${player.name}: ${settledLife} punti vita`}
+    <span className="sr-only score-announcement" aria-live="polite" aria-atomic="true">
+      {spoken}
     </span>
   )
 

@@ -327,7 +327,7 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 - **Stato:** Proposta di Claude (2026-10-20), richiesta dal design. Il product owner ha approvato le domande aperte (2026-10-20); implementata da Claude, in attesa della revisione di ChatGPT prima del merge.
 - **Risposte del product owner:**
   1. Le dimensioni proposte vanno bene per ora; si potranno ritoccare dopo la prova.
-  2. Con i danni Commander il badge compare **anche speculare sulla vita**: `−N` sul valore Commander e `−N` sulla vita, nello stesso gruppo.
+  2. Con i danni Commander il badge compare **anche speculare sulla vita**: `+N` sul valore Commander (danni ricevuti) e `−N` sulla vita, nello stesso gruppo.
   3. Il dock usa un solo annuncio assestato per raffica, senza live region a ogni tocco.
 - **Sintesi:**
   - Si riusano raggruppamento e finestra di 700 ms della cronologia.
@@ -341,9 +341,14 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
   - `getGroupDelta` aggiunge `key`, unica per raffica, e per i danni Commander `lifeDelta`.
   - `DeltaSlot`/`DeltaBadge`: un badge per raffica che aggiorna il numero sul posto, resta 700 ms dall'ultimo tocco, poi esce in 160 ms solo in opacità. Se la raffica successiva riguarda un altro valore, il badge precedente finisce comunque la sua uscita.
   - Badge speculare sulla vita per i danni Commander.
-  - Dock: gli `<output>` sono `aria-live="off"`; un'unica regione `polite` annuncia il valore assestato (`Giocatore 1: veleno 3`).
+  - Annunci: gli `<output>` del dock sono `aria-live="off"`. Ogni pannello ha **una sola** regione `polite` che parla una volta per raffica assestata. Cambiare modo o sorgente non annuncia nulla. I danni Commander producono un solo annuncio con danni e vita (`Giocatore 1: 3 danni Commander da Giocatore 2; vita 37`). Le variazioni di vita fuori da una raffica (Annulla, Ripeti, Azzera, altra scheda) sono ancora annunciate una volta.
   - Token `--duration-delta-in: 90ms` e `--duration-delta-out: 160ms`; dimensioni 1,05 / 0,9 / 0,85 rem.
 - **Aggiustamenti dalla verifica visiva:**
   - Nel dock il badge sta accanto al numero, non sopra le cifre.
   - Nel binario compatto il badge della vita sale sopra le cifre: misurati 13 px di margine dalle cifre, senza toccare la striscia dei modi né il pulsante +1.
 - **Verifica:** 347 test. Browser a 390×844 e 844×390, anche con Fronte a fronte ruotato: nessun cambio di layout durante i tocchi.
+- **Seconda revisione ChatGPT (2026-10-20):** visual e motion approvati. Corretti gli annunci:
+  - nessun aggiornamento della live region dopo il solo cambio di modo o di sorgente;
+  - un solo annuncio finale per la raffica Commander, al posto di due regioni (vita e dock) aggiornate insieme.
+
+  Test aggiunti per questi tre casi.
