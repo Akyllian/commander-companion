@@ -134,3 +134,9 @@ Icon family: 24×24 viewBox, rounded 1.75px stroke, `currentColor` (muted ivory 
 - **Overlays:** Dettagli, Regole, Partita, Preferenze and Layout use the top layer or a portal and stay upright. Focus returns to the turned opener (checked from a 90° seat).
 - **Motion:** a layout change runs one 140 ms Web Animations crossfade with a 2px settle on `main` (no remount, no animated rotation), skipped under reduced motion.
 - **Verified in the browser for this PR:** Tavolo at 768×1024 and 390×844; Fronte a fronte at 844×390; Griglia at 1440. No page-level horizontal scroll and no target under 44px.
+
+## Two-player layouts (D-035) — implemented, awaiting design review
+
+- **Access:** the same `Layout` trigger appears with two players, named `Layout dei due giocatori`. The sheet shows `Stesso lato` (`Tutti e due verso di te`) and `Fronte a fronte` (`Uno per lato`), with the same option, preview and keyboard pattern as D-034.
+- **Geometry:** `main[data-layout='two-facing']`, one column, two equal rows (`top` = player 2 at 180°, `bottom` = player 1 at 0°). The shell becomes a flex column, so the two halves share exactly the space between header and footer. Compact panels are used in every density.
+- **Preference:** `twoPlayerLayout`, stored apart from `fourPlayerLayout`.

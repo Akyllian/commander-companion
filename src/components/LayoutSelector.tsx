@@ -1,19 +1,12 @@
 import { useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
-import type { FourPlayerLayout } from '../settings/preferences'
-import { FOUR_PLAYER_LAYOUTS } from '../settings/preferences'
+import type { FourPlayerLayout, TwoPlayerLayout } from '../settings/preferences'
 import { ModalSideSheet } from './ModalSideSheet'
 
 /**
- * Manual four-player layout (D-034). A device preference: choosing applies, saves and closes;
- * it never touches the game or its history. Rotation never chooses for the players.
+ * Manual table layout for four (D-034) or two players (D-035). A device preference: choosing
+ * applies, saves and closes; it never touches the game or its history. Rotation never chooses.
  */
-
-export const LAYOUT_COPY: Record<FourPlayerLayout, { name: string; description: string }> = {
-  grid: { name: 'Griglia', description: 'Tutti verso di te' },
-  facing: { name: 'Fronte a fronte', description: 'Due per lato' },
-  table: { name: 'Tavolo', description: 'Uno per bordo' },
-}
 
 /** A seat in the preview: panel box plus the edge its reader sits at. */
 interface PreviewSeat {
@@ -32,17 +25,57 @@ const GRID: PreviewSeat[] = [
   { x: 62, y: 42, w: 48, h: 30, facing: 'bottom' },
 ]
 
-const PREVIEW_SEATS: Record<FourPlayerLayout, PreviewSeat[]> = {
-  grid: GRID,
-  facing: GRID.map((seat, index) => ({ ...seat, facing: index < 2 ? 'top' : 'bottom' })),
-  // Player 1 bottom, 2 left, 3 top, 4 right; the centre stays free.
-  table: [
-    { x: 32, y: 56, w: 56, h: 18, facing: 'bottom' },
-    { x: 8, y: 14, w: 20, h: 52, facing: 'left' },
-    { x: 32, y: 6, w: 56, h: 18, facing: 'top' },
-    { x: 92, y: 14, w: 20, h: 52, facing: 'right' },
-  ],
+/** One option of the selector: copy plus the schematic seats of its preview. */
+export interface LayoutChoice<T extends string> {
+  id: T
+  name: string
+  description: string
+  seats: PreviewSeat[]
 }
+
+export const FOUR_PLAYER_CHOICES: ReadonlyArray<LayoutChoice<FourPlayerLayout>> = [
+  { id: 'grid', name: 'Griglia', description: 'Tutti verso di te', seats: GRID },
+  {
+    id: 'facing',
+    name: 'Fronte a fronte',
+    description: 'Due per lato',
+    seats: GRID.map((seat, index) => ({ ...seat, facing: index < 2 ? 'top' : 'bottom' })),
+  },
+  {
+    id: 'table',
+    name: 'Tavolo',
+    description: 'Uno per bordo',
+    // Player 1 bottom, 2 left, 3 top, 4 right; the centre stays free.
+    seats: [
+      { x: 32, y: 56, w: 56, h: 18, facing: 'bottom' },
+      { x: 8, y: 14, w: 20, h: 52, facing: 'left' },
+      { x: 32, y: 6, w: 56, h: 18, facing: 'top' },
+      { x: 92, y: 14, w: 20, h: 52, facing: 'right' },
+    ],
+  },
+]
+
+export const TWO_PLAYER_CHOICES: ReadonlyArray<LayoutChoice<TwoPlayerLayout>> = [
+  {
+    id: 'same-side',
+    name: 'Stesso lato',
+    description: 'Tutti e due verso di te',
+    seats: [
+      { x: 10, y: 8, w: 48, h: 64, facing: 'bottom' },
+      { x: 62, y: 8, w: 48, h: 64, facing: 'bottom' },
+    ],
+  },
+  {
+    id: 'facing',
+    name: 'Fronte a fronte',
+    description: 'Uno per lato',
+    // Player 1 near the bottom edge, player 2 across the table.
+    seats: [
+      { x: 10, y: 42, w: 100, h: 30, facing: 'bottom' },
+      { x: 10, y: 8, w: 100, h: 30, facing: 'top' },
+    ],
+  },
+]
 
 const ACCENTS = ['verdigris', 'gold', 'violet', 'ember'] as const
 
@@ -62,11 +95,11 @@ function mark(seat: PreviewSeat) {
   }
 }
 
-function LayoutPreview({ layout }: { layout: FourPlayerLayout }) {
+function LayoutPreview({ seats }: { seats: PreviewSeat[] }) {
   return (
     <svg className="layout-preview" viewBox="0 0 120 80" aria-hidden="true">
       <rect className="layout-preview__table" x="1" y="1" width="118" height="78" rx="7" />
-      {PREVIEW_SEATS[layout].map((seat, index) => (
+      {seats.map((seat, index) => (
         <g key={index} className="layout-preview__seat" data-accent={ACCENTS[index]}>
           <rect x={seat.x} y={seat.y} width={seat.w} height={seat.h} rx="3" />
           <line {...mark(seat)} />
@@ -76,10 +109,11 @@ function LayoutPreview({ layout }: { layout: FourPlayerLayout }) {
   )
 }
 
-interface LayoutSelectorProps {
+interface LayoutSelectorProps<T extends string> {
   open: boolean
-  layout: FourPlayerLayout
-  onChoose: (layout: FourPlayerLayout) => void
+  choices: ReadonlyArray<LayoutChoice<T>>
+  value: T
+  onChoose: (value: T) => void
   onClose: () => void
 }
 
@@ -93,11 +127,11 @@ const NEXT_INDEX: Record<string, (index: number, count: number) => number> = {
   End: (_index, count) => count - 1,
 }
 
-export function LayoutSelector({ open, layout, onChoose, onClose }: LayoutSelectorProps) {
+export function LayoutSelector<T extends string>({ open, choices, value, onChoose, onClose }: LayoutSelectorProps<T>) {
   return (
     <ModalSideSheet open={open} title="Layout dei giocatori" className="layout-sheet" onClose={onClose}>
-      {/* Keyed by the saved layout: each opening starts the roving focus on the checked option. */}
-      <LayoutOptions key={layout} layout={layout} onChoose={onChoose} />
+      {/* Keyed by table and value: each opening starts the roving focus on the checked option. */}
+      <LayoutOptions key={`${choices.length}-${value}`} choices={choices} value={value} onChoose={onChoose} />
     </ModalSideSheet>
   )
 }
@@ -106,12 +140,12 @@ export function LayoutSelector({ open, layout, onChoose, onClose }: LayoutSelect
  * Radio group with a roving tabindex: one Tab stop, arrows move focus without applying, because
  * a choice applies at once and closes the sheet (D-034).
  */
-function LayoutOptions({ layout, onChoose }: Pick<LayoutSelectorProps, 'layout' | 'onChoose'>) {
-  const [focusIndex, setFocusIndex] = useState(() => FOUR_PLAYER_LAYOUTS.indexOf(layout))
+function LayoutOptions<T extends string>({ choices, value, onChoose }: Pick<LayoutSelectorProps<T>, 'choices' | 'value' | 'onChoose'>) {
+  const [focusIndex, setFocusIndex] = useState(() => Math.max(0, choices.findIndex((choice) => choice.id === value)))
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([])
 
   const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
-    const next = NEXT_INDEX[event.key]?.(index, FOUR_PLAYER_LAYOUTS.length)
+    const next = NEXT_INDEX[event.key]?.(index, choices.length)
     if (next === undefined) return
     event.preventDefault()
     setFocusIndex(next)
@@ -120,16 +154,15 @@ function LayoutOptions({ layout, onChoose }: Pick<LayoutSelectorProps, 'layout' 
 
   return (
     <div className="layout-options" role="radiogroup" aria-label="Layout dei giocatori">
-      {FOUR_PLAYER_LAYOUTS.map((option, index) => {
-        const { name, description } = LAYOUT_COPY[option]
-        const checked = option === layout
+      {choices.map(({ id, name, description, seats }, index) => {
+        const checked = id === value
         return (
           <button
-            key={option}
+            key={id}
             type="button"
             role="radio"
             className="layout-option"
-            data-layout={option}
+            data-layout={id}
             aria-checked={checked}
             aria-label={`${name}: ${description}`}
             tabIndex={index === focusIndex ? 0 : -1}
@@ -138,9 +171,9 @@ function LayoutOptions({ layout, onChoose }: Pick<LayoutSelectorProps, 'layout' 
             }}
             onFocus={() => setFocusIndex(index)}
             onKeyDown={(event) => handleKeyDown(event, index)}
-            onClick={() => onChoose(option)}
+            onClick={() => onChoose(id)}
           >
-            <LayoutPreview layout={option} />
+            <LayoutPreview seats={seats} />
             <span className="layout-option__text">
               <span className="layout-option__name">{name}</span>
               <span className="layout-option__description">{description}</span>

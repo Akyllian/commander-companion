@@ -3,8 +3,9 @@ import { AppNotices } from './components/AppNotices'
 import { BrandSigil } from './components/icons'
 import { ConfirmDialog } from './components/ConfirmDialog'
 import { PlayerPanel } from './components/PlayerPanel'
-import { LayoutSelector } from './components/LayoutSelector'
+import { FOUR_PLAYER_CHOICES, LayoutSelector, TWO_PLAYER_CHOICES } from './components/LayoutSelector'
 import { PlayerSeat } from './components/PlayerSeat'
+import type { TableLayout } from './components/PlayerSeat'
 import { RulesDialog } from './components/RulesDialog'
 import { FAN_CONTENT_NOTICE } from './content/legal'
 import { getArtStore, pruneArt } from './media/artStore'
@@ -111,11 +112,19 @@ export default function App() {
   }
 
   // Four cells (players, or three players plus a removed player's Undo bar) take the chosen
-  // layout; otherwise the plain grid. Rotation never changes it (D-034).
+  // four-player layout (D-034); two players their own (D-035); otherwise the plain grid.
+  // Rotation never changes it.
   const cellCount = game.players.length + (removalIsLatest ? 1 : 0)
-  const layout = cellCount === 4 ? preferences.fourPlayerLayout : 'grid'
-  // A seat is a short strip along one table edge, so Tavolo always uses compact panels.
-  const panelDensity = compact || layout === 'table'
+  const layout: TableLayout =
+    cellCount === 4
+      ? preferences.fourPlayerLayout
+      : cellCount === 2 && preferences.twoPlayerLayout === 'facing'
+        ? 'two-facing'
+        : 'grid'
+  const layoutTable = game.players.length === 4 ? 'four' : game.players.length === 2 ? 'two' : null
+  // With the device in the middle of the table every player must fit without scrolling, so
+  // Tavolo and two players face to face always use compact panels (D-034, D-035).
+  const panelDensity = compact || layout === 'table' || layout === 'two-facing'
 
   // Layout change: one 140 ms crossfade with a 2px settle on the whole grid, never an animated
   // rotation and never a remount; immediate with reduced motion (D-034).
@@ -215,7 +224,7 @@ export default function App() {
           onReset={() => setPending({ kind: 'reset' })}
           onNewGame={(playerCount) => setPending({ kind: 'new-game', playerCount })}
           onOpenRules={() => setRulesOpen(true)}
-          showLayout={game.players.length === 4}
+          layoutLabel={layoutTable && `Layout dei ${layoutTable === 'four' ? 'quattro' : 'due'} giocatori`}
           onOpenLayout={() => setLayoutOpen(true)}
         />
       </header>
@@ -234,15 +243,29 @@ export default function App() {
       </footer>
 
       <RulesDialog open={rulesOpen} onClose={() => setRulesOpen(false)} />
-      <LayoutSelector
-        open={layoutOpen}
-        layout={preferences.fourPlayerLayout}
-        onChoose={(fourPlayerLayout) => {
-          updatePreferences({ ...preferences, fourPlayerLayout })
-          setLayoutOpen(false)
-        }}
-        onClose={() => setLayoutOpen(false)}
-      />
+      {layoutTable === 'two' ? (
+        <LayoutSelector
+          open={layoutOpen}
+          choices={TWO_PLAYER_CHOICES}
+          value={preferences.twoPlayerLayout}
+          onChoose={(twoPlayerLayout) => {
+            updatePreferences({ ...preferences, twoPlayerLayout })
+            setLayoutOpen(false)
+          }}
+          onClose={() => setLayoutOpen(false)}
+        />
+      ) : (
+        <LayoutSelector
+          open={layoutOpen && layoutTable === 'four'}
+          choices={FOUR_PLAYER_CHOICES}
+          value={preferences.fourPlayerLayout}
+          onChoose={(fourPlayerLayout) => {
+            updatePreferences({ ...preferences, fourPlayerLayout })
+            setLayoutOpen(false)
+          }}
+          onClose={() => setLayoutOpen(false)}
+        />
+      )}
 
       <ConfirmDialog
         open={pending?.kind === 'new-game'}

@@ -152,3 +152,11 @@ Tutti i passi superati tranne uno. Nessun problema di gravità alta, quindi la F
 | 12.6 | Da un pannello ruotato apri «Dettagli» | il foglio è dritto; chiudendolo il focus torna al pannello | | |
 | 12.7 | Rimuovi un giocatore in Tavolo | la barra «Annulla» occupa il suo posto con lo stesso verso; il comando «Layout» sparisce; Annulla lo riporta con la scelta salvata | | |
 | 12.8 | Riduci movimento attivo, cambia layout | il cambio è immediato | | |
+
+## 13. Layout a due giocatori (D-035)
+
+| # | Passi | Risultato atteso | iPhone | Android |
+| --- | --- | --- | --- | --- |
+| 13.1 | Nuova partita a 2, tocca «Layout» | due opzioni: Stesso lato (selezionata) e Fronte a fronte | | |
+| 13.2 | Scegli Fronte a fronte, telefono al centro del tavolo | Giocatore 1 leggibile dal tuo lato, Giocatore 2 dal lato opposto; nessuno deve scorrere | | |
+| 13.3 | Passa a 4 giocatori e torna a 2 | ognuno ritrova il proprio layout | | |

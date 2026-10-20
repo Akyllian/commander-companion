@@ -1,10 +1,10 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
-import { LayoutSelector } from './LayoutSelector'
+import { FOUR_PLAYER_CHOICES, LayoutSelector } from './LayoutSelector'
 
 const setup = (layout: 'grid' | 'facing' | 'table' = 'grid') => {
   const onChoose = vi.fn()
   const onClose = vi.fn()
-  render(<LayoutSelector open layout={layout} onChoose={onChoose} onClose={onClose} />)
+  render(<LayoutSelector open choices={FOUR_PLAYER_CHOICES} value={layout} onChoose={onChoose} onClose={onClose} />)
   const sheet = screen.getByRole('dialog', { name: 'Layout dei giocatori' })
   return { onChoose, onClose, sheet, group: within(sheet).getByRole('radiogroup', { name: 'Layout dei giocatori' }) }
 }

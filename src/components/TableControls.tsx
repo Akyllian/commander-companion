@@ -15,8 +15,8 @@ interface TableControlsProps {
   onPreferencesChange: (next: Preferences) => void
   /** False when the only preference (Wake Lock) is unsupported. */
   showPreferences: boolean
-  /** Only with exactly four players (D-034); hiding it keeps the saved layout. */
-  showLayout: boolean
+  /** Accessible name of the Layout trigger; null hides it (only 2 or 4 players, D-034/D-035). */
+  layoutLabel: string | null
   onOpenLayout: () => void
   /** Compact-only slot between Redo and Partita (the "Stato app" button). */
   status?: ReactNode
@@ -43,7 +43,7 @@ export function TableControls({
   preferences,
   onPreferencesChange,
   showPreferences,
-  showLayout,
+  layoutLabel,
   onOpenLayout,
   status,
   onUndo,
@@ -62,13 +62,8 @@ export function TableControls({
     </button>
   )
 
-  const layout = showLayout && (
-    <button
-      type="button"
-      className="layout-button"
-      aria-label="Layout dei quattro giocatori"
-      title="Layout dei quattro giocatori"
-      onClick={onOpenLayout}
+  const layout = layoutLabel && (
+    <button type="button" className="layout-button" aria-label={layoutLabel} title={layoutLabel} onClick={onOpenLayout}
     >
       <LayoutIcon />
       <span>Layout</span>
