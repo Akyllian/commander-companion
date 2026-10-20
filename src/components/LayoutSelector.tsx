@@ -140,7 +140,7 @@ export function LayoutSelector<T extends string>({ open, choices, value, onChoos
  * Radio group with a roving tabindex: one Tab stop, arrows move focus without applying, because
  * a choice applies at once and closes the sheet (D-034).
  */
-function LayoutOptions<T extends string>({ choices, value, onChoose }: Pick<LayoutSelectorProps<T>, 'choices' | 'value' | 'onChoose'>) {
+export function LayoutOptions<T extends string>({ choices, value, onChoose }: Pick<LayoutSelectorProps<T>, 'choices' | 'value' | 'onChoose'>) {
   const [focusIndex, setFocusIndex] = useState(() => Math.max(0, choices.findIndex((choice) => choice.id === value)))
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([])
 
