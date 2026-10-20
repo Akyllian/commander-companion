@@ -1,4 +1,4 @@
-import { clearanceFor, rhombusPoint } from './centre'
+import { clearanceFor, hintReserve, rhombusPoint } from './centre'
 import type { Box } from './centre'
 
 const box = (left: number, top: number, right: number, bottom: number): Box => ({ left, top, right, bottom })
@@ -103,5 +103,36 @@ describe('clearanceFor (R1)', () => {
 
   it('ignores a card the free zone does not reach', () => {
     expect(clearanceFor(box(0, 400, 200, 520), point, REACH, 0)).toBeNull()
+  })
+})
+
+describe('hintReserve (R1 §13.2)', () => {
+  // A 144×36 coach label sits 6px above the 56px rhombus: its bottom is 34px above the point.
+  const hint = { width: 144, height: 36 }
+
+  it('makes the card above a portrait seam keep a bottom band for the label', () => {
+    const above = box(8, 8, 382, 448)
+    const below = box(8, 456, 382, 896)
+    const point = { x: 195, y: 452 }
+    expect(hintReserve(above, point, hint, 0)).toEqual({ side: 'bottom', size: 70 })
+    expect(hintReserve(below, point, hint, 0)).toBeNull()
+  })
+
+  it('frees the bottom of both upper cards at a 2×2 crossing, in each card frame', () => {
+    const point = { x: 204, y: 124 }
+    expect(hintReserve(cards4[0], point, hint, 0)).toEqual({ side: 'bottom', size: 70 })
+    expect(hintReserve(cards4[1], point, hint, 0)).toEqual({ side: 'bottom', size: 70 })
+    expect(hintReserve(cards4[0], point, hint, 180)).toEqual({ side: 'top', size: 70 })
+    expect(hintReserve(cards4[2], point, hint, 0)).toBeNull()
+  })
+
+  it('frees the facing sides of two cards side by side', () => {
+    const point = { x: 204, y: 124 }
+    expect(hintReserve(box(0, 0, 200, 248), point, hint, 0)).toEqual({ side: 'end', size: 72 })
+    expect(hintReserve(box(208, 0, 408, 248), point, hint, 180)).toEqual({ side: 'end', size: 72 })
+  })
+
+  it('leaves alone a card the label does not reach', () => {
+    expect(hintReserve(box(0, 400, 200, 520), { x: 204, y: 124 }, hint, 0)).toBeNull()
   })
 })

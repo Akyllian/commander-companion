@@ -20,7 +20,7 @@ export interface Box {
 /** A side or corner of a card, in the card's own (unturned) frame. */
 export type Clearance = 'top-start' | 'top' | 'top-end' | 'end' | 'bottom-end' | 'bottom' | 'bottom-start' | 'start'
 
-type Side = 'top' | 'bottom' | 'start' | 'end'
+export type Side = 'top' | 'bottom' | 'start' | 'end'
 
 const inside = (point: Point, box: Box) => point.x > box.left && point.x < box.right && point.y > box.top && point.y < box.bottom
 const overlapsX = (a: Box, b: Box) => a.left < b.right && b.left < a.right
@@ -87,4 +87,38 @@ export function clearanceFor(panel: Box, point: Point, reach: number, orientatio
   const inline = card.find((side) => side === 'start' || side === 'end')
   if (vertical && inline) return `${vertical}-${inline}`
   return vertical ?? inline ?? null
+}
+
+export interface HintReserve {
+  /** The card side, in its own frame, that keeps a text-free band for the coach label. */
+  side: Side
+  /** Band depth in px, measured from the card edge. */
+  size: number
+}
+
+/**
+ * The first-use label «Tocca ◇ per le sezioni» sits above the rhombus (R1 §13.2). A card the
+ * label would cover keeps a band free of text and controls on the side facing it, so the label
+ * never overlaps a name, a life total or a button. `offset` is the gap from the point to the
+ * label's bottom edge (half the 56px rhombus plus 6px).
+ */
+export function hintReserve(
+  panel: Box,
+  point: Point,
+  hint: { width: number; height: number },
+  orientation: Orientation,
+  offset = 34,
+  margin = 4,
+): HintReserve | null {
+  const label = {
+    left: point.x - hint.width / 2,
+    right: point.x + hint.width / 2,
+    bottom: point.y - offset,
+    top: point.y - offset - hint.height,
+  }
+  if (label.right <= panel.left || label.left >= panel.right || label.bottom <= panel.top || label.top >= panel.bottom) return null
+  if (panel.bottom <= point.y) return { side: TO_CARD[orientation].bottom, size: panel.bottom - label.top + margin }
+  if (panel.right <= point.x) return { side: TO_CARD[orientation].right, size: panel.right - label.left + margin }
+  if (panel.left >= point.x) return { side: TO_CARD[orientation].left, size: label.right - panel.left + margin }
+  return null
 }

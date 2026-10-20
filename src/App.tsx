@@ -149,10 +149,16 @@ export default function App() {
   }, [layout])
 
   // The rhombus sits on the table's centre and each card keeps the touching corner free (R1).
-  const centre = useCentreLayout(gridRef, `${layout}|${playerCount}|${panelDensity}|${section}`)
+  const centre = useCentreLayout(gridRef, `${layout}|${playerCount}|${panelDensity}|${section}|${preferences.rhombusHintSeen}`)
 
   const cells = game.players.map((player, index) => (
-    <PlayerSeat key={player.id} layout={layout} index={index} clear={centre.clearances[index]}>
+    <PlayerSeat
+      key={player.id}
+      layout={layout}
+      index={index}
+      clear={centre.clearances[index]}
+      hintReserve={preferences.rhombusHintSeen ? null : centre.hintReserves[index]}
+    >
       <PlayerPanel
         player={player}
         opponents={game.players.filter((opponent) => opponent.id !== player.id)}

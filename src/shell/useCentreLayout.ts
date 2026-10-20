@@ -1,8 +1,8 @@
 import { useLayoutEffect, useState } from 'react'
 import type { RefObject } from 'react'
 import type { Orientation } from '../components/PlayerSeat'
-import { clearanceFor, rhombusPoint } from './centre'
-import type { Clearance, Point } from './centre'
+import { clearanceFor, hintReserve, rhombusPoint } from './centre'
+import type { Clearance, HintReserve, Point } from './centre'
 
 /** Half of the 64px free zone around the rhombus (R1 design §5.2). */
 export const CENTRE_REACH = 32
@@ -12,9 +12,11 @@ export interface CentreLayout {
   point: Point | null
   /** Per seat, in DOM order: the side or corner it keeps free for the rhombus. */
   clearances: Array<Clearance | null>
+  /** Per seat: the band it keeps free while the first-use label is shown (R1 §13.2). */
+  hintReserves: Array<HintReserve | null>
 }
 
-const EMPTY: CentreLayout = { point: null, clearances: [] }
+const EMPTY: CentreLayout = { point: null, clearances: [], hintReserves: [] }
 
 /** Document coordinates: the chosen seam is anchored in the page and never follows scroll. */
 const toPage = (rect: DOMRect) => ({
@@ -42,10 +44,13 @@ export function useCentreLayout(gridRef: RefObject<HTMLElement | null>, key: str
       const boxes = seats.map((seat) => toPage(seat.getBoundingClientRect()))
       const firstScreen = { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight }
       const point = rhombusPoint(area, boxes, firstScreen, CENTRE_REACH)
+      const orientationOf = (index: number) => Number(seats[index].dataset.orientation ?? 0) as Orientation
+      const label = grid.querySelector<HTMLElement>('.shell-rhombus__hint')
       const next: CentreLayout = {
         point: { x: point.x - area.left, y: point.y - area.top },
-        clearances: boxes.map((box, index) =>
-          clearanceFor(box, point, CENTRE_REACH, Number(seats[index].dataset.orientation ?? 0) as Orientation),
+        clearances: boxes.map((box, index) => clearanceFor(box, point, CENTRE_REACH, orientationOf(index))),
+        hintReserves: boxes.map((box, index) =>
+          label ? hintReserve(box, point, { width: label.offsetWidth, height: label.offsetHeight }, orientationOf(index)) : null,
         ),
       }
       setLayout((current) => (JSON.stringify(current) === JSON.stringify(next) ? current : next))

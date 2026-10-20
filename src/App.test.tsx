@@ -814,12 +814,12 @@ describe('app shell (D-037, R1)', () => {
 
   it('shows the hint until the rhombus is first used, and never again', () => {
     const first = render(<App />)
-    expect(screen.getByText('Tocca il sigillo per le sezioni')).toBeInTheDocument()
+    expect(screen.getByText('Tocca ◇ per le sezioni')).toBeInTheDocument()
     fireEvent.click(rhombus())
-    expect(screen.queryByText('Tocca il sigillo per le sezioni')).not.toBeInTheDocument()
+    expect(screen.queryByText('Tocca ◇ per le sezioni')).not.toBeInTheDocument()
     first.unmount()
     render(<App />)
-    expect(screen.queryByText('Tocca il sigillo per le sezioni')).not.toBeInTheDocument()
+    expect(screen.queryByText('Tocca ◇ per le sezioni')).not.toBeInTheDocument()
   })
 
   it('holds the screen awake only while the game is visible', async () => {

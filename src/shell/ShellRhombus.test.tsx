@@ -27,13 +27,17 @@ describe('ShellRhombus (R1)', () => {
     expect(onToggle).toHaveBeenCalledOnce()
   })
 
-  it('shows the first-use hint only when asked, as plain text', () => {
+  it('shows the first-use coach label only when asked, above the rhombus and silent for screen readers', () => {
     setup(false, true)
-    expect(screen.getByText('Tocca il sigillo per le sezioni').tagName).toBe('P')
+    const label = screen.getByText('Tocca ◇ per le sezioni')
+    expect(label).toHaveAttribute('aria-hidden', 'true')
+    const slot = label.parentElement as HTMLElement
+    expect(slot.firstElementChild).toBe(label)
+    expect(screen.getByRole('button', { name: 'Mostra le sezioni' })).toBeInTheDocument()
   })
 
   it('has no hint once it has been used', () => {
     setup(false, false)
-    expect(screen.queryByText('Tocca il sigillo per le sezioni')).not.toBeInTheDocument()
+    expect(screen.queryByText('Tocca ◇ per le sezioni')).not.toBeInTheDocument()
   })
 })

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import type { FourPlayerLayout } from '../settings/preferences'
-import type { Clearance } from '../shell/centre'
+import type { Clearance, HintReserve } from '../shell/centre'
+import type React from 'react'
 
 /**
  * Presentation-only seat around a player panel (D-034). The wrapper is always rendered, so
@@ -45,13 +46,22 @@ interface PlayerSeatProps {
   index: number
   /** The side or corner this card keeps free for the central rhombus (R1). */
   clear?: Clearance | null
+  /** The band kept free for the first-use label above the rhombus (R1 §13.2). */
+  hintReserve?: HintReserve | null
   children: ReactNode
 }
 
-export function PlayerSeat({ layout, index, clear, children }: PlayerSeatProps) {
+export function PlayerSeat({ layout, index, clear, hintReserve, children }: PlayerSeatProps) {
   const { seat, orientation } = seatFor(layout, index)
   return (
-    <div className="player-seat" data-seat={seat} data-orientation={orientation} data-clear={clear ?? undefined}>
+    <div
+      className="player-seat"
+      data-seat={seat}
+      data-orientation={orientation}
+      data-clear={clear ?? undefined}
+      data-hint-side={hintReserve?.side}
+      style={hintReserve ? ({ '--hint-reserve': `${Math.ceil(hintReserve.size)}px` } as React.CSSProperties) : undefined}
+    >
       <div className="player-seat__content">{children}</div>
     </div>
   )
