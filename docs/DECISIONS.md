@@ -322,3 +322,14 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
   - In Fronte a fronte i pannelli sono sempre compatti e le due metà occupano esattamente lo spazio fra intestazione e piè di pagina, come per Tavolo: con il dispositivo al centro nessuno deve scorrere.
 - **Verifica:** 335 test. Browser a 390×844, 844×390, 768×1024 e 1440: nessuno scroll, nessun overflow orizzontale, nessun pulsante sotto 44 px.
 - **Correzione dalla revisione (P2):** il comando «Layout» compare solo quando le celle visibili coincidono con i giocatori. Mentre la barra «Annulla» di un giocatore rimosso occupa ancora una cella (per esempio da 3 a 2), il comando resta nascosto e la griglia non cambia, così foglio e tavolo non sono mai in disaccordo. C'è un test per il passaggio 3→2.
+
+## D-036 — Delta cumulativo più evidente (proposta)
+- **Stato:** Proposta di Claude (2026-10-20), richiesta dal design. **Non implementata**: attende l'approvazione.
+- **Sintesi:**
+  - Si riusano raggruppamento e finestra di 700 ms della cronologia.
+  - `DeltaBadge` resta montato per tutto il gruppo e aggiorna il numero sul posto (oggi si rimonta e lampeggia a ogni tocco).
+  - Ingresso 90 ms con 2 px di assestamento, permanenza 700 ms dall'ultimo tocco, uscita 160 ms solo in opacità; immediato con reduced motion.
+  - Dimensioni proporzionali al valore ma subordinate. Nessun cambio di layout.
+  - Il badge resta `aria-hidden`; il dock passa a un solo annuncio assestato per raffica.
+- **Ipotesi successive, non da implementare:** sheet Dettagli ancorato al pannello e sigillo centrale con al massimo quattro azioni nei layout da tavolo. Il sigillo richiederebbe di modificare D-034, che vuole il centro libero da comandi indispensabili.
+- **Proposta:** [`docs/superpowers/specs/2026-10-20-cumulative-delta-proposal.md`](superpowers/specs/2026-10-20-cumulative-delta-proposal.md).
