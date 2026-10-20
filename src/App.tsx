@@ -13,7 +13,7 @@ import type { LoadStatus } from './game/storage'
 import type { GameAction } from './game/types'
 import { useCompactDensity } from './platform/useCompactDensity'
 import { isWakeLockSupported, useWakeLock } from './platform/useWakeLock'
-import { loadPreferences, savePreferences } from './settings/preferences'
+import { hintPending, loadPreferences, RHOMBUS_HINT_VERSION, savePreferences } from './settings/preferences'
 import type { Preferences } from './settings/preferences'
 import { DecksScreen } from './shell/DecksScreen'
 import { LearnScreen } from './shell/LearnScreen'
@@ -51,6 +51,7 @@ export default function App() {
   const game = history.present
   const groupDelta = getGroupDelta(history)
   const playing = section === 'partita'
+  const showHint = hintPending(preferences)
 
   // Persist every change synchronously so a closed tab never loses the last action.
   // oxlint-disable-next-line react/set-state-in-effect -- the result comes from an external system (storage).
@@ -101,7 +102,7 @@ export default function App() {
   }, [section])
 
   const toggleBar = (byKeyboard: boolean) => {
-    if (!preferences.rhombusHintSeen) updatePreferences({ ...preferences, rhombusHintSeen: true })
+    if (showHint) updatePreferences({ ...preferences, rhombusHintVersion: RHOMBUS_HINT_VERSION })
     if (revealed) {
       setRevealed(false)
       return
@@ -149,7 +150,7 @@ export default function App() {
   }, [layout])
 
   // The rhombus sits on the table's centre and each card keeps the touching corner free (R1).
-  const centre = useCentreLayout(gridRef, `${layout}|${playerCount}|${panelDensity}|${section}|${preferences.rhombusHintSeen}`)
+  const centre = useCentreLayout(gridRef, `${layout}|${playerCount}|${panelDensity}|${section}|${showHint}`)
 
   const cells = game.players.map((player, index) => (
     <PlayerSeat
@@ -157,7 +158,7 @@ export default function App() {
       layout={layout}
       index={index}
       clear={centre.clearances[index]}
-      hintReserve={preferences.rhombusHintSeen ? null : centre.hintReserves[index]}
+      hintReserve={showHint ? centre.hintReserves[index] : null}
     >
       <PlayerPanel
         player={player}
@@ -210,7 +211,7 @@ export default function App() {
         <ShellRhombus
           expanded={revealed}
           controlsId={NAV_ID}
-          showHint={!preferences.rhombusHintSeen}
+          showHint={showHint}
           onToggle={toggleBar}
           buttonRef={rhombusRef}
           style={centre.point ? { left: centre.point.x, top: centre.point.y } : undefined}

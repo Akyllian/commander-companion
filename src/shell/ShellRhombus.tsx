@@ -4,7 +4,7 @@ interface ShellRhombusProps {
   expanded: boolean
   /** Id of the section navigation it reveals. */
   controlsId: string
-  /** The coach label «Tocca ◇ per le sezioni», until the first use (R1 §13.2). */
+  /** The coach label «Tocca ◇ per strumenti e sezioni», until the first use (R1 §13.2, R2 §7.1). */
   showHint: boolean
   /** `byKeyboard` is true for Enter/Space activation, so focus can move into the bar. */
   onToggle: (byKeyboard: boolean) => void
@@ -23,7 +23,7 @@ export function ShellRhombus({ expanded, controlsId, showHint, onToggle, buttonR
       {/* Above the rhombus; silent, since the button already says «Mostra le sezioni». */}
       {showHint && (
         <p className="shell-rhombus__hint" aria-hidden="true">
-          Tocca ◇ per le sezioni
+          Tocca ◇ per strumenti e sezioni
         </p>
       )}
       <button

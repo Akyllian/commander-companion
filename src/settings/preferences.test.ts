@@ -1,13 +1,15 @@
 import {
   DEFAULT_PREFERENCES,
   FOUR_PLAYER_LAYOUTS,
+  hintPending,
   loadPreferences,
   PREFERENCES_KEY,
+  RHOMBUS_HINT_VERSION,
   savePreferences,
   TWO_PLAYER_LAYOUTS,
 } from './preferences'
 
-const base = { keepScreenOn: true, fourPlayerLayout: 'grid', twoPlayerLayout: 'same-side', rhombusHintSeen: false } as const
+const base = { keepScreenOn: true, fourPlayerLayout: 'grid', twoPlayerLayout: 'same-side', rhombusHintVersion: 0 } as const
 
 afterEach(() => vi.restoreAllMocks())
 
@@ -56,21 +58,30 @@ describe('preferences', () => {
     expect(loadPreferences()).toEqual({ ...base, keepScreenOn: false, fourPlayerLayout: 'table' })
   })
 
-  it('starts with the rhombus hint unseen', () => {
-    expect(loadPreferences().rhombusHintSeen).toBe(false)
+  it('starts with no hint seen', () => {
+    expect(loadPreferences().rhombusHintVersion).toBe(0)
+    expect(hintPending(loadPreferences())).toBe(true)
   })
 
-  it('round-trips the seen hint', () => {
-    savePreferences({ ...base, rhombusHintSeen: true })
-    expect(loadPreferences().rhombusHintSeen).toBe(true)
+  it('migrates the R1 flag to version 1, so the R2 hint still shows', () => {
+    localStorage.setItem(PREFERENCES_KEY, '{"rhombusHintSeen":true}')
+    expect(loadPreferences().rhombusHintVersion).toBe(1)
+    expect(hintPending(loadPreferences())).toBe(true)
   })
 
-  it('falls back to unseen for a non-boolean hint, keeping the rest', () => {
+  it('round-trips version 2 without writing the legacy flag', () => {
+    savePreferences({ ...base, rhombusHintVersion: RHOMBUS_HINT_VERSION })
+    expect(RHOMBUS_HINT_VERSION).toBe(2)
+    expect(hintPending(loadPreferences())).toBe(false)
+    expect(localStorage.getItem(PREFERENCES_KEY)).not.toContain('rhombusHintSeen')
+  })
+
+  it.each(['-1', '1.5', '"2"', 'null'])('falls back to 0 for version %s, keeping the rest', (version) => {
     localStorage.setItem(
       PREFERENCES_KEY,
-      '{"keepScreenOn":false,"fourPlayerLayout":"table","twoPlayerLayout":"facing","rhombusHintSeen":"yes"}',
+      `{"keepScreenOn":false,"fourPlayerLayout":"table","twoPlayerLayout":"facing","rhombusHintVersion":${version}}`,
     )
-    expect(loadPreferences()).toEqual({ keepScreenOn: false, fourPlayerLayout: 'table', twoPlayerLayout: 'facing', rhombusHintSeen: false })
+    expect(loadPreferences()).toEqual({ keepScreenOn: false, fourPlayerLayout: 'table', twoPlayerLayout: 'facing', rhombusHintVersion: 0 })
   })
 
   it('reports a failed write without throwing', () => {

@@ -638,7 +638,7 @@ describe('two-player layouts (D-035)', () => {
       fourPlayerLayout: 'table',
       twoPlayerLayout: 'facing',
       // Reaching Altro used the rhombus, so its first-use hint is gone.
-      rhombusHintSeen: true,
+      rhombusHintVersion: 2,
     })
   })
 
@@ -812,14 +812,20 @@ describe('app shell (D-037, R1)', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Mazzi' })).toHaveFocus()
   })
 
+  it('shows the R2 hint once more to someone who saw the R1 hint', () => {
+    localStorage.setItem('commander-companion.preferences', JSON.stringify({ keepScreenOn: true, fourPlayerLayout: 'grid', twoPlayerLayout: 'same-side', rhombusHintSeen: true }))
+    render(<App />)
+    expect(screen.getByText('Tocca ◇ per strumenti e sezioni')).toBeInTheDocument()
+  })
+
   it('shows the hint until the rhombus is first used, and never again', () => {
     const first = render(<App />)
-    expect(screen.getByText('Tocca ◇ per le sezioni')).toBeInTheDocument()
+    expect(screen.getByText('Tocca ◇ per strumenti e sezioni')).toBeInTheDocument()
     fireEvent.click(rhombus())
-    expect(screen.queryByText('Tocca ◇ per le sezioni')).not.toBeInTheDocument()
+    expect(screen.queryByText('Tocca ◇ per strumenti e sezioni')).not.toBeInTheDocument()
     first.unmount()
     render(<App />)
-    expect(screen.queryByText('Tocca ◇ per le sezioni')).not.toBeInTheDocument()
+    expect(screen.queryByText('Tocca ◇ per strumenti e sezioni')).not.toBeInTheDocument()
   })
 
   it('holds the screen awake only while the game is visible', async () => {

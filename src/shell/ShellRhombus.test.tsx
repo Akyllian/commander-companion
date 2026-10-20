@@ -29,7 +29,7 @@ describe('ShellRhombus (R1)', () => {
 
   it('shows the first-use coach label only when asked, above the rhombus and silent for screen readers', () => {
     setup(false, true)
-    const label = screen.getByText('Tocca ◇ per le sezioni')
+    const label = screen.getByText('Tocca ◇ per strumenti e sezioni')
     expect(label).toHaveAttribute('aria-hidden', 'true')
     const slot = label.parentElement as HTMLElement
     expect(slot.firstElementChild).toBe(label)
@@ -38,6 +38,6 @@ describe('ShellRhombus (R1)', () => {
 
   it('has no hint once it has been used', () => {
     setup(false, false)
-    expect(screen.queryByText('Tocca ◇ per le sezioni')).not.toBeInTheDocument()
+    expect(screen.queryByText('Tocca ◇ per strumenti e sezioni')).not.toBeInTheDocument()
   })
 })

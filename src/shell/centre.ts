@@ -97,7 +97,7 @@ export interface HintReserve {
 }
 
 /**
- * The first-use label «Tocca ◇ per le sezioni» sits above the rhombus (R1 §13.2). A card the
+ * The first-use label «Tocca ◇ per strumenti e sezioni» sits above the rhombus (R1 §13.2). A card the
  * label would cover keeps a band free of text and controls on the side facing it, so the label
  * never overlaps a name, a life total or a button. `offset` is the gap from the point to the
  * label's bottom edge (half the 56px rhombus plus 6px).
