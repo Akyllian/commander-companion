@@ -26,15 +26,9 @@ const inside = (point: Point, box: Box) => point.x > box.left && point.x < box.r
 const overlapsX = (a: Box, b: Box) => a.left < b.right && b.left < a.right
 const overlapsY = (a: Box, b: Box) => a.top < b.bottom && b.top < a.bottom
 
-/**
- * The centre of the table; when it falls inside a card (an odd stack or row), the nearest seam
- * between that card and a neighbour, above/below or beside it.
- */
-export function rhombusPoint(grid: Box, panels: Box[]): Point {
-  const centre = { x: (grid.left + grid.right) / 2, y: (grid.top + grid.bottom) / 2 }
-  const host = panels.find((panel) => inside(centre, panel))
-  if (!host) return centre
-  const seams = panels
+/** Seams between `host` and its neighbours: the midpoint of each gap, above/below or beside it. */
+function seamsAround(host: Box, panels: Box[], centre: Point): Point[] {
+  return panels
     .filter((other) => other !== host)
     .flatMap((other): Point[] => {
       if (overlapsX(other, host) && other.bottom <= host.top) return [{ x: centre.x, y: (other.bottom + host.top) / 2 }]
@@ -43,9 +37,30 @@ export function rhombusPoint(grid: Box, panels: Box[]): Point {
       if (overlapsY(other, host) && other.left >= host.right) return [{ x: (host.right + other.left) / 2, y: centre.y }]
       return []
     })
-  if (seams.length === 0) return centre
+}
+
+const zoneInside = (point: Point, reach: number, area: Box) =>
+  point.x - reach >= area.left && point.x + reach <= area.right && point.y - reach >= area.top && point.y + reach <= area.bottom
+
+/**
+ * The centre of the table; when it falls inside a card (an odd stack or row), the nearest seam
+ * between that card and a neighbour. When `firstScreen` is given and the 2·`reach` zone around
+ * that point is not entirely on it (a tall portrait column), the first inner seam from the top
+ * whose zone is (R1 §13.1). The point stays anchored in the document: it never follows scroll.
+ */
+export function rhombusPoint(grid: Box, panels: Box[], firstScreen?: Box, reach = 32): Point {
+  const centre = { x: (grid.left + grid.right) / 2, y: (grid.top + grid.bottom) / 2 }
+  const host = panels.find((panel) => inside(centre, panel))
+  const around = host ? seamsAround(host, panels, centre) : []
   const distance = (point: Point) => Math.hypot(point.x - centre.x, point.y - centre.y)
-  return seams.reduce((best, seam) => (distance(seam) < distance(best) ? seam : best))
+  const point = around.length ? around.reduce((best, seam) => (distance(seam) < distance(best) ? seam : best)) : centre
+  if (!firstScreen || zoneInside(point, reach, firstScreen)) return point
+
+  const visible = panels
+    .flatMap((panel) => seamsAround(panel, panels, centre))
+    .filter((seam) => zoneInside(seam, reach, firstScreen))
+    .sort((a, b) => a.y - b.y || a.x - b.x)
+  return visible[0] ?? point
 }
 
 // Viewport side → the card's own side, for each turn of the card's content.

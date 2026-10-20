@@ -23,6 +23,25 @@ describe('rhombusPoint (R1)', () => {
     expect(rhombusPoint(box(0, 0, 616, 300), row)).toEqual({ x: 204, y: 150 })
   })
 
+  describe('portrait column taller than the screen (R1 §13.1)', () => {
+    // Four standard cards stacked on a 390×844 phone: the table centre is below the first screen.
+    const column = [box(8, 8, 382, 448), box(8, 456, 382, 896), box(8, 904, 382, 1344), box(8, 1352, 382, 1792)]
+    const table = box(8, 8, 382, 1792)
+    const firstScreen = box(0, 0, 390, 844)
+
+    it('moves to the first inner seam whose 64px zone is fully on the first screen', () => {
+      expect(rhombusPoint(table, column, firstScreen)).toEqual({ x: 195, y: 452 })
+    })
+
+    it('keeps the centre when it is already on the first screen', () => {
+      expect(rhombusPoint(grid4, cards4, box(0, 0, 844, 390))).toEqual({ x: 204, y: 124 })
+    })
+
+    it('keeps the centre when no seam fits on the first screen', () => {
+      expect(rhombusPoint(table, column, box(0, 0, 390, 300))).toEqual({ x: 195, y: 900 })
+    })
+  })
+
   it('keeps the centre of an empty Tavolo centre cell', () => {
     const table = [box(0, 0, 408, 120), box(0, 128, 140, 528), box(268, 128, 408, 528), box(0, 536, 408, 656)]
     expect(rhombusPoint(box(0, 0, 408, 656), table)).toEqual({ x: 204, y: 328 })

@@ -27,11 +27,20 @@ export function useCentreLayout(gridRef: RefObject<HTMLElement | null>, key: str
     const grid = gridRef.current
     if (!grid) return
     const measure = () => {
-      const area = grid.getBoundingClientRect()
-      if (area.width === 0 || area.height === 0) return
+      const view = grid.getBoundingClientRect()
+      if (view.width === 0 || view.height === 0) return
+      // Document coordinates: the chosen seam is anchored in the page and never follows scroll.
+      const toPage = (rect: DOMRect) => ({
+        left: rect.left + window.scrollX,
+        top: rect.top + window.scrollY,
+        right: rect.right + window.scrollX,
+        bottom: rect.bottom + window.scrollY,
+      })
+      const area = toPage(view)
       const seats = Array.from(grid.querySelectorAll<HTMLElement>(':scope > .player-seat'))
-      const boxes = seats.map((seat) => seat.getBoundingClientRect())
-      const point = rhombusPoint(area, boxes)
+      const boxes = seats.map((seat) => toPage(seat.getBoundingClientRect()))
+      const firstScreen = { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight }
+      const point = rhombusPoint(area, boxes, firstScreen, CENTRE_REACH)
       const next: CentreLayout = {
         point: { x: point.x - area.left, y: point.y - area.top },
         clearances: boxes.map((box, index) =>
