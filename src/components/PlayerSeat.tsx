@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
 import type { FourPlayerLayout } from '../settings/preferences'
+import type { Clearance, HintReserve } from '../shell/centre'
+import type React from 'react'
 
 /**
  * Presentation-only seat around a player panel (D-034). The wrapper is always rendered, so
@@ -15,14 +17,13 @@ export type SeatName = 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end' |
 const GRID_SEATS: SeatName[] = ['top-start', 'top-end', 'bottom-start', 'bottom-end']
 // Player 1 bottom, 2 left, 3 top, 4 right: each panel faces its own edge of the table.
 const TABLE_SEATS: SeatName[] = ['bottom', 'left', 'top', 'right']
-// Two players face to face: player 1 nearest the device's bottom edge, player 2 across.
-const TWO_FACING_SEATS: SeatName[] = ['bottom', 'top']
 
 const SEATS: Record<TableLayout, SeatName[]> = {
   grid: GRID_SEATS,
   facing: GRID_SEATS,
   table: TABLE_SEATS,
-  'two-facing': TWO_FACING_SEATS,
+  // Two players face to face reuse the side-by-side seats; only the opposite player turns (R1 §13.3).
+  'two-facing': GRID_SEATS,
 }
 
 const ORIENTATIONS: Record<TableLayout, Orientation[]> = {
@@ -43,13 +44,24 @@ interface PlayerSeatProps {
   layout: TableLayout
   /** Zero-based cell position (a removed player's Undo bar keeps that player's index). */
   index: number
+  /** The side or corner this card keeps free for the central rhombus (R1). */
+  clear?: Clearance | null
+  /** The band kept free for the first-use label above the rhombus (R1 §13.2). */
+  hintReserve?: HintReserve | null
   children: ReactNode
 }
 
-export function PlayerSeat({ layout, index, children }: PlayerSeatProps) {
+export function PlayerSeat({ layout, index, clear, hintReserve, children }: PlayerSeatProps) {
   const { seat, orientation } = seatFor(layout, index)
   return (
-    <div className="player-seat" data-seat={seat} data-orientation={orientation}>
+    <div
+      className="player-seat"
+      data-seat={seat}
+      data-orientation={orientation}
+      data-clear={clear ?? undefined}
+      data-hint-side={hintReserve?.side}
+      style={hintReserve ? ({ '--hint-reserve': `${Math.ceil(hintReserve.size)}px` } as React.CSSProperties) : undefined}
+    >
       <div className="player-seat__content">{children}</div>
     </div>
   )

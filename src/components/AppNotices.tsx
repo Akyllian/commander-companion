@@ -2,22 +2,17 @@ import { useSyncExternalStore } from 'react'
 import type { ReactNode } from 'react'
 import type { LoadStatus } from '../game/storage'
 import { updateStore } from '../pwa/updates'
-import { PopoverMenu } from './PopoverMenu'
 
 interface AppNoticesProps {
   loadStatus: LoadStatus
   saveFailed: boolean
   onDismissLoadStatus: () => void
-  /** Compact landscape: notices live behind a "Stato app" header button and take no grid height. */
-  compact?: boolean
-  supportsPopover?: boolean
+  /** In the page flow outside the game; a compact toast during play, outside the table (R1). */
+  placement: 'inline' | 'toast'
 }
 
-/**
- * System messages. Standard layout: inline under the header. Compact landscape: the same
- * notices and actions inside a top-layer panel, with the count exposed to assistive technology.
- */
-export function AppNotices({ loadStatus, saveFailed, onDismissLoadStatus, compact = false, supportsPopover }: AppNoticesProps) {
+/** System messages: never inside the table, never under the rhombus. */
+export function AppNotices({ loadStatus, saveFailed, onDismissLoadStatus, placement }: AppNoticesProps) {
   const update = useSyncExternalStore(updateStore.subscribe, updateStore.getSnapshot)
 
   const notices: Array<{ key: string; node: ReactNode }> = []
@@ -62,42 +57,11 @@ export function AppNotices({ loadStatus, saveFailed, onDismissLoadStatus, compac
     })
   }
 
-  if (!compact) {
-    return (
-      <div className="app-notices" role="status">
-        {notices.map(({ key, node }) => (
-          <div key={key}>{node}</div>
-        ))}
-      </div>
-    )
-  }
-
-  const count = notices.length
-  const summary = count === 1 ? '1 avviso' : `${count} avvisi`
   return (
-    <>
-      {/* Announces new notices even though their text is inside a closed panel. */}
-      <span className="sr-only" role="status">
-        {count > 0 ? `Stato app: ${summary}` : ''}
-      </span>
-      {count > 0 && (
-        <PopoverMenu
-          label="Stato app"
-          description={summary}
-          buttonClassName="status-button"
-          supportsPopover={supportsPopover}
-          trigger={
-            <>
-              <span className="status-button__marker" aria-hidden="true">
-                !
-              </span>
-              <span>Stato app</span>
-            </>
-          }
-        >
-          {() => <div className="app-notices app-notices--panel">{notices.map(({ key, node }) => <div key={key}>{node}</div>)}</div>}
-        </PopoverMenu>
-      )}
-    </>
+    <div className="app-notices" data-placement={placement} role="status">
+      {notices.map(({ key, node }) => (
+        <div key={key}>{node}</div>
+      ))}
+    </div>
   )
 }

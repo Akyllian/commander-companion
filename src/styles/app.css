@@ -74,112 +74,15 @@ button:disabled {
 }
 
 .app-shell {
+  --shell-pad: var(--space-4);
+  /* R1: a column whose table takes the height left by the section bar. */
+  display: flex;
+  flex-direction: column;
   width: min(100%, 96rem);
   min-height: 100vh;
+  min-height: 100dvh;
   margin-inline: auto;
-  padding: var(--space-4);
-}
-
-.app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-6);
-  margin-bottom: var(--space-4);
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: oklch(0.1 0 0 / 84%);
-  box-shadow: var(--shadow-panel);
-}
-
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-3);
-  color: inherit;
-  text-decoration: none;
-}
-
-.brand-mark {
-  width: 2.75rem;
-  height: 2.75rem;
-  overflow: visible;
-  color: var(--color-primary);
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.35;
-  filter: drop-shadow(0 0 0.55rem oklch(0.72 0.1 188 / 48%));
-}
-
-.brand-mark circle:last-child {
-  fill: var(--color-accent);
-  stroke: none;
-}
-
-.brand span {
-  display: grid;
-  gap: 0.12rem;
-}
-
-.brand strong {
-  font-size: 1rem;
-  letter-spacing: -0.015em;
-}
-
-.brand small {
-  color: var(--color-text-muted);
-  font-size: 0.78rem;
-}
-
-.table-controls,
-.history-controls,
-.match-controls {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.table-controls button,
-.table-controls select {
-  padding-inline: var(--space-3);
-}
-
-/* Header controls (art-direction review P1): the two groups — history and match management —
-   wrap as whole blocks when the header is too narrow, so no control is ever pushed outside it.
-   Labels never break inside a button (D-016); buttons keep their content width. */
-.app-header > .table-controls {
-  flex: 1 1 auto;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  min-width: 0;
-  row-gap: var(--space-2);
-}
-
-.match-controls {
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-/* Header labels never break inside a button (UX review 3); buttons keep their content width. */
-.table-controls button {
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
-.match-controls > label {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--color-text-muted);
-  font-size: 0.82rem;
-}
-
-.match-controls select {
-  border: 1px solid var(--color-border);
-  border-radius: var(--button-radius);
-  color: var(--color-text);
-  background: var(--color-surface-raised);
+  padding: var(--shell-pad);
 }
 
 .quiet-button {
@@ -314,7 +217,6 @@ button:disabled {
   font-size: 1.35rem;
 }
 
-
 .life-zone {
   display: grid;
   place-items: center;
@@ -445,35 +347,9 @@ button:disabled {
   font-weight: 700;
 }
 
-.app-footer {
-  max-width: 70ch;
-  margin: var(--space-6) auto 0;
-  color: var(--color-text-muted);
-  font-size: 0.75rem;
-  text-align: center;
-}
-
-@media (max-width: 62rem) {
-  .app-header {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .app-header > .table-controls {
-    justify-content: space-between;
-  }
-}
-
-/* Preferences collapses to its gear icon (tooltip + accessible name kept). */
-@media (max-width: 52rem) {
-  .preferences-button span {
-    display: none;
-  }
-}
-
 @media (max-width: 46rem) {
   .app-shell {
-    padding: var(--space-2);
+    --shell-pad: var(--space-2);
   }
 
   .player-grid {
@@ -488,42 +364,8 @@ button:disabled {
     padding: var(--space-4);
   }
 
-  .table-controls,
-  .match-controls {
-    align-items: stretch;
-    flex-wrap: wrap;
-  }
-
-  .history-controls {
-    flex: 1 1 auto;
-  }
-
-  .history-controls button {
-    flex: 1;
-  }
-
-  .match-controls {
-    flex: 1 1 100%;
-  }
-
-  .match-controls > button {
-    flex: 1 1 auto;
-  }
-
   .life-total {
     font-size: 5.5rem;
-  }
-}
-
-@media (max-width: 27rem) {
-  .brand small,
-  .history-controls button span {
-    display: none;
-  }
-
-  /* "Giocatori" stays visible: the number alone would be ambiguous. */
-  .match-controls > label {
-    flex: 0 0 auto;
   }
 }
 
@@ -538,7 +380,6 @@ button:disabled {
     transition-duration: 0.01ms !important;
   }
 }
-
 
 /* ---- Phase 1 functional additions (D-010: visuals pending UX review) ---- */
 
@@ -559,25 +400,6 @@ input[type='checkbox'] {
   margin: 0;
   color: var(--color-text-muted);
   font-size: 0.78rem;
-}
-
-.check-option {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  min-height: var(--button-height);
-  cursor: pointer;
-}
-
-.check-option input {
-  width: 1.375rem;
-  height: 1.375rem;
-  margin: 0;
-  accent-color: var(--color-primary);
-}
-
-.check-option input:disabled + span {
-  color: var(--color-text-muted);
 }
 
 .app-notices:empty {
@@ -700,27 +522,10 @@ input[type='checkbox'] {
   margin-left: var(--space-2);
 }
 
-
 .summary-value {
   color: var(--color-text-muted);
   font-size: 0.78rem;
   font-variant-numeric: tabular-nums;
-}
-
-.app-footer p {
-  margin: 0;
-}
-
-.popover-menu {
-  position: relative;
-}
-
-.preferences-button {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-width: var(--button-height);
-  padding-inline: var(--space-3);
 }
 
 .button-icon {
@@ -732,64 +537,6 @@ input[type='checkbox'] {
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 1.75;
-}
-
-.popover-panel {
-  width: max-content;
-  max-width: min(20rem, calc(100vw - 2 * var(--space-4)));
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  color: var(--color-text);
-  background: var(--color-surface-raised);
-  box-shadow: var(--shadow-panel);
-}
-
-/* Native popover: top layer, anchored by script under the button (top/right). */
-.popover-panel[popover] {
-  position: fixed;
-  inset: auto;
-  margin: 0;
-}
-
-.preferences-button[data-open] {
-  border-color: var(--color-primary);
-}
-
-/* Fallback when the Popover API is missing. */
-.popover-panel[data-fallback] {
-  position: absolute;
-  z-index: 10;
-  top: calc(100% + var(--space-2));
-  right: 0;
-}
-
-.popover-panel[data-fallback][hidden] {
-  display: none;
-}
-
-.undo-bar {
-  /* Sits in the removed panel's grid cell: no overlay, nothing covered. */
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  align-self: start;
-  justify-content: space-between;
-  gap: var(--space-2) var(--space-4);
-  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
-  border: 1px dashed var(--color-border);
-  border-radius: var(--panel-radius);
-  background: var(--color-surface);
-}
-
-.undo-bar:focus-visible {
-  box-shadow: var(--focus-ring);
-}
-
-.undo-bar button {
-  flex: none;
-  padding-inline: var(--space-4);
-  color: var(--color-primary-soft);
 }
 
 #main:focus {
@@ -955,55 +702,12 @@ input[type='checkbox'] {
   border-top: 1px solid var(--color-gold-hairline);
 }
 
-/* Compact menus: Partita and Stato app. */
-.match-menu {
-  display: grid;
-  gap: var(--space-2);
-  min-width: 14rem;
-  padding-block: var(--space-2);
-}
-
-.match-menu__players {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.popover-panel[popover] {
-  max-height: calc(100dvh - 4rem);
-  overflow-y: auto;
-}
-
-.app-notices--panel {
-  max-width: 22rem;
-  margin: var(--space-2) 0;
-}
-
-.status-button {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.status-button__marker {
-  display: inline-grid;
-  width: 1.25rem;
-  height: 1.25rem;
-  place-items: center;
-  border: 1px solid currentColor;
-  border-radius: var(--radius-round);
-  font-size: 0.75rem;
-  font-weight: 800;
-}
-
 /* ---- Compact landscape (Phase 1.6, spec 2026-10-18) ----
    Activated by `data-compact-density`, set from COMPACT_DENSITY_QUERY in JS (single source).
    Budget at 844×330: 8 + 52 header + 8 + 2 rows of ~123 + 8 gap + 8. */
 
 .app-shell[data-compact-density='true'] {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  --shell-pad: var(--space-2);
   gap: var(--space-2);
   width: 100%;
   min-height: 100vh;
@@ -1013,49 +717,6 @@ input[type='checkbox'] {
     max(var(--space-2), env(safe-area-inset-right))
     max(var(--space-2), env(safe-area-inset-bottom))
     max(var(--space-2), env(safe-area-inset-left));
-}
-
-.app-shell[data-compact-density='true'] .app-footer {
-  display: none;
-}
-
-.app-shell[data-compact-density='true'] .app-header {
-  flex-direction: row;
-  align-items: center;
-  gap: var(--space-2);
-  max-height: 3.25rem;
-  margin: 0;
-  padding: var(--space-1) var(--space-2);
-}
-
-.app-shell[data-compact-density='true'] .brand > span {
-  display: none;
-}
-
-.app-shell[data-compact-density='true'] .brand-mark {
-  width: 2.25rem;
-  height: 2.25rem;
-}
-
-.app-shell[data-compact-density='true'] .table-controls {
-  flex: 1 1 auto;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  min-width: 0;
-}
-
-.app-shell[data-compact-density='true'] .history-controls,
-.app-shell[data-compact-density='true'] .match-controls {
-  flex: none;
-  flex-wrap: nowrap;
-}
-
-.app-shell[data-compact-density='true'] .history-controls button span {
-  display: none;
-}
-
-.app-shell[data-compact-density='true'] .history-controls button {
-  min-width: var(--button-height);
 }
 
 /* Grid: rows fill the height when they fit, and grow (page scrolls vertically) when zoom or
@@ -1183,19 +844,6 @@ input[type='checkbox'] {
   margin: 0;
 }
 
-.app-shell[data-compact-density='true'] .undo-bar {
-  align-self: stretch;
-  align-content: center;
-}
-
-/* ---- Rules reference (Phase 2a) — structure only; visuals pending art direction ---- */
-
-.rules-button {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
 .rules-sheet {
   width: min(36rem, calc(100vw - 2 * var(--space-2)));
 }
@@ -1317,9 +965,7 @@ input[type='checkbox'] {
 }
 
 /* Compact shape and depth: 12px radius, lighter shadow; standard layout unchanged. */
-.app-shell[data-compact-density='true'] .app-header,
 .app-shell[data-compact-density='true'] .player-panel,
-.app-shell[data-compact-density='true'] .undo-bar,
 .app-shell[data-compact-density='true'] .side-sheet {
   border-radius: var(--radius-md);
 }
@@ -1327,35 +973,6 @@ input[type='checkbox'] {
 .app-shell[data-compact-density='true'] .player-panel {
   box-shadow: var(--shadow-panel-compact);
 }
-
-.app-shell[data-compact-density='true'] .app-header {
-  gap: var(--space-1);
-  box-shadow: var(--shadow-panel-compact);
-}
-
-.app-shell[data-compact-density='true'] .table-controls,
-.app-shell[data-compact-density='true'] .history-controls {
-  gap: var(--space-1);
-}
-
-/* 8px before the Regole/Partita group, 4px between controls. */
-.app-shell[data-compact-density='true'] .match-controls {
-  gap: var(--space-1);
-  margin-left: var(--space-2);
-}
-
-/* Brand mark: 36px inside a 44px non-interactive slot, half the standard glow. */
-.app-shell[data-compact-density='true'] .brand {
-  display: inline-grid;
-  width: var(--button-height);
-  height: var(--button-height);
-  place-items: center;
-}
-
-.app-shell[data-compact-density='true'] .brand-mark {
-  filter: drop-shadow(0 0 0.275rem oklch(0.72 0.1 188 / 48%));
-}
-
 
 .player-panel[data-compact] .player-name {
   font-size: 0.875rem;
@@ -1404,11 +1021,6 @@ input[type='checkbox'] {
   transition: border-color var(--duration-fast) var(--ease-out);
 }
 
-/* Inline Undo bar replaces a panel: opacity only, grid geometry changes immediately. */
-.undo-bar {
-  animation: fade-in var(--duration-fast) var(--ease-out);
-}
-
 /* Disclosure content: a short opacity settle, no height animation. */
 details[open] > :not(summary) {
   animation: fade-in var(--duration-fast) var(--ease-out);
@@ -1420,28 +1032,7 @@ details[open] > :not(summary) {
   }
 }
 
-/* Popovers (Partita, Stato app, Preferenze): 140ms local reveal; ≤140ms fade on close.
-   Exit uses allow-discrete so dismissal and focus return are never delayed. */
-.popover-panel[popover] {
-  opacity: 0;
-  transform: translateY(-4px);
-  transition:
-    opacity var(--duration-fast) var(--ease-out),
-    transform var(--duration-fast) var(--ease-out),
-    overlay var(--duration-fast) allow-discrete,
-    display var(--duration-fast) allow-discrete;
-}
-
-.popover-panel[popover]:popover-open {
-  opacity: 1;
-  transform: none;
-}
-
 @starting-style {
-  .popover-panel[popover]:popover-open {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
 }
 
 /* Side sheets: 220ms arrival from the owning edge, faster 140ms exit; scrim in step. */
@@ -1527,49 +1118,6 @@ body:has(.app-shell[data-compact-density='true']) {
     var(--color-ink);
 }
 
-/* ---- Header and brand ---- */
-.app-header {
-  border-color: var(--color-gold-line);
-  background: color-mix(in oklch, var(--color-ink) 90%, transparent);
-}
-
-.brand strong {
-  color: var(--color-ivory);
-  font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.brand small {
-  font-size: 0.66rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.brand-mark {
-  color: var(--color-gold);
-  filter: drop-shadow(0 0 0.5rem oklch(0.812 0.11 87 / 35%));
-}
-
-.brand-mark__ring {
-  stroke: var(--color-arcane);
-  stroke-opacity: 0.7;
-}
-
-.brand-mark__star {
-  fill: oklch(0.812 0.11 87 / 18%);
-}
-
-.brand-mark .brand-mark__heart {
-  fill: var(--color-gold-bright);
-}
-
-.app-shell[data-compact-density='true'] .brand-mark {
-  filter: drop-shadow(0 0 0.25rem oklch(0.812 0.11 87 / 35%));
-}
-
 /* ---- Controls: familiar shapes, gold/teal line material instead of gray rectangles ---- */
 button {
   border-color: var(--color-gold-hairline);
@@ -1594,41 +1142,9 @@ button:hover:not(:disabled) {
   color: var(--color-text);
 }
 
-.match-controls select,
-.match-menu select {
-  border-color: var(--color-gold-hairline);
-  background: var(--color-ink-raised);
-}
-
 .button-icon--small {
   width: 1rem;
   height: 1rem;
-}
-
-/* Selected header action (open menu): teal edge and a gold underline that draws in 140ms. */
-.popover-menu > button {
-  position: relative;
-}
-
-.popover-menu > button::after {
-  position: absolute;
-  right: 22%;
-  bottom: 0.3rem;
-  left: 22%;
-  height: 1px;
-  background: var(--color-gold-bright);
-  content: '';
-  transform: scaleX(0);
-  transition: transform var(--duration-fast) var(--ease-out);
-}
-
-.popover-menu > button[data-open] {
-  border-color: var(--color-arcane);
-  color: var(--color-ivory);
-}
-
-.popover-menu > button[data-open]::after {
-  transform: scaleX(1);
 }
 
 /* ---- Player panels: dark atmospheric field, fine gold frame, player energy line ---- */
@@ -1768,21 +1284,6 @@ button:hover:not(:disabled) {
 .partner-badge {
   border-color: var(--color-gold-line);
   color: var(--color-gold);
-}
-
-.undo-bar {
-  border-color: var(--color-gold-line);
-  background: color-mix(in oklch, var(--color-ink) 92%, transparent);
-}
-
-/* ---- Menus and sheets: opaque ink, gold frame, one-shot edge ignition ---- */
-.popover-panel {
-  border-color: var(--color-gold-line);
-  background: var(--color-ink-raised);
-}
-
-.popover-panel[popover]:popover-open {
-  animation: edge-ignite var(--duration-normal) var(--ease-out);
 }
 
 @keyframes edge-ignite {
@@ -2676,40 +2177,9 @@ button:hover:not(:disabled) {
   width: min(100%, 32rem);
 }
 
-/* ---- Layout selector (D-034): an engraved seating board, not a settings card ---- */
-.layout-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  min-width: var(--button-height);
-  padding-inline: var(--space-3);
-}
-
-/* Like Preferenze, the label yields to the icon when space is short; the full name stays. */
-@media (max-width: 52rem) {
-  .layout-button span {
-    display: none;
-  }
-}
-
-.app-shell[data-compact-density='true'] .layout-button {
-  padding-inline: 0;
-}
-
-.app-shell[data-compact-density='true'] .layout-button span {
-  display: none;
-}
-
 .layout-options {
   display: grid;
   gap: var(--space-3);
-}
-
-/* Columns follow the sheet's real width, not the viewport: two options only when each still
-   has room for its preview and its text (the default 28rem sheet always stays one column). */
-.layout-sheet .side-sheet__body {
-  container-type: inline-size;
 }
 
 @container (min-width: 40rem) {
@@ -2814,37 +2284,6 @@ button:hover:not(:disabled) {
   stroke: var(--color-gold-bright);
 }
 
-/* Two players face to face (D-035): one horizontal half each, player 1 on the near edge and
-   player 2 across, turned 180°. Same in every density; the page scrolls rather than squeezing. */
-.app-shell .player-grid[data-layout='two-facing'][data-player-count] {
-  grid-template-areas:
-    'top'
-    'bottom';
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: repeat(2, minmax(min-content, 1fr));
-  min-height: 0;
-}
-
-/* The two halves share exactly the height left by header and footer: with the device in the
-   middle of the table, nobody has to scroll to reach their own panel. */
-.app-shell:not([data-compact-density='true']):has(> .player-grid[data-layout='two-facing']) {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  min-height: 100dvh;
-}
-
-.app-shell:has(> .player-grid[data-layout='two-facing']) > .player-grid {
-  flex: 1 1 auto;
-}
-
-.player-grid[data-layout='two-facing'] > [data-seat='top'] {
-  grid-area: top;
-}
-
-.player-grid[data-layout='two-facing'] > [data-seat='bottom'] {
-  grid-area: bottom;
-}
 
 /* Delta sizes (D-036): clearly visible, always far smaller than the value it belongs to. */
 .life-value .delta-badge {
@@ -2870,5 +2309,520 @@ button:hover:not(:disabled) {
   min-width: 2.25rem;
   min-height: 1.5rem;
   margin-left: 0.25rem;
+  font-size: 0.85rem;
+}
+
+/* ---- R1 app shell (D-037; design 2026-10-20-r1-shell-design.md) ---- */
+
+.player-grid {
+  position: relative;
+  flex: 1 1 auto;
+}
+
+/* The game view is only hidden outside Partita, never unmounted: `hidden` must win over the
+   grid's own display. */
+.player-grid[hidden] {
+  display: none;
+}
+
+/* Section bar: one opaque ink band with a gold hairline, never glass, never a capsule. */
+.section-nav {
+  z-index: 20;
+  margin: calc(var(--shell-pad) * -1) calc(var(--shell-pad) * -1) var(--shell-pad);
+  padding-top: env(safe-area-inset-top);
+  border-bottom: 1px solid var(--color-gold-hairline);
+  background: var(--color-ink);
+  transition:
+    opacity var(--duration-nav-out) var(--ease-out),
+    transform var(--duration-nav-out) var(--ease-out),
+    display var(--duration-nav-out) allow-discrete;
+}
+
+.section-nav[data-state='persistent'] {
+  position: sticky;
+  top: 0;
+}
+
+/* Revealed over the game: fixed in its own layer, so the table never reflows. */
+.section-nav[data-state='revealed'] {
+  position: fixed;
+  inset: 0 0 auto;
+  margin: 0;
+  transition-duration: var(--duration-nav-in);
+}
+
+@starting-style {
+  .section-nav[data-state='revealed'] {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+.section-nav[hidden] {
+  display: none;
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+.section-nav__list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  max-width: 56rem;
+  height: 60px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.app-shell[data-compact-density='true'] .section-nav__list {
+  height: 52px;
+}
+
+.section-nav__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  height: 100%;
+  min-height: 48px;
+  color: color-mix(in oklch, var(--color-ivory) 66%, transparent);
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.app-shell[data-compact-density='true'] .section-nav__item {
+  font-size: 0.68rem;
+}
+
+.section-nav__item:hover {
+  color: color-mix(in oklch, var(--color-gold) 80%, var(--color-ivory));
+}
+
+.section-nav__item:active {
+  transform: translateY(1px);
+}
+
+.section-nav__item[aria-current='page'] {
+  color: var(--color-gold-bright);
+}
+
+/* The active line lights in place (140 ms); it never slides between sections. */
+.section-nav__item::after {
+  position: absolute;
+  right: 22%;
+  bottom: 0;
+  left: 22%;
+  height: 2px;
+  background: var(--color-gold);
+  box-shadow: 0 0 6px color-mix(in oklch, var(--color-gold) 45%, transparent);
+  content: '';
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.section-nav__item[aria-current='page']::after {
+  opacity: 1;
+}
+
+/* Central rhombus: a square 56px target, the diamond drawn inside, upright to the viewport. */
+.shell-rhombus-slot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 5;
+  translate: -50% -50%;
+  pointer-events: none;
+}
+
+.shell-rhombus {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  pointer-events: auto;
+  transition: transform 90ms var(--ease-out);
+}
+
+.shell-rhombus:hover:not(:disabled) {
+  border: 0;
+  background: transparent;
+}
+
+.shell-rhombus:active {
+  transform: translateY(1px);
+}
+
+.shell-rhombus__art {
+  width: 56px;
+  height: 56px;
+  overflow: visible;
+}
+
+.shell-rhombus__diamond {
+  fill: var(--color-ink);
+  stroke: var(--color-gold-line);
+  stroke-width: 1;
+  transition: stroke 90ms var(--ease-out);
+}
+
+.shell-rhombus__inner {
+  fill: none;
+  stroke: var(--color-gold-hairline);
+  stroke-width: 1;
+}
+
+.shell-rhombus__sigil {
+  fill: color-mix(in oklch, var(--color-primary) 80%, var(--color-gold));
+  transition:
+    fill var(--duration-fast) var(--ease-out),
+    filter var(--duration-fast) var(--ease-out);
+}
+
+.shell-rhombus:hover .shell-rhombus__diamond,
+.shell-rhombus:focus-visible .shell-rhombus__diamond {
+  stroke: var(--color-gold);
+}
+
+.shell-rhombus[aria-expanded='true'] .shell-rhombus__sigil {
+  fill: var(--color-gold-bright);
+  filter: drop-shadow(0 0 3px color-mix(in oklch, var(--color-gold) 55%, transparent));
+}
+
+.shell-rhombus__hint {
+  /* Coach label above the rhombus (R1 §13.2): upright, at most 9rem, never truncated; the card
+     it would cover keeps a band free (data-hint-side), so it never sits on text or controls. */
+  position: absolute;
+  bottom: calc(100% + 0.375rem);
+  left: 50%;
+  width: max-content;
+  max-width: 9rem;
+  margin: 0;
+  padding: 0.15rem 0.55rem;
+  border: 1px solid var(--color-gold-hairline);
+  border-radius: var(--radius-sm);
+  background: var(--color-ink);
+  color: var(--color-ivory);
+  font-size: 0.75rem;
+  line-height: 1.3;
+  text-align: center;
+  translate: -50% 0;
+  pointer-events: none;
+}
+
+/* The 64px free zone: a card keeps clear only the side or corner the rhombus touches, inside
+   its own frame, so the card proportions of D-034/D-035 never change. */
+.player-seat {
+  --centre-clear: 1.75rem;
+}
+
+.player-seat[data-clear$='end'] .player-panel {
+  padding-inline-end: var(--centre-clear);
+}
+
+.player-seat[data-clear$='start'] .player-panel {
+  padding-inline-start: var(--centre-clear);
+}
+
+.player-seat[data-clear='top'] .player-panel {
+  padding-top: var(--centre-clear);
+}
+
+.player-seat[data-clear='bottom'] .player-panel {
+  padding-bottom: var(--centre-clear);
+}
+
+/* While the first-use label shows, the card under it keeps a band free of text and controls. */
+.player-seat[data-hint-side='bottom'] .player-panel {
+  padding-bottom: var(--hint-reserve);
+}
+
+.player-seat[data-hint-side='top'] .player-panel {
+  padding-top: var(--hint-reserve);
+}
+
+.player-seat[data-hint-side='end'] .player-panel {
+  padding-inline-end: var(--hint-reserve);
+}
+
+.player-seat[data-hint-side='start'] .player-panel {
+  padding-inline-start: var(--hint-reserve);
+}
+
+/* Sections outside the game: one readable column under the persistent bar. */
+.app-view[hidden] {
+  display: none;
+}
+
+.app-view {
+  animation: section-in var(--duration-fast) var(--ease-out);
+}
+
+@keyframes section-in {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+}
+
+.screen {
+  width: min(100%, 46rem);
+  margin-inline: auto;
+  padding: var(--space-4) var(--space-4) var(--space-8);
+}
+
+@media (min-width: 48rem) {
+  .screen {
+    padding-inline: var(--space-6);
+  }
+}
+
+.screen h1 {
+  margin: 0;
+  color: var(--color-ivory);
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.screen h1:focus {
+  outline: none;
+}
+
+.screen h1:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 4px;
+}
+
+.screen__subtitle {
+  margin: var(--space-1) 0 var(--space-4);
+  color: var(--color-text-muted);
+}
+
+/* Altro: an editorial list with group titles and gold hairlines, rows of at least 52px. */
+.settings-group {
+  display: grid;
+  gap: var(--space-3);
+  padding-block: var(--space-4);
+}
+
+.settings-group h2 {
+  margin: 0;
+  color: var(--color-gold);
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.settings-group--current {
+  margin-top: var(--space-6);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-gold-hairline);
+}
+
+.settings-row {
+  display: grid;
+  gap: var(--space-2);
+  min-height: 52px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-gold-hairline);
+  border-radius: var(--radius-md);
+  background: color-mix(in oklch, var(--color-ink) 92%, transparent);
+}
+
+.settings-row__label {
+  margin: 0;
+  color: var(--color-ivory);
+  font-weight: 650;
+}
+
+.settings-row__hint,
+.settings-row__value {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.settings-row--switch {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  cursor: pointer;
+}
+
+.settings-row--switch .settings-row__hint {
+  grid-column: 1;
+}
+
+.settings-switch {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  position: relative;
+  width: 3.25rem;
+  height: 2rem;
+  margin: 0;
+  border: 1px solid var(--color-gold-line);
+  border-radius: var(--radius-round);
+  background: var(--color-ink-raised);
+  cursor: pointer;
+  appearance: none;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.settings-switch::after {
+  position: absolute;
+  top: 50%;
+  left: 0.25rem;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+  content: '';
+  translate: 0 -50%;
+  transition: translate var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out);
+}
+
+.settings-switch:checked {
+  background: color-mix(in oklch, var(--color-primary) 35%, var(--color-ink));
+}
+
+.settings-switch:checked::after {
+  background: var(--color-ivory);
+  translate: 1.2rem -50%;
+}
+
+.segmented {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.segmented__option {
+  min-width: 3rem;
+  min-height: 48px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.segmented__option[aria-checked='true'] {
+  border-color: var(--color-gold-bright);
+  background: color-mix(in oklch, var(--color-primary) 14%, var(--color-ink));
+  color: var(--color-ivory);
+}
+
+.primary-button {
+  min-height: 48px;
+  border-color: var(--color-gold-line);
+  background: color-mix(in oklch, var(--color-primary) 20%, var(--color-ink));
+  color: var(--color-ivory);
+  font-weight: 700;
+}
+
+.settings-group--info p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.settings-info__name {
+  color: var(--color-ivory) !important;
+}
+
+.settings-info__version {
+  margin-left: var(--space-2);
+  color: var(--color-text-muted);
+}
+
+/* Mazzi and Impara before R3/R4: honest placeholders, no fake buttons, no card. */
+.placeholder-screen__body {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  max-width: 48ch;
+  margin: var(--space-8) auto 0;
+  text-align: center;
+}
+
+.placeholder-screen--learn .placeholder-screen__body {
+  justify-items: start;
+  padding-left: var(--space-4);
+  border-left: 2px solid color-mix(in oklch, var(--color-primary) 60%, var(--color-gold));
+  text-align: left;
+}
+
+.placeholder-screen__icon .button-icon {
+  width: 3rem;
+  height: 3rem;
+  stroke-width: 1.25;
+}
+
+.placeholder-screen--decks .placeholder-screen__icon {
+  color: var(--color-primary);
+}
+
+.placeholder-screen--learn .placeholder-screen__icon {
+  color: var(--color-gold);
+}
+
+.placeholder-screen h2 {
+  margin: 0;
+  color: var(--color-ivory);
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  line-height: 1.15;
+}
+
+.placeholder-screen p {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.placeholder-screen__status {
+  padding: 0.2rem 0.75rem;
+  border: 1px solid var(--color-gold-line);
+  border-radius: var(--radius-round);
+  color: var(--color-gold-bright) !important;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.rules-bridge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 48px;
+  margin-top: var(--space-2);
+  padding-inline: var(--space-4);
+  border-color: var(--color-gold-line);
+  background: color-mix(in oklch, var(--color-primary) 14%, var(--color-ink));
+}
+
+/* Notices during play: a compact toast above the bottom safe area, upright, outside the table. */
+.app-notices[data-placement='toast'] {
+  position: fixed;
+  bottom: max(var(--space-4), env(safe-area-inset-bottom));
+  left: 50%;
+  z-index: 30;
+  width: min(calc(100vw - 2rem), 30rem);
+  margin: 0;
+  translate: -50% 0;
+}
+
+.app-notices[data-placement='toast'] .app-notice {
+  border-color: var(--color-gold-line);
+  background: var(--color-ink-raised);
+  box-shadow: var(--shadow-panel);
   font-size: 0.85rem;
 }

@@ -365,3 +365,31 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 - **Conferma:** D-019, D-025, D-034/D-035 (geometrie), D-036.
 - **Import mazzi:** solo da testo incollato. Moxfield (403) e Archidekt (origine consentita solo `localhost:3000`) non si possono leggere da un link senza un server.
 - **Specifica:** [`docs/superpowers/specs/2026-10-20-app-restructure-design.md`](superpowers/specs/2026-10-20-app-restructure-design.md).
+
+## D-038 — R1: guscio a quattro sezioni (implementazione)
+- **Stato:** Implementata da Claude (2026-10-20) secondo il design R1 approvato (`docs/superpowers/specs/2026-10-20-r1-shell-design.md`) e il piano `docs/superpowers/plans/2026-10-20-r1-shell.md`. Revisione di design finale di ChatGPT superata (2026-10-20), con l'assestamento una tantum del rombo accettato.
+- **Struttura:**
+  - Sezioni nell'indirizzo (`#mazzi`, `#impara`, `#altro`; senza hash è Partita): il ricaricamento resta sulla sezione e il tasto Indietro torna alla precedente.
+  - La partita resta montata e viene solo nascosta, quindi i pannelli non si rimontano mai.
+  - Barra superiore `nav` con `aria-current`: fissa fuori dalla partita; in partita nascosta, rivelata dal rombo sopra il tavolo senza spostare le carte.
+- **Rimossi** (superano D-003, D-014, D-016, D-022, D-034 per l'accesso): intestazione, marchio, piè di pagina, Annulla/Ripeti con le scorciatoie, barra Annulla dopo la rimozione, foglio laterale del layout, popover Partita, Preferenze e «Stato app».
+- **Altro:**
+  - layout inline secondo il numero di giocatori della partita corrente;
+  - schermo acceso (switch);
+  - nuova partita con bozza 2/3/4 e conferma;
+  - azzera;
+  - informazioni: versione, Scryfall, avviso Fan Content (D-025 resta visibile qui e nelle Regole).
+- **Impara:** ponte «Riferimento rapido Commander» verso le Regole attuali fino a R4.
+- **Rombo:**
+  - pulsante da 56 px, con suggerimento al primo uso salvato in `rhombusHintSeen`;
+  - posizione e zona libera da 64 px calcolate da un modulo geometrico puro (`src/shell/centre.ts`) e misurate dal vivo. Il rombo sta al centro del tavolo; se il centro cade dentro una carta (3 in fila o impilate), si sposta sulla giuntura più vicina;
+  - ogni carta toccata riserva il proprio lato o angolo (`data-clear`) senza cambiare proporzioni.
+- **Schermo acceso:** il Wake Lock è attivo solo con Partita visibile.
+- **Verifica:**
+  - 390 test;
+  - browser a 390×844, 320×568, 640×400, 768×1024, 844×390, 844×330 e 1440×900, con Griglia, Fronte a fronte, Tavolo, 2 giocatori (stesso lato e fronte a fronte) e 3 giocatori. Nessuna sovrapposizione del rombo con controlli o testi visibili, nessun pulsante sotto 44 px, nessuno scroll orizzontale; le carte non si muovono quando la barra compare.
+- **Revisione ChatGPT (design §13), correzioni applicate:**
+  1. **Colonna verticale:** se la zona da 64 px intorno al centro non è tutta nel primo schermo, il rombo usa la prima giuntura interna che ci sta. Il punto è ancorato nel documento e non segue lo scroll. A 390×844 e 320×568 il rombo è a y=456, sulla giuntura fra Giocatore 1 e Giocatore 2, visibile subito.
+  2. **Suggerimento:** «Tocca ◇ per le sezioni» sopra il rombo, al massimo 9rem, senza timer, nascosto agli screen reader (il pulsante dice già «Mostra le sezioni»). La carta che coprirebbe riserva una fascia libera sul lato rivolto all'etichetta (`data-hint-side`, `--hint-reserve`): fondo della carta sopra in colonna e agli incroci, lati affiancati con due giocatori. Misurato: zero sovrapposizioni a 390×844, 320×568 e 844×390.
+  3. **Due giocatori, Fronte a fronte:** stessa geometria, dimensioni e densità di Stesso lato; ruota solo il Giocatore 2 di 180°. Tolte le due metà a tutta altezza e i pannelli compatti forzati, e le anteprime hanno ora la stessa sagoma. Misurato: altezza del tavolo, scroll, dimensioni delle carte e posizione del rombo identici fra le due opzioni a 390×844 e 844×390. Supera la parte geometrica della D-035.
+- **Effetto accettato:** mentre il suggerimento è visibile, la carta sopra la giuntura è più alta della fascia riservata (in colonna). Al primo tocco del rombo la fascia sparisce e il rombo risale una sola volta.

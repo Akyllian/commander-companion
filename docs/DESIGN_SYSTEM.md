@@ -138,7 +138,7 @@ Icon family: 24×24 viewBox, rounded 1.75px stroke, `currentColor` (muted ivory 
 ## Two-player layouts (D-035) — implemented, awaiting design review
 
 - **Access:** the same `Layout` trigger appears with two players, named `Layout dei due giocatori`. The sheet shows `Stesso lato` (`Tutti e due verso di te`) and `Fronte a fronte` (`Uno per lato`), with the same option, preview and keyboard pattern as D-034.
-- **Geometry:** `main[data-layout='two-facing']`, one column, two equal rows (`top` = player 2 at 180°, `bottom` = player 1 at 0°). The shell becomes a flex column, so the two halves share exactly the space between header and footer. Compact panels are used in every density.
+- **Geometry (updated by R1 §13.3):** `two-facing` reuses the Stesso lato seats, sizes and density at every breakpoint; only player 2's content turns 180°. The previews share one silhouette.
 - **Preference:** `twoPlayerLayout`, stored apart from `fourPlayerLayout`.
 
 ## Cumulative delta (D-036) — implemented, awaiting design review
@@ -153,3 +153,19 @@ Icon family: 24×24 viewBox, rounded 1.75px stroke, `currentColor` (muted ivory 
   - it speaks once per settled burst, keyed by the history group, never for a mode or source change;
   - Commander damage says damage and life together;
   - life changes outside a burst (Undo, Redo, reset, another tab) are spoken once they settle.
+
+## App shell (R1, D-038) — implemented, awaiting design review
+
+- **Sections:** `src/shell/sections.ts` defines the order Partita, Mazzi, Impara, Altro and the address `#mazzi|#impara|#altro` (no hash means Partita). `useSection` follows Back and Forward.
+- **Bar:** `.section-nav[data-state]`:
+  - `persistent`: sticky ink band with a gold hairline;
+  - `revealed`: fixed over the game, entering in `--duration-nav-in` 180 ms (−8px→0) and leaving in `--duration-nav-out` 140 ms;
+  - `hidden`: `hidden` plus `inert`.
+  Items are at least 48px, labels 0.72rem (0.68 compact) uppercase with tracking 0.08em. The active item gets gold and a 2px line that lights in place.
+- **Rhombus:** `.shell-rhombus` is a square 56px button containing an SVG diamond (ink, gold line, inner hairline) and a teal sigil that turns gold when expanded. Press: 1px over 90ms. Until the first use, the coach label «Tocca ◇ per le sezioni» sits above it (see Coach label below).
+- **Portrait column (§13.1):** when the 64px zone around the table centre is not on the first screen, the rhombus uses the first inner seam that is fully visible. Measured in document coordinates, it never follows scroll.
+- **Coach label (§13.2):** `.shell-rhombus__hint` reads «Tocca ◇ per le sezioni», sits above the rhombus, is at most 9rem, `aria-hidden` and `pointer-events: none`. Each card it would cover gets `data-hint-side` and `--hint-reserve` (from `hintReserve` in `centre.ts`) and keeps that band free until the first rhombus press.
+- **Free zone:** `useCentreLayout` measures the grid and seats. `.player-seat[data-clear]` pads the card on the touching side or corner (`--centre-clear: 1.75rem`), in the card's own frame.
+- **Altro:** `.screen` is a 46rem column. `.settings-group` titles are gold uppercase 0.75rem; `.settings-row` rows are at least 52px. The reset sits in its own group 24px below a hairline. Also `.settings-switch`, `.segmented` and `.primary-button`.
+- **Placeholders:** `.placeholder-screen` with a 3rem line icon (teal for Mazzi, gold for Impara) and a serif heading. Mazzi has a `In preparazione` pill; Impara has the `.rules-bridge` button.
+- **Notices:** `.app-notices[data-placement]`, `inline` under the bar outside the game, `toast` fixed above the bottom safe area during play.

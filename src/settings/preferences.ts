@@ -21,20 +21,28 @@ export interface Preferences {
   fourPlayerLayout: FourPlayerLayout
   /** Kept separately, so switching between 2 and 4 players restores each table's choice. */
   twoPlayerLayout: TwoPlayerLayout
+  /** The "Tocca il sigillo per le sezioni" hint shows until the rhombus is first used (R1). */
+  rhombusHintSeen: boolean
 }
 
-export const DEFAULT_PREFERENCES: Preferences = { keepScreenOn: true, fourPlayerLayout: 'grid', twoPlayerLayout: 'same-side' }
+export const DEFAULT_PREFERENCES: Preferences = {
+  keepScreenOn: true,
+  fourPlayerLayout: 'grid',
+  twoPlayerLayout: 'same-side',
+  rhombusHintSeen: false,
+}
 
 /** Unknown or partial data falls back field by field to the defaults. */
 export function loadPreferences(): Preferences {
   try {
     const parsed: unknown = JSON.parse(localStorage.getItem(PREFERENCES_KEY) ?? 'null')
     if (typeof parsed !== 'object' || parsed === null) return DEFAULT_PREFERENCES
-    const { keepScreenOn, fourPlayerLayout, twoPlayerLayout } = parsed as Record<string, unknown>
+    const { keepScreenOn, fourPlayerLayout, twoPlayerLayout, rhombusHintSeen } = parsed as Record<string, unknown>
     return {
       keepScreenOn: typeof keepScreenOn === 'boolean' ? keepScreenOn : DEFAULT_PREFERENCES.keepScreenOn,
       fourPlayerLayout: isFourPlayerLayout(fourPlayerLayout) ? fourPlayerLayout : DEFAULT_PREFERENCES.fourPlayerLayout,
       twoPlayerLayout: isTwoPlayerLayout(twoPlayerLayout) ? twoPlayerLayout : DEFAULT_PREFERENCES.twoPlayerLayout,
+      rhombusHintSeen: typeof rhombusHintSeen === 'boolean' ? rhombusHintSeen : DEFAULT_PREFERENCES.rhombusHintSeen,
     }
   } catch {
     return DEFAULT_PREFERENCES

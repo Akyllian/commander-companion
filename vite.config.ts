@@ -2,6 +2,7 @@ import { loadEnv } from 'vite'
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import pkg from './package.json' with { type: 'json' }
 
 /** `BASE_PATH=/repo-name/` for hosts that serve the app from a subfolder (e.g. GitHub Pages). */
 function basePath(value: string | undefined): string {
@@ -14,6 +15,8 @@ export default defineConfig(({ mode }) => {
 
   return {
     base,
+    // Shown in Altro → Informazioni (R1).
+    define: { APP_VERSION: JSON.stringify(pkg.version) },
     plugins: [
       react(),
       VitePWA({
