@@ -393,3 +393,23 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
   2. **Suggerimento:** «Tocca ◇ per le sezioni» sopra il rombo, al massimo 9rem, senza timer, nascosto agli screen reader (il pulsante dice già «Mostra le sezioni»). La carta che coprirebbe riserva una fascia libera sul lato rivolto all'etichetta (`data-hint-side`, `--hint-reserve`): fondo della carta sopra in colonna e agli incroci, lati affiancati con due giocatori. Misurato: zero sovrapposizioni a 390×844, 320×568 e 844×390.
   3. **Due giocatori, Fronte a fronte:** stessa geometria, dimensioni e densità di Stesso lato; ruota solo il Giocatore 2 di 180°. Tolte le due metà a tutta altezza e i pannelli compatti forzati, e le anteprime hanno ora la stessa sagoma. Misurato: altezza del tavolo, scroll, dimensioni delle carte e posizione del rombo identici fra le due opzioni a 390×844 e 844×390. Supera la parte geometrica della D-035.
 - **Effetto accettato:** mentre il suggerimento è visibile, la carta sopra la giuntura è più alta della fascia riservata (in colonna). Al primo tocco del rombo la fascia sparisce e il rombo risale una sola volta.
+
+## D-039 — R2: Partita (decisioni tecniche approvate)
+- **Stato:** Piano approvato da ChatGPT (2026-10-20) con due correzioni, recepite qui e nel piano `docs/superpowers/plans/2026-10-20-r2-match.md`. Design normativo: `docs/superpowers/specs/2026-10-20-r2-match-design.md`. Implementazione in corso; questa voce si completa con le verifiche a fine fase.
+- **Arte casuale:**
+  - **Dove sta:** un envelope di presentazione separato dalla partita e dalla cronologia (`commander-companion.match`, versione 1), con `matchId`, `randomArtBySeat` (chiave = id giocatore) e `spareArt`.
+  - **Identità:** un'assegnazione è identificata da `(matchId, playerId)`.
+  - **Pulizia della cache:** tutti gli ID dell'envelope fanno parte del keep-set.
+- **Ordine di assegnazione:**
+  1. l'arte del posto per questa partita, se è in cache;
+  2. un'illustrazione nuova da Scryfall (`/cards/random?q=has:art -is:digital`), al massimo 3 tentativi per posto, in sequenza tramite un limitatore condiviso con almeno 125 ms fra le richieste;
+  3. solo dopo un errore o l'assenza di rete: `spareArt`, cioè al massimo 4 illustrazioni in cache delle partite precedenti e non ancora usate;
+  4. la texture neutra.
+  - Al primo errore di rete le richieste si interrompono. Online `spareArt` non si usa mai.
+- **Una sola superficie transitoria:** è un modello puro (`src/match/surface.ts`). Un tocco fuori dal rombo passa per un livello trasparente che chiude hub o strumento e consuma il gesto: non attiva mai i controlli della carta sotto.
+- **Fuori dalla partita:** vale per tutte le cause tracciate (vita, veleno, danni Commander). Dettagli mostra tutte le cause. Lo stato è derivato dai punteggi, quindi sparisce da solo appena una correzione elimina ogni causa.
+- **Strumenti:**
+  - il risultato di Dadi e Moneta si perde con qualunque uscita dallo strumento;
+  - il Mana è condiviso e non viene salvato: resta anche cambiando sezione e si azzera solo a mano, con Nuova partita confermata o ricaricando la pagina.
+- **Suggerimento del rombo:** è versionato (`rhombusHintVersion`; il flag R1 diventa versione 1), così il nuovo suggerimento R2 compare una volta anche a chi aveva visto quello R1.
+- **Supera:** il dock D-033 e, della D-038, il comportamento del rombo come accesso diretto alle sezioni (spec R2 §14).
