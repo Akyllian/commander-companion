@@ -7,7 +7,7 @@ import {
   TWO_PLAYER_LAYOUTS,
 } from './preferences'
 
-const base = { keepScreenOn: true, fourPlayerLayout: 'grid', twoPlayerLayout: 'same-side' } as const
+const base = { keepScreenOn: true, fourPlayerLayout: 'grid', twoPlayerLayout: 'same-side', rhombusHintSeen: false } as const
 
 afterEach(() => vi.restoreAllMocks())
 
@@ -53,7 +53,24 @@ describe('preferences', () => {
 
   it('falls back to the same side for an unknown two-player layout, keeping the rest', () => {
     localStorage.setItem(PREFERENCES_KEY, '{"keepScreenOn":false,"fourPlayerLayout":"table","twoPlayerLayout":"diagonal"}')
-    expect(loadPreferences()).toEqual({ keepScreenOn: false, fourPlayerLayout: 'table', twoPlayerLayout: 'same-side' })
+    expect(loadPreferences()).toEqual({ ...base, keepScreenOn: false, fourPlayerLayout: 'table' })
+  })
+
+  it('starts with the rhombus hint unseen', () => {
+    expect(loadPreferences().rhombusHintSeen).toBe(false)
+  })
+
+  it('round-trips the seen hint', () => {
+    savePreferences({ ...base, rhombusHintSeen: true })
+    expect(loadPreferences().rhombusHintSeen).toBe(true)
+  })
+
+  it('falls back to unseen for a non-boolean hint, keeping the rest', () => {
+    localStorage.setItem(
+      PREFERENCES_KEY,
+      '{"keepScreenOn":false,"fourPlayerLayout":"table","twoPlayerLayout":"facing","rhombusHintSeen":"yes"}',
+    )
+    expect(loadPreferences()).toEqual({ keepScreenOn: false, fourPlayerLayout: 'table', twoPlayerLayout: 'facing', rhombusHintSeen: false })
   })
 
   it('reports a failed write without throwing', () => {

@@ -8,7 +8,7 @@ const setup = ({ compact = false, showLayout = true } = {}) => {
       canUndo={false}
       canRedo={false}
       compact={compact}
-      preferences={{ keepScreenOn: true, fourPlayerLayout: 'grid', twoPlayerLayout: 'same-side' }}
+      preferences={{ keepScreenOn: true, fourPlayerLayout: 'grid', twoPlayerLayout: 'same-side', rhombusHintSeen: false }}
       onPreferencesChange={vi.fn()}
       showPreferences
       layoutLabel={showLayout ? 'Layout dei quattro giocatori' : null}

@@ -5,7 +5,7 @@ const setup = (supportsPopover: boolean) => {
   const onChange = vi.fn()
   render(
     <>
-      <PreferencesMenu preferences={{ keepScreenOn: true, fourPlayerLayout: 'table', twoPlayerLayout: 'facing' }} onChange={onChange} supportsPopover={supportsPopover} />
+      <PreferencesMenu preferences={{ keepScreenOn: true, fourPlayerLayout: 'table', twoPlayerLayout: 'facing', rhombusHintSeen: false }} onChange={onChange} supportsPopover={supportsPopover} />
       <p>fuori</p>
     </>,
   )
@@ -21,7 +21,7 @@ describe('PreferencesMenu (fallback without the Popover API)', () => {
     fireEvent.click(button)
     expect(button).toHaveAttribute('aria-expanded', 'true')
     fireEvent.click(screen.getByRole('checkbox', { name: /mantieni lo schermo acceso/i }))
-    expect(onChange).toHaveBeenCalledWith({ keepScreenOn: false, fourPlayerLayout: 'table', twoPlayerLayout: 'facing' })
+    expect(onChange).toHaveBeenCalledWith({ keepScreenOn: false, fourPlayerLayout: 'table', twoPlayerLayout: 'facing', rhombusHintSeen: false })
 
     fireEvent.click(button)
     expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
