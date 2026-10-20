@@ -68,10 +68,10 @@ export const TWO_PLAYER_CHOICES: ReadonlyArray<LayoutChoice<TwoPlayerLayout>> = 
     id: 'facing',
     name: 'Fronte a fronte',
     description: 'Uno per lato',
-    // Player 1 near the bottom edge, player 2 across the table.
+    // Same silhouette as Stesso lato: only the opposite player's mark turns (R1 §13.3).
     seats: [
-      { x: 10, y: 42, w: 100, h: 30, facing: 'bottom' },
-      { x: 10, y: 8, w: 100, h: 30, facing: 'top' },
+      { x: 10, y: 8, w: 48, h: 64, facing: 'bottom' },
+      { x: 62, y: 8, w: 48, h: 64, facing: 'top' },
     ],
   },
 ]

@@ -2284,37 +2284,6 @@ button:hover:not(:disabled) {
   stroke: var(--color-gold-bright);
 }
 
-/* Two players face to face (D-035): one horizontal half each, player 1 on the near edge and
-   player 2 across, turned 180°. Same in every density; the page scrolls rather than squeezing. */
-.app-shell .player-grid[data-layout='two-facing'][data-player-count] {
-  grid-template-areas:
-    'top'
-    'bottom';
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: repeat(2, minmax(min-content, 1fr));
-  min-height: 0;
-}
-
-/* The two halves share exactly the height left by header and footer: with the device in the
-   middle of the table, nobody has to scroll to reach their own panel. */
-.app-shell:not([data-compact-density='true']):has(> .player-grid[data-layout='two-facing']) {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  min-height: 100dvh;
-}
-
-.app-shell:has(> .player-grid[data-layout='two-facing']) > .player-grid {
-  flex: 1 1 auto;
-}
-
-.player-grid[data-layout='two-facing'] > [data-seat='top'] {
-  grid-area: top;
-}
-
-.player-grid[data-layout='two-facing'] > [data-seat='bottom'] {
-  grid-area: bottom;
-}
 
 /* Delta sizes (D-036): clearly visible, always far smaller than the value it belongs to. */
 .life-value .delta-badge {

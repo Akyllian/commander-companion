@@ -10,11 +10,12 @@ describe('seatFor (D-034)', () => {
     expect([0, 1, 2, 3].map((index) => seatFor(layout, index).orientation)).toEqual(orientations)
   })
 
-  it('turns the far player of a two-player table toward their side (D-035)', () => {
+  it('keeps the side-by-side seats for two players face to face, turning only the opposite one (D-035, R1 §13.3)', () => {
     expect([0, 1].map((index) => seatFor('two-facing', index))).toEqual([
-      { seat: 'bottom', orientation: 0 },
-      { seat: 'top', orientation: 180 },
+      { seat: 'top-start', orientation: 0 },
+      { seat: 'top-end', orientation: 180 },
     ])
+    expect([0, 1].map((index) => seatFor('grid', index).seat)).toEqual(['top-start', 'top-end'])
   })
 
   it('puts the table seats on the approved edges', () => {

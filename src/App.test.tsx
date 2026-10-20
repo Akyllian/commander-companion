@@ -625,9 +625,9 @@ describe('two-player layouts (D-035)', () => {
     goTo('Partita')
 
     expect(document.getElementById('main')).toHaveAttribute('data-layout', 'two-facing')
-    expect(seatOf(/giocatore 1$/i)).toHaveAttribute('data-seat', 'bottom')
+    expect(seatOf(/giocatore 1$/i)).toHaveAttribute('data-seat', 'top-start')
     expect(seatOf(/giocatore 1$/i)).toHaveAttribute('data-orientation', '0')
-    expect(seatOf(/giocatore 2$/i)).toHaveAttribute('data-seat', 'top')
+    expect(seatOf(/giocatore 2$/i)).toHaveAttribute('data-seat', 'top-end')
     expect(seatOf(/giocatore 2$/i)).toHaveAttribute('data-orientation', '180')
     expect(screen.getAllByRole('region').map((region) => region.getAttribute('aria-label'))).toEqual([
       'Segnapunti di Giocatore 1',
@@ -642,11 +642,13 @@ describe('two-player layouts (D-035)', () => {
     })
   })
 
-  it('uses compact panels face to face, so both fit with the device in the middle', () => {
+  it('keeps the side-by-side density face to face: only the opposite player turns (R1 §13.3)', () => {
     localStorage.setItem(PREFS, JSON.stringify({ keepScreenOn: true, fourPlayerLayout: 'grid', twoPlayerLayout: 'facing' }))
     localStorage.setItem(STORAGE_KEY, JSON.stringify(createGame(2)))
     render(<App />)
-    expect(screen.getAllByRole('region').every((region) => region.hasAttribute('data-compact'))).toBe(true)
+    expect(screen.getAllByRole('region').some((region) => region.hasAttribute('data-compact'))).toBe(false)
+    expect(seatOf(/giocatore 1$/i)).toHaveAttribute('data-orientation', '0')
+    expect(seatOf(/giocatore 2$/i)).toHaveAttribute('data-orientation', '180')
   })
 
   it('switches to the two-player layout as soon as the third player leaves', () => {

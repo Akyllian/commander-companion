@@ -129,9 +129,9 @@ export default function App() {
   const playerCount = game.players.length
   const layout: TableLayout =
     playerCount === 4 ? preferences.fourPlayerLayout : playerCount === 2 && preferences.twoPlayerLayout === 'facing' ? 'two-facing' : 'grid'
-  // With the device in the middle of the table every player must fit without scrolling, so
-  // Tavolo and two players face to face always use compact panels (D-034, D-035).
-  const panelDensity = compact || layout === 'table' || layout === 'two-facing'
+  // Tavolo seats are short strips along an edge, so they always use compact panels (D-034).
+  // Two players face to face keep the density of Stesso lato (R1 §13.3).
+  const panelDensity = compact || layout === 'table'
 
   // Layout change: one 140 ms crossfade with a 2px settle on the whole grid, never an animated
   // rotation and never a remount; immediate with reduced motion (D-034).
