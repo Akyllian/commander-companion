@@ -424,6 +424,6 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
   2. **Chiusura delle superfici interne senza dissolvenza.** Si chiudono smontandosi, quindi i 140 ms di uscita non si vedono; resta l'ingresso di 180 ms.
   3. **Suggerimento del rombo nascosto mentre una superficie è aperta.** Altrimenti copriva la tendina; la fascia riservata resta, quindi nessuna carta si muove.
 - **Verifica:**
-  - 499 test, `npm run verify` verde;
+  - 501 test, `npm run verify` verde;
   - controllo automatico nel browser a 320×568, 390×844, 640×400, 768×1024, 844×390, 844×330 e 1440×900, con Griglia, Fronte a fronte, Tavolo (844×390 e 768×1024) e 2 giocatori fronte a fronte. Esito: nessun controllo sotto 44 px, nessuno scroll orizzontale, tendine e pannelli dentro la carta, colonne compatte di 123 px, hub e strumenti dentro lo schermo meno 12 px, carte ferme all'apertura di ogni superficie.
 
