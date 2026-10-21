@@ -96,6 +96,6 @@ Ordine proposto per il nuovo lavoro: `2e (accesso diretto) → 2d (layout manual
 | Fase | Contenuto | Stato |
 | --- | --- | --- |
 | R1 — Guscio | Schede Partita/Mazzi/Impara/Altro, Impostazioni, rimozione di intestazione, ingranaggio, Annulla/Ripeti | ✅ implementata e approvata (D-038); prova sul telefono da fare |
-| R2 — Partita | Carta giocatore del mockup, tendina contatori, rombo con Dadi, Mana e Moneta, arte casuale | ✅ implementata (D-039), in revisione di design; prova sul telefono da fare |
-| R3 — Mazzi | Import da testo e Scryfall, offline, categorie automatiche, note, mano di prova, collegamento al giocatore | dopo R2 |
+| R2 — Partita | Carta giocatore del mockup, tendina contatori, rombo con Dadi, Mana e Moneta, arte casuale | ✅ implementata e approvata (D-039); prova sul telefono da fare (checklist §16) |
+| R3 — Mazzi | Import da testo e Scryfall, offline, categorie automatiche, note, mano di prova, collegamento al giocatore | prossima: design da preparare |
 | R4 — Impara | Manuale interattivo che assorbe le Regole | dopo R1 |

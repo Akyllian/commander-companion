@@ -395,7 +395,7 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 - **Effetto accettato:** mentre il suggerimento è visibile, la carta sopra la giuntura è più alta della fascia riservata (in colonna). Al primo tocco del rombo la fascia sparisce e il rombo risale una sola volta.
 
 ## D-039 — R2: Partita (decisioni tecniche approvate)
-- **Stato:** Piano approvato da ChatGPT (2026-10-20) con due correzioni, recepite qui e nel piano `docs/superpowers/plans/2026-10-20-r2-match.md`. Design normativo: `docs/superpowers/specs/2026-10-20-r2-match-design.md`. Implementata da Claude (2026-10-20), in attesa della revisione di design di ChatGPT.
+- **Stato:** Piano approvato da ChatGPT (2026-10-20) con due correzioni, recepite qui e nel piano `docs/superpowers/plans/2026-10-20-r2-match.md`. Design normativo: `docs/superpowers/specs/2026-10-20-r2-match-design.md`. Implementata da Claude (2026-10-20); revisione finale di ChatGPT superata (2026-10-21) sul commit `58789ab`.
 - **Arte casuale:**
   - **Dove sta:** un envelope di presentazione separato dalla partita e dalla cronologia (`commander-companion.match`, versione 1), con `matchId`, `randomArtBySeat` (chiave = id giocatore) e `spareArt`.
   - **Identità:** un'assegnazione è identificata da `(matchId, playerId)`.
@@ -443,4 +443,8 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 - **Verifica:**
   - 523 test, `npm run verify` verde;
   - controllo automatico nel browser a 320×568, 390×844, 640×400, 768×1024, 844×390, 844×330 e 1440×900, con Griglia, Fronte a fronte, Tavolo (844×390 e 768×1024) e 2 giocatori fronte a fronte. Esito: nessun controllo sotto 44 px, nessuno scroll orizzontale, tendine e pannelli dentro la carta, colonne compatte di 123 px, hub e strumenti dentro lo schermo meno 12 px, carte ferme all'apertura di ogni superficie.
+- **Follow-up non bloccanti (revisione finale, 2026-10-21):**
+  1. limitare il salto spaziale del pannello di uno strumento quando il risultato lo fa passare su un altro lato del rombo;
+  2. valutare un header sticky per Mana nei pannelli che scorrono;
+  3. sostituire i troncamenti della tendina compatta (per esempio il nome nel binario da 56 px) con abbreviazioni intenzionali.
 
