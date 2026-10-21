@@ -3235,3 +3235,9 @@ button:hover:not(:disabled) {
 .shell-rhombus__hint[data-dimmed] {
   visibility: hidden;
 }
+
+/* Compact life follows the viewport height too, so two rows of cards fit a 330px landscape
+   viewport without the page scrolling (R2 review, D-039). It stays the largest element. */
+.player-panel[data-compact] .life-zone .life-total {
+  font-size: min(6rem, 22dvh);
+}
