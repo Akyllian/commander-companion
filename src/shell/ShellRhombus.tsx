@@ -7,6 +7,8 @@ interface ShellRhombusProps {
   controlsId: string
   /** The coach label «Tocca ◇ per strumenti e sezioni», until the first use (R1 §13.2, R2 §7.1). */
   showHint: boolean
+  /** Hidden but still laid out, so the cards keep its reserved band (R2 §7.1). */
+  hintDimmed?: boolean
   onToggle: () => void
   buttonRef?: React.Ref<HTMLButtonElement>
   /** Placement inside the table, from the centre geometry (R1 Task 7). */
@@ -18,12 +20,12 @@ interface ShellRhombusProps {
  * meaning — open tools and sections. Open, it closes them. The diamond is drawn inside; the hit
  * area stays square.
  */
-export function ShellRhombus({ expanded, controlsId, showHint, onToggle, buttonRef, style }: ShellRhombusProps) {
+export function ShellRhombus({ expanded, controlsId, showHint, hintDimmed = false, onToggle, buttonRef, style }: ShellRhombusProps) {
   return (
     <div className="shell-rhombus-slot" style={style}>
       {/* Above the rhombus; silent, since the button already says what it opens. */}
       {showHint && (
-        <p className="shell-rhombus__hint" aria-hidden="true">
+        <p className="shell-rhombus__hint" aria-hidden="true" data-dimmed={hintDimmed || undefined}>
           Tocca ◇ per strumenti e sezioni
         </p>
       )}

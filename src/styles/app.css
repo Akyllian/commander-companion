@@ -3229,3 +3229,9 @@ button:hover:not(:disabled) {
   min-height: 2.75rem;
   border: 1px solid color-mix(in oklch, var(--color-gold) 40%, transparent);
 }
+
+/* While a surface is open the first-use label is hidden but keeps its box: the cards' reserved
+   band stays the same until the first hub session closes (R2 §7.1, D-039). */
+.shell-rhombus__hint[data-dimmed] {
+  visibility: hidden;
+}

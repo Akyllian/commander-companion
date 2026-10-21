@@ -902,6 +902,9 @@ describe('app shell (D-037, R1, R2 §7)', () => {
     const first = render(<App />)
     expect(screen.getByText('Tocca ◇ per strumenti e sezioni')).toBeInTheDocument()
     fireEvent.click(rhombus())
+    // During the first hub session it is hidden but keeps its place (D-039).
+    expect(screen.getByText('Tocca ◇ per strumenti e sezioni')).toHaveAttribute('data-dimmed')
+    fireEvent.click(rhombus())
     expect(screen.queryByText('Tocca ◇ per strumenti e sezioni')).not.toBeInTheDocument()
     first.unmount()
     render(<App />)
@@ -1030,5 +1033,57 @@ describe('one transient surface at a time (R2 §2.5)', () => {
     render(<App />)
     openCounters(panel(/giocatore 1/i))
     for (const seat of document.querySelectorAll('.player-seat')) expect(seat).not.toHaveAttribute('inert')
+  })
+})
+
+describe('first-use hint reserve (R2 §7.1, D-039)', () => {
+  /** A measured 390px column of four 220px cards, so the rhombus and hint reserve are real. */
+  const measureColumn = () => {
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      if (this.id === 'main') return DOMRect.fromRect({ x: 0, y: 0, width: 390, height: 916 })
+      if (this.classList.contains('player-seat')) {
+        const index = Array.from(this.parentElement?.querySelectorAll(':scope > .player-seat') ?? []).indexOf(this)
+        return DOMRect.fromRect({ x: 0, y: index * 232, width: 390, height: 220 })
+      }
+      return DOMRect.fromRect({ x: 0, y: 0, width: 0, height: 0 })
+    })
+    vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockImplementation(function (this: HTMLElement) {
+      return this.classList.contains('shell-rhombus__hint') ? 144 : 0
+    })
+    vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockImplementation(function (this: HTMLElement) {
+      return this.classList.contains('shell-rhombus__hint') ? 40 : 0
+    })
+    vi.stubGlobal('innerWidth', 390)
+    vi.stubGlobal('innerHeight', 844)
+  }
+  const reserves = () => Array.from(document.querySelectorAll<HTMLElement>('.player-seat'), (seat) => seat.style.getPropertyValue('--hint-reserve'))
+  const rhombusButton = () => document.querySelector('.shell-rhombus') as HTMLElement
+
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('keeps the reserve through the first hub session and releases it only on close', () => {
+    measureColumn()
+    render(<App />)
+    const before = reserves()
+    expect(before.some(Boolean)).toBe(true)
+
+    fireEvent.click(rhombusButton())
+    expect(reserves()).toEqual(before)
+    // The label is hidden but keeps its place, so nothing inside the cards moves.
+    expect(document.querySelector('.shell-rhombus__hint')).toHaveAttribute('data-dimmed')
+    fireEvent.click(screen.getByRole('button', { name: 'Dadi' }))
+    expect(reserves()).toEqual(before)
+
+    fireEvent.keyDown(window, { key: 'Escape' })
+    expect(reserves().every((reserve) => reserve === '')).toBe(true)
+    expect(document.querySelector('.shell-rhombus__hint')).toBeNull()
+  })
+
+  it('keeps the reserve while a card panel is open before the first hub use', () => {
+    measureColumn()
+    render(<App />)
+    const before = reserves()
+    openCounters(panel(/giocatore 1/i))
+    expect(reserves()).toEqual(before)
   })
 })

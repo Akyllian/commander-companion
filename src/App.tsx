@@ -77,6 +77,9 @@ export default function App() {
   const groupDelta = getGroupDelta(history)
   const playing = section === 'partita'
   const showHint = hintPending(preferences)
+  // The first hub session keeps the hint's reserved band, so nothing in the cards moves until
+  // that session closes (R2 §7.1, D-039).
+  const [holdHint, setHoldHint] = useState(false)
 
   // Persist every change synchronously so a closed tab never loses the last action.
   // oxlint-disable-next-line react/set-state-in-effect -- the result comes from an external system (storage).
@@ -124,7 +127,10 @@ export default function App() {
 
   // The rhombus opens or closes the hub; hub and bar are never open together (R2 §7.4).
   const toggleHub = () => {
-    if (showHint) updatePreferences({ ...preferences, rhombusHintVersion: RHOMBUS_HINT_VERSION })
+    if (showHint) {
+      setHoldHint(true)
+      updatePreferences({ ...preferences, rhombusHintVersion: RHOMBUS_HINT_VERSION })
+    }
     setRevealed(false)
     setLastTool(null)
     dispatchSurface({ type: 'toggle-hub' })
@@ -172,6 +178,8 @@ export default function App() {
 
   // The hub is placed in the viewport from the rhombus' live position (R2 §7.3, §8).
   const hubOpen = blocksSeats(surface)
+  if (holdHint && surface.kind === 'closed') setHoldHint(false)
+  const hintShown = showHint || holdHint
   const [hubFrame, setHubFrame] = useState<{ anchor: Point; viewport: Rect; insets: Insets } | null>(null)
   useLayoutEffect(() => {
     if (!hubOpen) return
@@ -259,7 +267,7 @@ export default function App() {
   }, [layout])
 
   // The rhombus sits on the table's centre and each card keeps the touching corner free (R1).
-  const centre = useCentreLayout(gridRef, `${layout}|${playerCount}|${panelDensity}|${section}|${showHint}`)
+  const centre = useCentreLayout(gridRef, `${layout}|${playerCount}|${panelDensity}|${section}|${hintShown}`)
 
   const cells = game.players.map((player, index) => (
     <PlayerSeat
@@ -267,7 +275,7 @@ export default function App() {
       layout={layout}
       index={index}
       clear={centre.clearances[index]}
-      hintReserve={showHint ? centre.hintReserves[index] : null}
+      hintReserve={hintShown ? centre.hintReserves[index] : null}
       inert={blocksSeats(surface)}
     >
       <PlayerPanel
@@ -329,8 +337,9 @@ export default function App() {
         <ShellRhombus
           expanded={hubOpen}
           controlsId={HUB_ID}
-          // The label hides while a surface is open; its reserved band stays, so no card moves.
-          showHint={showHint && surface.kind === 'closed'}
+          // The label hides while a surface is open but keeps its place, so its reserved band stays.
+          showHint={hintShown}
+          hintDimmed={surface.kind !== 'closed'}
           onToggle={toggleHub}
           buttonRef={rhombusRef}
           style={centre.point ? { left: centre.point.x, top: centre.point.y } : undefined}
