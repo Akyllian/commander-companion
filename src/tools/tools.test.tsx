@@ -102,6 +102,17 @@ describe('Mana (R2 §8.2)', () => {
     expect(screen.getByRole('button', { name: 'Azzera mana' })).toBeDisabled()
   })
 
+  it('draws six distinct decorative symbols instead of letters (F34 exception)', () => {
+    render(<App />)
+    openTool('Mana')
+    const symbols = Array.from(document.querySelectorAll<SVGElement>('.mana-symbol'))
+    expect(symbols.map((symbol) => symbol.dataset.mana)).toEqual(['W', 'U', 'B', 'R', 'G', 'C'])
+    for (const symbol of symbols) expect(symbol).toHaveAttribute('aria-hidden', 'true')
+    // Each shape is its own drawing, not one glyph recoloured.
+    expect(new Set(symbols.map((symbol) => symbol.innerHTML)).size).toBe(6)
+    for (const letter of ['W', 'U', 'B', 'R', 'G', 'C']) expect(screen.queryByText(letter)).not.toBeInTheDocument()
+  })
+
   it('resets at once, without a dialog, and announces it', () => {
     render(<App />)
     openTool('Mana')

@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type React from 'react'
 import type { Point } from '../shell/centre'
-import { placePanel } from '../shell/hubGeometry'
+import { placeToolPanel } from '../shell/hubGeometry'
 import type { Insets, Rect } from '../shell/hubGeometry'
 
 /** Below this viewport width the tools use their narrow arrangement (R2 §8). */
@@ -17,9 +17,10 @@ interface ToolFrameProps {
 }
 
 /**
- * The panel of one rhombus tool (R2 §8): measured, then centred on the rhombus and translated
- * inside the viewport margins, with a hairline back to the rhombus when it had to move. A panel
- * too large for the free area is clamped to it and scrolls inside, never the page.
+ * The panel of one rhombus tool (R2 §8): measured, then placed beside the rhombus so the rhombus
+ * stays visible as the global close, kept inside the viewport margins, with a hairline back to
+ * the rhombus when it had to move. A panel too large for the free area is clamped to it and
+ * scrolls inside, never the page.
  */
 export function ToolFrame({ title, anchor, viewport, insets, onBack, children }: ToolFrameProps) {
   const panelRef = useRef<HTMLDivElement>(null)
@@ -40,7 +41,7 @@ export function ToolFrame({ title, anchor, viewport, insets, onBack, children }:
     return () => observer.disconnect()
   }, [])
 
-  const placed = size ? placePanel(anchor, size, viewport, insets) : null
+  const placed = size ? placeToolPanel(anchor, size, viewport, insets) : null
   const style: React.CSSProperties = placed
     ? { left: placed.rect.x, top: placed.rect.y, maxWidth: placed.rect.width, maxHeight: placed.rect.height }
     : { left: anchor.x, top: anchor.y, visibility: 'hidden' }

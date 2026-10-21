@@ -57,6 +57,13 @@
   --duration-dice: 160ms;
   --duration-coin: 220ms;
   --duration-art-fade: 140ms;
+  /* Mana symbols (R2 review): the one coloured exception to F34, line icons only; each ≥ 3:1 on ink. */
+  --mana-w: oklch(0.93 0.04 95);
+  --mana-u: oklch(0.72 0.12 245);
+  --mana-b: oklch(0.7 0.07 305);
+  --mana-r: oklch(0.7 0.17 35);
+  --mana-g: oklch(0.74 0.15 150);
+  --mana-c: oklch(0.8 0.02 250);
   --duration-fast: 140ms;
   --duration-normal: 220ms;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);

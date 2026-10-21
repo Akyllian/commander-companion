@@ -181,10 +181,11 @@ Icon family: 24×24 viewBox, rounded 1.75px stroke, `currentColor` (muted ivory 
 - **States:** `data-art="commander|random|neutral"`. `data-out` desaturates the art and shows `.out-line` «Fuori dalla partita» (on compact cards it takes the commander line's place).
 - **Inner surfaces (`.card-surface`):**
   - opaque ink with a gold top hairline, `inset: 0`, enter 180ms (`--duration-surface-in`, opacity and 10px);
+  - exit 140ms (`--duration-surface-out`) as `[data-closing]`: opacity only, already `inert`, `aria-hidden` and without pointer events; immediate with reduced motion;
   - focus rings are inset (`outline-offset: -2px`), so they never cross the clip.
   - **Contatori:** `.counter-column` rows `44px | 1fr | 44px` with a gold hairline border.
   - **Danni Commander:** `.commander-source` radios, chosen with a gold border, check icon and «Selezionato», then a horizontal 44px stepper.
-- **Compact surfaces (`[data-short]`, card under 200px):**
+- **Compact surfaces (`[data-short]`, card under 200px, normative since D-039):**
   - row layout with a 56px name and life rail;
   - columns exactly 44 + 35 + 44 = 123px, at least 56px wide, abbreviations VEL ENE ESP RAD C1 C2 MON INI;
   - opacity-only entry over 140ms.
@@ -197,6 +198,14 @@ Icon family: 24×24 viewBox, rounded 1.75px stroke, `currentColor` (muted ivory 
   - ink panel with a gold line and a 140ms crossfade; `.hub-tool__tether` is the hairline to the rhombus when the panel had to move;
   - `.tool-button` buttons are at least 56px;
   - `.oriented-result` places copies on a 3×3 grid (0° bottom, 180° top, 90° left, −90° right); results enter over 160ms (dice) or 220ms (coin) as a fade with the gold hairline lighting;
-  - Mana is a 3×2 `.mana-column` grid by default and under 360px, and one row of six from 640px.
-- **Tokens:** `--duration-surface-in` 180, `--duration-surface-out` 140, `--duration-tool-swap` 140, `--duration-dice` 160, `--duration-coin` 220, `--duration-art-fade` 140. The global reduced-motion rule makes them immediate.
+  - panels sit beside the rhombus (`placeToolPanel`: below, above, after, before), never over it; a panel too tall for every side opens beside it at the full safe height and scrolls inside;
+  - side result copies (90°, −90°) use `writing-mode: vertical-rl`, so they take their turned size;
+  - Mana is a 3×2 `.mana-column` grid by default and under 360px, and one row of six (4px gaps) from 832px.
+- **Mana symbols (F34 exception, the only coloured pictograms):**
+  - `.mana-symbol[data-mana]` is a 22px line drawing: sun, drop, skull, flame, tree and diamond;
+  - each takes its colour from `--mana-w|u|b|r|g|c` (OKLCH, ≥ 3:1 on both ink tones, tested); the black is ash-violet;
+  - the symbols are decorative; the steppers carry the Italian names.
+- **First-use hint:** while a surface is open, `.shell-rhombus__hint[data-dimmed]` is `visibility: hidden` but stays laid out. The card reserve holds through the first hub session and is released on close.
+- **Compact life:** `min(6rem, 22dvh)`, so 844×330 shows two rows without vertical scroll.
+- **Tokens:** `--mana-w|u|b|r|g|c`, `--duration-surface-in` 180, `--duration-surface-out` 140, `--duration-tool-swap` 140, `--duration-dice` 160, `--duration-coin` 220, `--duration-art-fade` 140. The global reduced-motion rule makes them immediate.
 

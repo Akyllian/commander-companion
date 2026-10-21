@@ -1,5 +1,5 @@
 import fc from 'fast-check'
-import { largestQuadrant, MATRIX_SIZE, placeMatrix, placePanel, radialFits, RADIAL_SIZE, safeRect, VIEWPORT_MARGIN } from './hubGeometry'
+import { largestQuadrant, MATRIX_SIZE, placeMatrix, placePanel, placeToolPanel, radialFits, RADIAL_SIZE, safeRect, VIEWPORT_MARGIN } from './hubGeometry'
 
 const none = { top: 0, right: 0, bottom: 0, left: 0 }
 const viewport = (width: number, height: number) => ({ x: 0, y: 0, width, height })
@@ -101,6 +101,79 @@ describe('rhombus hub geometry (R2 §7.3, §8)', () => {
           expect(y).toBeGreaterThanOrEqual(safe.y)
           expect(x + MATRIX_SIZE.width).toBeLessThanOrEqual(safe.x + safe.width + 1e-9)
           expect(y + MATRIX_SIZE.height).toBeLessThanOrEqual(safe.y + safe.height + 1e-9)
+        },
+      ),
+    )
+  })
+
+  it('puts a tool panel beside the rhombus, never under it, on the side with room', () => {
+    // 390×844 portrait, rhombus at the first seam: room below, so the panel opens below.
+    const below = placeToolPanel({ x: 195, y: 456 }, { width: 218, height: 300 }, viewport(390, 844), none)
+    expect(below.rect).toEqual({ x: 86, y: 456 + 40, width: 218, height: 300 })
+    expect(below.scroll).toBe(false)
+    // Near the bottom: it opens above instead.
+    const above = placeToolPanel({ x: 195, y: 760 }, { width: 218, height: 300 }, viewport(390, 844), none)
+    expect(above.rect.y).toBe(760 - 40 - 300)
+  })
+
+  it('opens beside the rhombus horizontally when neither above nor below has room (landscape)', () => {
+    const side = placeToolPanel({ x: 422, y: 165 }, { width: 220, height: 282 }, viewport(844, 330), none)
+    const { x, y, width, height } = side.rect
+    const clear = x >= 422 + 28 || x + width <= 422 - 28 || y >= 165 + 28 || y + height <= 165 - 28
+    expect(clear).toBe(true)
+    expect(side.scroll).toBe(false)
+  })
+
+  it('opens a too-tall panel beside the rhombus, scrolling inside (640×400, 200% zoom)', () => {
+    const placed = placeToolPanel({ x: 320, y: 200 }, { width: 220, height: 428 }, viewport(640, 400), none)
+    expect(placed.rect).toEqual({ x: 360, y: 12, width: 220, height: 376 })
+    expect(placed.scroll).toBe(true)
+  })
+
+  it('covers every side deterministically, and falls back to a clamped centred panel', () => {
+    // Before the rhombus (no room after it), normal and too tall.
+    expect(placeToolPanel({ x: 560, y: 200 }, { width: 220, height: 300 }, viewport(640, 400), none).rect.x).toBe(560 - 40 - 220)
+    expect(placeToolPanel({ x: 560, y: 200 }, { width: 220, height: 428 }, viewport(640, 400), none).rect).toEqual({
+      x: 300,
+      y: 12,
+      width: 220,
+      height: 376,
+    })
+    // After it, normal height.
+    expect(placeToolPanel({ x: 100, y: 200 }, { width: 220, height: 300 }, viewport(640, 400), none).rect.x).toBe(140)
+    // No side wide or tall enough: centred and clamped, scrolling.
+    const fallback = placeToolPanel({ x: 320, y: 200 }, { width: 600, height: 500 }, viewport(640, 400), none)
+    expect(fallback.scroll).toBe(true)
+    expect(fallback.rect).toEqual({ x: 20, y: 12, width: 600, height: 376 })
+  })
+
+  it('keeps the tool panel inside the safe area and off the rhombus whenever one side has room', () => {
+    fc.assert(
+      fc.property(
+        fc.integer({ min: 320, max: 1600 }),
+        fc.integer({ min: 320, max: 1200 }),
+        fc.double({ min: 0.1, max: 0.9, noNaN: true }),
+        fc.double({ min: 0.1, max: 0.9, noNaN: true }),
+        fc.integer({ min: 120, max: 400 }),
+        fc.integer({ min: 120, max: 450 }),
+        (width, height, fx, fy, panelWidth, panelHeight) => {
+          const centre = { x: fx * width, y: fy * height }
+          const vp = viewport(width, height)
+          const safe = safeRect(vp, none)
+          const { rect } = placeToolPanel(centre, { width: panelWidth, height: panelHeight }, vp, none)
+          expect(rect.x).toBeGreaterThanOrEqual(safe.x - 1e-9)
+          expect(rect.y).toBeGreaterThanOrEqual(safe.y - 1e-9)
+          expect(rect.x + rect.width).toBeLessThanOrEqual(safe.x + safe.width + 1e-9)
+          expect(rect.y + rect.height).toBeLessThanOrEqual(safe.y + safe.height + 1e-9)
+          const room = {
+            below: safe.y + safe.height - (centre.y + 40) >= panelHeight && panelWidth <= safe.width,
+            above: centre.y - 40 - safe.y >= panelHeight && panelWidth <= safe.width,
+            end: safe.x + safe.width - (centre.x + 40) >= panelWidth && panelHeight <= safe.height,
+            start: centre.x - 40 - safe.x >= panelWidth && panelHeight <= safe.height,
+          }
+          const clear = rect.x >= centre.x + 28 || rect.x + rect.width <= centre.x - 28 || rect.y >= centre.y + 28 || rect.y + rect.height <= centre.y - 28
+          // Off the rhombus whenever one side has room.
+          expect(clear || !Object.values(room).some(Boolean)).toBe(true)
         },
       ),
     )

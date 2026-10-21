@@ -1,7 +1,7 @@
 import type React from 'react'
-import { ManaIcon } from '../components/icons'
 import { adjustMana, EMPTY_POOL, isEmpty, MANA_LABELS, MANA_TYPES } from './mana'
 import type { ManaPool } from './mana'
+import { ManaSymbol } from './ManaSymbol'
 
 interface ManaToolProps {
   pool: ManaPool
@@ -22,7 +22,7 @@ const step = (label: string, sign: '+' | '−', onClick: () => void, disabled = 
 )
 
 /**
- * Shared mana (R2 §8.2): one vertical stepper per type, monochrome icons, letters for the type.
+ * Shared mana (R2 §8.2): one vertical stepper per type, each with its coloured symbol (F34 exception).
  * 3 × 2 by default, one row of six only where every control keeps its 44px.
  */
 export function ManaTool({ pool, onChange, announce }: ManaToolProps) {
@@ -35,11 +35,8 @@ export function ManaTool({ pool, onChange, announce }: ManaToolProps) {
             <div key={type} className="mana-column" role="group" aria-label={label}>
               {step(label, '+', () => onChange(adjustMana(pool, type, 1)))}
               <span className="mana-column__value">
-                <ManaIcon />
+                <ManaSymbol type={type} />
                 <strong data-testid="mana-value">{pool[type]}</strong>
-                <span className="mana-column__type" aria-hidden="true">
-                  {type}
-                </span>
               </span>
               {step(label, '−', () => onChange(adjustMana(pool, type, -1)), pool[type] === 0)}
             </div>

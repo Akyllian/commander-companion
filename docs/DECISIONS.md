@@ -417,13 +417,23 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
   - **Carta:** `PlayerPanel` riscritta. Tolto il dock D-033 (`QuickScoreDock`); i nomi condivisi stanno in `scoreVocabulary.ts`. La carta chiusa ha corona Monarca, nome (non modificabile), riga comandante, `⋮`, vita ±1, «Contatori» e il rombo Commander senza numeri. Nome, cause di sconfitta, crediti, arte casuale e rimozione stanno in Dettagli.
   - **Superfici interne:** `CountersDrawer` e `CommanderDamagePanel` sono montate solo da aperte, dentro la carta (`inset: 0`, `overflow: clip`), quindi ruotano con il posto.
   - **Densità compatta:** due righe sole (identità; Contatori · vita · Commander), così la carta chiusa non supera l'altezza del pannello compatto R1.
-  - **Rombo:** `RhombusHub` con il radiale A e la matrice 2×2 B scelta da `radialFits`; `placeMatrix` tiene la matrice dentro i margini. `ToolFrame` colloca Dadi, Mana e Moneta con `placePanel` e disegna la hairline quando li sposta. La geometria pura è in `src/shell/hubGeometry.ts`, coperta al 100%.
+  - **Rombo:** `RhombusHub` con il radiale A e la matrice 2×2 B scelta da `radialFits`; `placeMatrix` tiene la matrice dentro i margini. `ToolFrame` colloca Dadi, Mana e Moneta accanto al rombo con `placeToolPanel` e disegna la hairline quando li sposta. La geometria pura è in `src/shell/hubGeometry.ts`, coperta al 100%.
   - **Strumenti:** `src/tools/`: `random.ts` e `mana.ts` puri al 100%; un'unica regione live nel livello del rombo.
 - **Scostamenti dal piano, da confermare in revisione:**
   1. **Soglia della modalità compatta: 200 px (normativa, approvata da ChatGPT il 2026-10-21; sostituisce i 132 px della specifica).** La tendina standard ha una riga titolo da 44 px sopra colonne 44 + valore + 44, quindi entra solo da circa 190 px. A 844×330 le carte misurano 153 px e il «−» veniva tagliato. Sotto i 200 px vale la modalità compatta, con colonne di esattamente 123 px.
-  2. **Chiusura delle superfici interne senza dissolvenza.** Si chiudono smontandosi, quindi i 140 ms di uscita non si vedono; resta l'ingresso di 180 ms.
-  3. **Suggerimento del rombo nascosto mentre una superficie è aperta.** Altrimenti copriva la tendina; la fascia riservata resta, quindi nessuna carta si muove.
+  2. **Uscita delle superfici in 140 ms (revisione 2026-10-21).** Alla chiusura la superficie diventa subito `inert`, `aria-hidden` e senza pointer event, e il focus torna al trigger. Resta visibile per i 140 ms della dissolvenza e poi si smonta. Con reduced motion si smonta subito. Riaprirla durante l'uscita la riattiva all'istante.
+  3. **Suggerimento del rombo.** Mentre una superficie è aperta l'etichetta è nascosta (`visibility: hidden`) ma resta impaginata. La riserva della carta (per esempio 72 px) si mantiene per tutta la prima sessione hub/strumento e si rilascia solo alla chiusura, quindi al primo tocco nulla si sposta dentro le carte.
+- **Revisione ChatGPT del 2026-10-21, correzioni applicate:**
+  - **844×330 senza scroll verticale:** nelle carte compatte la vita è `min(6rem, 22dvh)`. La verifica nel browser controlla `document.body.scrollHeight === innerHeight`: 330 = 330 e 390 = 390 a 844×390.
+  - **Effetto da valutare:** durante il primo uso, con il suggerimento ancora attivo, la riserva R1 allunga le carte superiori e la pagina a 844×330 misura 418 px. È l'effetto una tantum già accettato in D-038; sparisce alla chiusura della prima sessione.
+  - **Pannelli degli strumenti accanto al rombo, mai sopra:** `placeToolPanel` prova sotto, sopra, dopo e prima. Un pannello troppo alto per tutti i lati si apre comunque di fianco, a tutta l'altezza sicura, e scorre al suo interno. Prima i pannelli erano centrati sul rombo, che ne copriva il centro (per esempio il «+» del Verde).
+  - **Mana su 6 colonne da 832 px invece che da 640.** A 640×400 (zoom 200%) la riga da 6 non entrava accanto al rombo. Le colonne hanno ora 4 px di spazio fra loro, così il pannello entra di fianco anche a 844×330.
+  - **Risultati in Tavolo:** le copie a 90° e −90° sono impaginate con `writing-mode: vertical-rl`, così occupano la loro misura ruotata; Moneta passa da 412 a 246 px di larghezza.
+- **Deroga limitata a F34: simboli del mana a colori.** Unica eccezione alle icone monocromatiche; tutti gli altri pittogrammi restano monocromatici.
+  - **Simboli:** asset locali a tratto (`src/tools/ManaSymbol.tsx`) da 22 px: sole bianco, goccia blu, teschio nero, fiamma rossa, albero verde, rombo incolore. Forma e colore distinguono entrambi il tipo.
+  - **Colori:** `--mana-w|u|b|r|g|c` in OKLCH; il nero è una tonalità cenere/violacea (`oklch(0.7 0.07 305)`). Un test calcola il contrasto non testuale: ogni colore è ≥ 3:1 su entrambi i fondi inchiostro.
+  - **Accessibilità:** i simboli sono decorativi (`aria-hidden`). Le etichette accessibili restano in italiano («Aggiungi 1 mana Rosso») e i target restano da 44 px.
 - **Verifica:**
-  - 501 test, `npm run verify` verde;
+  - 519 test, `npm run verify` verde;
   - controllo automatico nel browser a 320×568, 390×844, 640×400, 768×1024, 844×390, 844×330 e 1440×900, con Griglia, Fronte a fronte, Tavolo (844×390 e 768×1024) e 2 giocatori fronte a fronte. Esito: nessun controllo sotto 44 px, nessuno scroll orizzontale, tendine e pannelli dentro la carta, colonne compatte di 123 px, hub e strumenti dentro lo schermo meno 12 px, carte ferme all'apertura di ogni superficie.
 
