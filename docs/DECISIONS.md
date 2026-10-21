@@ -393,3 +393,58 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
   2. **Suggerimento:** «Tocca ◇ per le sezioni» sopra il rombo, al massimo 9rem, senza timer, nascosto agli screen reader (il pulsante dice già «Mostra le sezioni»). La carta che coprirebbe riserva una fascia libera sul lato rivolto all'etichetta (`data-hint-side`, `--hint-reserve`): fondo della carta sopra in colonna e agli incroci, lati affiancati con due giocatori. Misurato: zero sovrapposizioni a 390×844, 320×568 e 844×390.
   3. **Due giocatori, Fronte a fronte:** stessa geometria, dimensioni e densità di Stesso lato; ruota solo il Giocatore 2 di 180°. Tolte le due metà a tutta altezza e i pannelli compatti forzati, e le anteprime hanno ora la stessa sagoma. Misurato: altezza del tavolo, scroll, dimensioni delle carte e posizione del rombo identici fra le due opzioni a 390×844 e 844×390. Supera la parte geometrica della D-035.
 - **Effetto accettato:** mentre il suggerimento è visibile, la carta sopra la giuntura è più alta della fascia riservata (in colonna). Al primo tocco del rombo la fascia sparisce e il rombo risale una sola volta.
+
+## D-039 — R2: Partita (decisioni tecniche approvate)
+- **Stato:** Piano approvato da ChatGPT (2026-10-20) con due correzioni, recepite qui e nel piano `docs/superpowers/plans/2026-10-20-r2-match.md`. Design normativo: `docs/superpowers/specs/2026-10-20-r2-match-design.md`. Implementata da Claude (2026-10-20); revisione finale di ChatGPT superata (2026-10-21) sul commit `58789ab`.
+- **Arte casuale:**
+  - **Dove sta:** un envelope di presentazione separato dalla partita e dalla cronologia (`commander-companion.match`, versione 1), con `matchId`, `randomArtBySeat` (chiave = id giocatore) e `spareArt`.
+  - **Identità:** un'assegnazione è identificata da `(matchId, playerId)`.
+  - **Pulizia della cache:** tutti gli ID dell'envelope fanno parte del keep-set.
+- **Ordine di assegnazione:**
+  1. l'arte del posto per questa partita, se è in cache;
+  2. un'illustrazione nuova da Scryfall (`/cards/random?q=has:art -is:digital`), al massimo 3 tentativi per posto, in sequenza tramite un limitatore condiviso con almeno 125 ms fra le richieste;
+  3. solo dopo un errore o l'assenza di rete: `spareArt`, cioè al massimo 4 illustrazioni in cache delle partite precedenti e non ancora usate;
+  4. la texture neutra.
+  - Al primo errore di rete le richieste si interrompono. Online `spareArt` non si usa mai.
+- **Una sola superficie transitoria:** è un modello puro (`src/match/surface.ts`). Un tocco fuori dal rombo passa per un livello trasparente che chiude hub o strumento e consuma il gesto: non attiva mai i controlli della carta sotto.
+- **Fuori dalla partita:** vale per tutte le cause tracciate (vita, veleno, danni Commander). Dettagli mostra tutte le cause. Lo stato è derivato dai punteggi, quindi sparisce da solo appena una correzione elimina ogni causa.
+- **Strumenti:**
+  - il risultato di Dadi e Moneta si perde con qualunque uscita dallo strumento;
+  - il Mana è condiviso e non viene salvato: resta anche cambiando sezione e si azzera solo a mano, con Nuova partita confermata o ricaricando la pagina.
+- **Suggerimento del rombo:** è versionato (`rhombusHintVersion`; il flag R1 diventa versione 1), così il nuovo suggerimento R2 compare una volta anche a chi aveva visto quello R1.
+- **Supera:** il dock D-033 e, della D-038, il comportamento del rombo come accesso diretto alle sezioni (spec R2 §14).
+- **Implementazione:**
+  - **Carta:** `PlayerPanel` riscritta. Tolto il dock D-033 (`QuickScoreDock`); i nomi condivisi stanno in `scoreVocabulary.ts`. La carta chiusa ha corona Monarca, nome (non modificabile), riga comandante, `⋮`, vita ±1, «Contatori» e il rombo Commander senza numeri. Nome, cause di sconfitta, crediti, arte casuale e rimozione stanno in Dettagli.
+  - **Superfici interne:** `CountersDrawer` e `CommanderDamagePanel` sono montate solo da aperte, dentro la carta (`inset: 0`, `overflow: clip`), quindi ruotano con il posto.
+  - **Densità compatta:** due righe sole (identità; Contatori · vita · Commander), così la carta chiusa non supera l'altezza del pannello compatto R1.
+  - **Rombo:** `RhombusHub` con il radiale A e la matrice 2×2 B scelta da `radialFits`; `placeMatrix` tiene la matrice dentro i margini. `ToolFrame` colloca Dadi, Mana e Moneta accanto al rombo con `placeToolPanel` e disegna la hairline quando li sposta. La geometria pura è in `src/shell/hubGeometry.ts`, coperta al 100%.
+  - **Strumenti:** `src/tools/`: `random.ts` e `mana.ts` puri al 100%; un'unica regione live nel livello del rombo.
+- **Scostamenti dal piano, da confermare in revisione:**
+  1. **Soglia della modalità compatta: 200 px (normativa, approvata da ChatGPT il 2026-10-21; sostituisce i 132 px della specifica).** La tendina standard ha una riga titolo da 44 px sopra colonne 44 + valore + 44, quindi entra solo da circa 190 px. A 844×330 le carte misurano 153 px e il «−» veniva tagliato. Sotto i 200 px vale la modalità compatta, con colonne di esattamente 123 px.
+  2. **Uscita delle superfici in 140 ms (revisione 2026-10-21).** Alla chiusura la superficie diventa subito `inert`, `aria-hidden` e senza pointer event, e il focus torna al trigger. Resta visibile per i 140 ms della dissolvenza e poi si smonta. Con reduced motion si smonta subito. Riaprirla durante l'uscita la riattiva all'istante.
+  3. **Suggerimento del rombo.** Mentre una superficie è aperta l'etichetta è nascosta (`visibility: hidden`) ma resta impaginata. La riserva della carta (per esempio 72 px) si mantiene per tutta la prima sessione hub/strumento e si rilascia solo alla chiusura, quindi al primo tocco nulla si sposta dentro le carte.
+- **Revisione ChatGPT del 2026-10-21, correzioni applicate:**
+  - **844×330 senza scroll verticale:** nelle carte compatte la vita è `min(6rem, 22dvh)`. La verifica nel browser controlla `document.body.scrollHeight === innerHeight`: 330 = 330 e 390 = 390 a 844×390.
+  - **Effetto da valutare:** durante il primo uso, con il suggerimento ancora attivo, la riserva R1 allunga le carte superiori e la pagina a 844×330 misura 418 px. È l'effetto una tantum già accettato in D-038; sparisce alla chiusura della prima sessione.
+  - **Pannelli degli strumenti accanto al rombo, mai sopra:** `placeToolPanel` prova sotto, sopra, dopo e prima. Un pannello troppo alto per tutti i lati si apre comunque di fianco, a tutta l'altezza sicura, e scorre al suo interno. Prima i pannelli erano centrati sul rombo, che ne copriva il centro (per esempio il «+» del Verde).
+  - **Mana su 6 colonne da 832 px invece che da 640.** A 640×400 (zoom 200%) la riga da 6 non entrava accanto al rombo. Le colonne hanno ora 4 px di spazio fra loro, così il pannello entra di fianco anche a 844×330.
+  - **Risultati in Tavolo:** le copie a 90° e −90° sono impaginate con `writing-mode: vertical-rl`, così occupano la loro misura ruotata; Moneta passa da 412 a 246 px di larghezza.
+- **Revisione ChatGPT, terzo giro (2026-10-21):**
+  - **Approvato:** pannelli accanto al rombo, Mana a 6 colonne da 832 px, copie laterali con `writing-mode` e i 418 px del primo uso a 844×330 come eccezione una tantum di D-038.
+  - **Risultati tagliati (P1), corretto.** `ToolFrame` misurava il pannello già limitato da `maxHeight`, quindi non vedeva il risultato comparso dopo. Ora osserva un contenitore interno mai vincolato (`.hub-tool__content`) e ricolloca il pannello a ogni cambio di misura; lo scroll interno compare solo se il pannello non entra. Ci sono test unitari con un ResizeObserver simulato.
+  - **Focus perso (P1), corretto.** «Torna agli strumenti» riceve il focus solo quando il pannello è collocato e visibile. Una tendina o un pannello Commander riaperti durante l'uscita riportano il focus al loro interno.
+  - **Miglioria: altezze basse (`max-height: 26rem`).** Il risultato è in variante compatta, così a 844×330 in Tavolo le 4 copie di Moneta si vedono tutte senza scroll.
+  - **Miglioria: «Azzera mana».** In un pannello che scorre resta fissato in basso, sopra una breve sfumatura che indica la griglia sopra.
+  - **Verifica nel browser:** `scripts/r2-browser-checks.js` (`r2CardChecks`, `r2ToolChecks`). A 832×400, 844×390, 640×400 e 844×330, in Tavolo e Griglia, dopo il lancio di Dadi e Moneta: focus su «Torna agli strumenti», ogni copia dentro il pannello, nessun pannello sopra il rombo, «Azzera mana» visibile.
+- **Deroga limitata a F34: simboli del mana a colori.** Unica eccezione alle icone monocromatiche; tutti gli altri pittogrammi restano monocromatici.
+  - **Simboli:** asset locali a tratto (`src/tools/ManaSymbol.tsx`) da 22 px: sole bianco, goccia blu, teschio nero, fiamma rossa, albero verde, rombo incolore. Forma e colore distinguono entrambi il tipo.
+  - **Colori:** `--mana-w|u|b|r|g|c` in OKLCH; il nero è una tonalità cenere/violacea (`oklch(0.7 0.07 305)`). Un test calcola il contrasto non testuale: ogni colore è ≥ 3:1 su entrambi i fondi inchiostro.
+  - **Accessibilità:** i simboli sono decorativi (`aria-hidden`). Le etichette accessibili restano in italiano («Aggiungi 1 mana Rosso») e i target restano da 44 px.
+- **Verifica:**
+  - 523 test, `npm run verify` verde;
+  - controllo automatico nel browser a 320×568, 390×844, 640×400, 768×1024, 844×390, 844×330 e 1440×900, con Griglia, Fronte a fronte, Tavolo (844×390 e 768×1024) e 2 giocatori fronte a fronte. Esito: nessun controllo sotto 44 px, nessuno scroll orizzontale, tendine e pannelli dentro la carta, colonne compatte di 123 px, hub e strumenti dentro lo schermo meno 12 px, carte ferme all'apertura di ogni superficie.
+- **Follow-up non bloccanti (revisione finale, 2026-10-21):**
+  1. limitare il salto spaziale del pannello di uno strumento quando il risultato lo fa passare su un altro lato del rombo;
+  2. valutare un header sticky per Mana nei pannelli che scorrono;
+  3. sostituire i troncamenti della tendina compatta (per esempio il nome nel binario da 56 px) con abbreviazioni intenzionali.
+

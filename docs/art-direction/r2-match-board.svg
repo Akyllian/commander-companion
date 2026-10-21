@@ -1,0 +1,322 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1710" viewBox="0 0 1920 1710" role="img" aria-labelledby="title desc">
+  <title id="title">Commander Companion — tavola definitiva R2 Partita</title>
+  <desc id="desc">Tavola di art direction con carta giocatore, menu radiale, tendina dei contatori, danni Commander, layout Tavolo e strumenti Dadi, Mana e Moneta.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07191b"/>
+      <stop offset="0.52" stop-color="#031014"/>
+      <stop offset="1" stop-color="#0a1718"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="50%" cy="40%" r="70%">
+      <stop offset="0" stop-color="#c7a365" stop-opacity=".13"/>
+      <stop offset="1" stop-color="#c7a365" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="artA" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#155467"/><stop offset=".52" stop-color="#082d35"/><stop offset="1" stop-color="#050d11"/>
+    </linearGradient>
+    <linearGradient id="artB" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#5c3b2d"/><stop offset=".5" stop-color="#2b1d24"/><stop offset="1" stop-color="#081315"/>
+    </linearGradient>
+    <linearGradient id="artC" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#254b38"/><stop offset=".5" stop-color="#102c25"/><stop offset="1" stop-color="#071215"/>
+    </linearGradient>
+    <linearGradient id="artD" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#4b3659"/><stop offset=".5" stop-color="#222038"/><stop offset="1" stop-color="#071215"/>
+    </linearGradient>
+    <linearGradient id="veil" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#021013" stop-opacity=".58"/><stop offset=".48" stop-color="#021013" stop-opacity=".2"/><stop offset="1" stop-color="#01090b" stop-opacity=".9"/>
+    </linearGradient>
+    <filter id="softGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="leftBoardClip"><rect x="55" y="165" width="820" height="655" rx="28"/></clipPath>
+    <style>
+      .serif{font-family:Georgia,'Times New Roman',serif}.sans{font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif}
+      .gold{fill:#e3c789}.ivory{fill:#f2ead9}.muted{fill:#aebdbb}.teal{fill:#71b8b0}
+      .hair{stroke:#b89557;stroke-opacity:.66;stroke-width:1;fill:none}.line{stroke:#e3c789;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;fill:none}
+      .quietline{stroke:#aebdbb;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;fill:none}
+      .panel{fill:#07171a;stroke:#876f43;stroke-width:1}.surface{fill:#061316;stroke:#b89557;stroke-opacity:.75}
+      .label{font:600 14px Inter,ui-sans-serif,system-ui;letter-spacing:.12em;text-transform:uppercase;fill:#c9b782}
+      .small{font:14px Inter,ui-sans-serif,system-ui;fill:#aebdbb}.tiny{font:12px Inter,ui-sans-serif,system-ui;fill:#aebdbb}
+      .sectionTitle{font:400 25px Georgia,'Times New Roman',serif;letter-spacing:.08em;fill:#f2ead9}
+      .button{fill:#07181a;stroke:#b89557;stroke-opacity:.8}.buttonText{font:600 13px Inter,ui-sans-serif,system-ui;fill:#f2ead9}
+      .value{font:400 58px Georgia,'Times New Roman',serif;fill:#f4dfae}
+    </style>
+  </defs>
+
+  <rect width="1920" height="1710" fill="url(#bg)"/>
+  <rect width="1920" height="1710" fill="url(#halo)"/>
+  <path d="M0 104 C280 22 545 118 795 55 S1325 31 1920 107" class="hair" opacity=".25"/>
+  <path d="M0 1620 C420 1548 625 1680 970 1608 S1535 1544 1920 1630" class="hair" opacity=".18"/>
+
+  <text x="48" y="55" class="serif ivory" font-size="34" letter-spacing="5">COMMANDER COMPANION</text>
+  <text x="49" y="86" class="sans gold" font-size="13" letter-spacing="3">R2 · PARTITA — TAVOLA DEFINITIVA</text>
+  <text x="1870" y="58" class="sans muted" font-size="13" text-anchor="end">20 ottobre 2026 · proposta per approvazione</text>
+  <line x1="48" y1="108" x2="1872" y2="108" class="hair"/>
+
+  <!-- Panel 1: table and radial hub -->
+  <rect x="40" y="130" width="850" height="710" rx="30" class="panel"/>
+  <text x="68" y="170" class="label">01 · Partita / stato chiuso + hub</text>
+  <text x="68" y="200" class="sectionTitle">La vita domina. Il rombo apre quattro scelte.</text>
+  <text x="68" y="226" class="small">Nessuna riga permanente di contatori · arte a piena carta · comandi minimi</text>
+  <rect x="55" y="252" width="820" height="568" rx="28" fill="#031012" stroke="#354d4b"/>
+
+  <!-- player cards left -->
+  <g clip-path="url(#leftBoardClip)">
+    <g transform="translate(72 270)">
+      <rect width="382" height="250" rx="22" fill="url(#artA)" stroke="#d0b26f" stroke-width="1.4"/>
+      <path d="M18 203 C90 119 120 77 171 51 C222 25 271 68 358 21 L382 0 L382 250 L0 250 Z" fill="#0d8990" opacity=".18"/>
+      <circle cx="285" cy="72" r="53" fill="#88d9e0" opacity=".12"/>
+      <rect width="382" height="250" rx="22" fill="url(#veil)"/>
+      <rect x="4" y="4" width="44" height="44" rx="10" fill="transparent"/><rect x="330" y="4" width="44" height="44" rx="10" fill="transparent"/>
+      <g transform="translate(18 14)">
+        <path d="M1 13 L7 4 L13 13 L20 4 L25 13 L22 21 L4 21 Z" class="line"/>
+      </g>
+      <text x="191" y="30" class="serif ivory" font-size="18" text-anchor="middle" letter-spacing="1.3">DANNY</text>
+      <text x="191" y="50" class="sans muted" font-size="12" text-anchor="middle">Zimone, Infinite Analyst</text>
+      <text x="352" y="34" class="sans ivory" font-size="25" text-anchor="middle">⋮</text>
+      <circle cx="73" cy="126" r="25" class="button"/><text x="73" y="134" class="serif ivory" font-size="28" text-anchor="middle">−</text>
+      <text x="191" y="151" class="value" font-size="69" text-anchor="middle">40</text>
+      <circle cx="309" cy="126" r="25" class="button"/><text x="309" y="134" class="serif ivory" font-size="28" text-anchor="middle">+</text>
+      <rect x="18" y="190" width="145" height="44" rx="12" class="button"/>
+      <path d="M35 204 h18 M35 212 h18 M35 220 h18" class="line"/>
+      <text x="69" y="217" class="buttonText">CONTATORI</text>
+      <g transform="translate(323 212) rotate(45)"><rect x="-22" y="-22" width="44" height="44" rx="7" class="button"/></g>
+      <path d="M309 204 l28 16 M337 204 l-28 16" class="line"/>
+    </g>
+
+    <g transform="translate(476 270)">
+      <rect width="382" height="250" rx="22" fill="url(#artB)" stroke="#75654d"/>
+      <circle cx="274" cy="73" r="57" fill="#e8be79" opacity=".14"/><path d="M0 236 C79 119 146 148 207 57 C250 6 307 23 382 80 V250 H0Z" fill="#ad7352" opacity=".13"/>
+      <rect width="382" height="250" rx="22" fill="url(#veil)"/>
+      <rect x="4" y="4" width="44" height="44" rx="10" fill="transparent"/><rect x="330" y="4" width="44" height="44" rx="10" fill="transparent"/>
+      <g transform="translate(18 14)"><path d="M1 13 L7 4 L13 13 L20 4 L25 13 L22 21 L4 21 Z" class="quietline"/></g>
+      <text x="191" y="30" class="serif ivory" font-size="18" text-anchor="middle" letter-spacing="1.3">GIULIA</text>
+      <text x="191" y="50" class="sans muted" font-size="12" text-anchor="middle">Giada, Font of Hope</text>
+      <text x="352" y="34" class="sans ivory" font-size="25" text-anchor="middle">⋮</text>
+      <circle cx="73" cy="126" r="25" class="button"/><text x="73" y="134" class="serif ivory" font-size="28" text-anchor="middle">−</text>
+      <text x="191" y="151" class="value" font-size="69" text-anchor="middle">40</text>
+      <circle cx="309" cy="126" r="25" class="button"/><text x="309" y="134" class="serif ivory" font-size="28" text-anchor="middle">+</text>
+      <rect x="18" y="190" width="145" height="44" rx="12" class="button"/><path d="M35 204 h18 M35 212 h18 M35 220 h18" class="line"/><text x="69" y="217" class="buttonText">CONTATORI</text>
+      <g transform="translate(323 212) rotate(45)"><rect x="-22" y="-22" width="44" height="44" rx="7" class="button"/></g><path d="M309 204 l28 16 M337 204 l-28 16" class="line"/>
+    </g>
+
+    <g transform="translate(72 540)">
+      <rect width="382" height="250" rx="22" fill="url(#artC)" stroke="#75654d"/>
+      <path d="M0 250 C57 93 126 145 170 33 C221 122 275 57 382 19 V250Z" fill="#5da56c" opacity=".18"/><rect width="382" height="250" rx="22" fill="url(#veil)"/>
+      <rect x="4" y="4" width="44" height="44" rx="10" fill="transparent"/><rect x="330" y="4" width="44" height="44" rx="10" fill="transparent"/>
+      <g transform="translate(18 14)"><path d="M1 13 L7 4 L13 13 L20 4 L25 13 L22 21 L4 21 Z" class="quietline"/></g>
+      <text x="191" y="30" class="serif ivory" font-size="18" text-anchor="middle" letter-spacing="1.3">MARCO</text><text x="191" y="50" class="sans muted" font-size="12" text-anchor="middle">Comandante non scelto</text><text x="191" y="69" class="sans muted" font-size="10" text-anchor="middle">Illustrazione di A. Rossi</text><text x="352" y="34" class="sans ivory" font-size="25" text-anchor="middle">⋮</text>
+      <circle cx="73" cy="126" r="25" class="button"/><text x="73" y="134" class="serif ivory" font-size="28" text-anchor="middle">−</text><text x="191" y="151" class="value" font-size="69" text-anchor="middle">40</text><circle cx="309" cy="126" r="25" class="button"/><text x="309" y="134" class="serif ivory" font-size="28" text-anchor="middle">+</text>
+      <rect x="18" y="190" width="145" height="44" rx="12" class="button"/><path d="M35 204 h18 M35 212 h18 M35 220 h18" class="line"/><text x="69" y="217" class="buttonText">CONTATORI</text>
+      <g transform="translate(323 212) rotate(45)"><rect x="-22" y="-22" width="44" height="44" rx="7" class="button"/></g><path d="M309 204 l28 16 M337 204 l-28 16" class="line"/>
+    </g>
+
+    <g transform="translate(476 540)">
+      <rect width="382" height="250" rx="22" fill="url(#artD)" stroke="#75654d"/><path d="M0 237 C69 151 123 176 190 45 C244 128 324 48 382 90 V250H0Z" fill="#9b78c2" opacity=".16"/><path d="M191 0 L191 250 L382 250 L382 0 Z" fill="url(#artB)" opacity=".72"/><path d="M178 250 L204 0" stroke="#d5b873" stroke-width="1.2" stroke-opacity=".72"/><rect width="382" height="250" rx="22" fill="url(#veil)"/>
+      <rect x="4" y="4" width="44" height="44" rx="10" fill="transparent"/><rect x="330" y="4" width="44" height="44" rx="10" fill="transparent"/>
+      <g transform="translate(18 14)"><path d="M1 13 L7 4 L13 13 L20 4 L25 13 L22 21 L4 21 Z" class="quietline"/></g>
+      <text x="191" y="30" class="serif ivory" font-size="18" text-anchor="middle" letter-spacing="1.3">ELENA</text><text x="191" y="49" class="sans muted" font-size="11" text-anchor="middle">Kraum + Tymna</text><text x="352" y="34" class="sans ivory" font-size="25" text-anchor="middle">⋮</text>
+      <circle cx="73" cy="126" r="25" class="button"/><text x="73" y="134" class="serif ivory" font-size="28" text-anchor="middle">−</text><text x="191" y="151" class="value" font-size="69" text-anchor="middle">40</text><circle cx="309" cy="126" r="25" class="button"/><text x="309" y="134" class="serif ivory" font-size="28" text-anchor="middle">+</text>
+      <rect x="18" y="190" width="145" height="44" rx="12" class="button"/><path d="M35 204 h18 M35 212 h18 M35 220 h18" class="line"/><text x="69" y="217" class="buttonText">CONTATORI</text>
+      <g transform="translate(323 212) rotate(45)"><rect x="-22" y="-22" width="44" height="44" rx="7" class="button"/></g><path d="M309 204 l28 16 M337 204 l-28 16" class="line"/>
+    </g>
+  </g>
+
+  <!-- radial hub over cards -->
+  <g transform="translate(465 530)">
+    <circle r="112" fill="#031013" stroke="#92794a" stroke-opacity=".7"/>
+    <path d="M0 -25 V-72 M-25 0 H-72 M25 0 H72 M0 25 V72" class="hair"/>
+    <g transform="translate(0 -78)"><circle r="31" class="surface"/><path d="M-10 -9 h20 v18 h-20 z M0 -9 v18" class="line"/><text x="0" y="49" class="buttonText" text-anchor="middle">SEZIONI</text></g>
+    <g transform="translate(-78 0)"><circle r="31" class="surface"/><rect x="-11" y="-11" width="22" height="22" rx="4" class="line"/><circle cx="-5" cy="-5" r="1.6" fill="#e3c789"/><circle cx="5" cy="5" r="1.6" fill="#e3c789"/><text x="0" y="50" class="buttonText" text-anchor="middle">DADI</text></g>
+    <g transform="translate(78 0)"><circle r="31" class="surface"/><path d="M0 -14 C12 -5 14 7 0 15 C-14 7 -12 -5 0 -14 Z M0 -7 V8" class="line"/><text x="0" y="50" class="buttonText" text-anchor="middle">MANA</text></g>
+    <g transform="translate(0 78)"><circle r="31" class="surface"/><circle r="13" class="line"/><path d="M-5 -5 h10 v10 h-10z" class="line"/><text x="0" y="50" class="buttonText" text-anchor="middle">MONETA</text></g>
+    <g transform="rotate(45)"><rect x="-24" y="-24" width="48" height="48" rx="8" fill="#0b2627" stroke="#e3c789" stroke-width="1.6" filter="url(#softGlow)"/></g>
+    <path d="M-7 0 H7 M0 -7 V7" class="line"/>
+  </g>
+  <!-- Panel 2 counter drawer -->
+  <rect x="920" y="130" width="960" height="345" rx="30" class="panel"/>
+  <text x="948" y="170" class="label">02 · Tendina Contatori / dentro la carta</text>
+  <text x="948" y="200" class="sectionTitle">Una superficie temporanea, nessun dock persistente.</text>
+  <text x="948" y="226" class="small">Binario orizzontale · + sopra / − sotto · simboli a tratto monocromatici</text>
+  <g transform="translate(948 248)">
+    <rect width="904" height="196" rx="24" fill="url(#artA)" stroke="#a98c55"/>
+    <rect width="904" height="196" rx="24" fill="#031012" opacity=".62"/>
+    <path d="M0 44 H904" class="hair"/>
+    <text x="24" y="29" class="serif ivory" font-size="18" letter-spacing="1.5">CONTATORI</text>
+    <text x="855" y="29" class="sans gold" font-size="13" text-anchor="end">CHIUDI</text>
+    <rect x="832" y="0" width="72" height="44" fill="transparent"/>
+    <g transform="translate(20 50)">
+      <!-- 8 columns -->
+      <g><rect width="98" height="132" rx="12" class="button"/><rect x="27" width="44" height="44" rx="10" fill="#0c2325"/><text x="49" y="30" class="serif ivory" font-size="24" text-anchor="middle">+</text><path d="M49 52 C60 61 59 72 49 78 C39 72 38 61 49 52Z" class="quietline"/><text x="49" y="97" class="sans ivory" font-size="17" text-anchor="middle">0</text><text x="49" y="112" class="tiny" text-anchor="middle">VELENO</text><rect x="27" y="88" width="44" height="44" rx="10" fill="transparent"/><text x="49" y="128" class="serif ivory" font-size="22" text-anchor="middle">−</text></g>
+      <g transform="translate(106)"><rect width="98" height="132" rx="12" class="button"/><text x="49" y="30" class="serif ivory" font-size="24" text-anchor="middle">+</text><path d="M49 51 l10 12 l-10 12 l-10-12Z" class="quietline"/><text x="49" y="97" class="sans ivory" font-size="17" text-anchor="middle">3</text><text x="49" y="112" class="tiny" text-anchor="middle">ENERGIA</text><text x="49" y="128" class="serif ivory" font-size="22" text-anchor="middle">−</text></g>
+      <g transform="translate(212)"><rect width="98" height="132" rx="12" class="button"/><text x="49" y="30" class="serif ivory" font-size="24" text-anchor="middle">+</text><path d="M49 51 l4 8 l9 1 l-7 6 l2 9 l-8-4 l-8 4 l2-9 l-7-6 l9-1Z" class="quietline"/><text x="49" y="97" class="sans ivory" font-size="17" text-anchor="middle">1</text><text x="49" y="112" class="tiny" text-anchor="middle">ESPER.</text><text x="49" y="128" class="serif ivory" font-size="22" text-anchor="middle">−</text></g>
+      <g transform="translate(318)"><rect width="98" height="132" rx="12" class="button"/><text x="49" y="30" class="serif ivory" font-size="24" text-anchor="middle">+</text><circle cx="49" cy="64" r="12" class="quietline"/><path d="M49 52 v24 M37 64 h24" class="quietline"/><text x="49" y="97" class="sans ivory" font-size="17" text-anchor="middle">0</text><text x="49" y="112" class="tiny" text-anchor="middle">RAD.</text><text x="49" y="128" class="serif ivory" font-size="22" text-anchor="middle">−</text></g>
+      <g transform="translate(424)"><rect width="98" height="132" rx="12" class="button"/><text x="49" y="30" class="serif ivory" font-size="24" text-anchor="middle">+2</text><path d="M40 53 h18 v20 h-18z M44 49 h10" class="quietline"/><text x="49" y="97" class="sans ivory" font-size="17" text-anchor="middle">2</text><text x="49" y="112" class="tiny" text-anchor="middle">TASSA C1</text><text x="49" y="128" class="serif ivory" font-size="18" text-anchor="middle">−2</text></g>
+      <g transform="translate(530)"><rect width="98" height="132" rx="12" class="button"/><text x="49" y="30" class="serif ivory" font-size="24" text-anchor="middle">+2</text><path d="M40 53 h18 v20 h-18z M44 49 h10" class="quietline"/><text x="49" y="97" class="sans ivory" font-size="17" text-anchor="middle">0</text><text x="49" y="112" class="tiny" text-anchor="middle">TASSA C2</text><text x="49" y="128" class="serif ivory" font-size="18" text-anchor="middle">−2</text></g>
+      <g transform="translate(636)"><rect width="98" height="132" rx="12" class="button"/><text x="49" y="30" class="serif ivory" font-size="24" text-anchor="middle">+</text><path d="M36 68 L40 54 L49 65 L58 54 L62 68 L59 74 H39Z" class="quietline"/><text x="49" y="97" class="sans ivory" font-size="15" text-anchor="middle">SÌ</text><text x="49" y="112" class="tiny" text-anchor="middle">MONARCA</text><text x="49" y="128" class="serif ivory" font-size="22" text-anchor="middle">−</text></g>
+      <g transform="translate(742)"><rect width="98" height="132" rx="12" class="button"/><text x="49" y="30" class="serif ivory" font-size="24" text-anchor="middle">+</text><path d="M49 51 l11 20 h-22Z M49 58 v7" class="quietline"/><text x="49" y="97" class="sans ivory" font-size="15" text-anchor="middle">—</text><text x="49" y="112" class="tiny" text-anchor="middle">INIZIAT.</text><text x="49" y="128" class="serif ivory" font-size="22" text-anchor="middle">−</text></g>
+      <path d="M853 60 h18" class="line"/><path d="M867 54 l6 6 l-6 6" class="line"/>
+    </g>
+  </g>
+
+  <!-- Panel 3 commander damage and compact -->
+  <rect x="920" y="495" width="960" height="345" rx="30" class="panel"/>
+  <text x="948" y="535" class="label">03 · Danni Commander + densità compatta</text>
+  <text x="948" y="565" class="sectionTitle">Il rombo sceglie la sorgente, non riassume con uno zero.</text>
+  <g transform="translate(948 590)">
+    <rect width="575" height="220" rx="24" fill="#061517" stroke="#aa8b52"/>
+    <text x="24" y="31" class="serif ivory" font-size="18" letter-spacing="1.4">DANNI COMMANDER</text><text x="546" y="31" class="tiny" text-anchor="end">CHIUDI</text>
+    <line x1="0" y1="46" x2="575" y2="46" class="hair"/>
+    <rect x="20" y="58" width="168" height="48" rx="12" fill="#183032" stroke="#e3c789"/><text x="104" y="79" class="buttonText" text-anchor="middle">MARCO · C1</text><text x="104" y="96" class="tiny" text-anchor="middle">Selezionato ✓</text>
+    <rect x="197" y="58" width="168" height="48" rx="12" class="button"/><text x="281" y="87" class="buttonText" text-anchor="middle">MARCO · C2</text>
+    <rect x="374" y="58" width="168" height="48" rx="12" class="button"/><text x="458" y="87" class="buttonText" text-anchor="middle">GIULIA · C1</text>
+    <rect x="161" y="120" width="56" height="56" rx="14" class="button"/><text x="189" y="156" class="serif ivory" font-size="28" text-anchor="middle">−</text>
+    <g transform="translate(287 148) rotate(45)"><rect x="-31" y="-31" width="62" height="62" rx="11" fill="#0c292b" stroke="#d3b672"/></g>
+    <path d="M270 135 l34 26 M304 135 l-34 26" class="line"/><text x="287" y="156" class="serif ivory" font-size="25" text-anchor="middle">7</text>
+    <rect x="357" y="120" width="56" height="56" rx="14" class="button"/><text x="385" y="156" class="serif ivory" font-size="28" text-anchor="middle">+</text>
+    <text x="287" y="201" class="small" text-anchor="middle">+1 danno · −1 vita · un solo annuncio</text>
+
+    <g transform="translate(600 0)">
+      <rect width="304" height="220" rx="24" fill="url(#artD)" stroke="#aa8b52"/><rect width="304" height="220" rx="24" fill="#031012" opacity=".7"/>
+      <rect width="62" height="220" rx="24" fill="#061416"/><text x="31" y="32" class="serif ivory" font-size="14" text-anchor="middle">ELENA</text><text x="31" y="116" class="serif gold" font-size="33" text-anchor="middle">38</text><text x="31" y="199" class="tiny" text-anchor="middle">VITA</text>
+      <line x1="62" y1="0" x2="62" y2="220" class="hair"/>
+      <text x="82" y="28" class="label" font-size="11">COMPATTA · DENTRO 123 PX</text>
+      <g transform="translate(78 62)">
+        <g><rect width="62" height="123" rx="11" class="button"/><rect x="9" width="44" height="44" rx="10" fill="#0a2123"/><text x="31" y="31" class="serif ivory" font-size="23" text-anchor="middle">+</text><path d="M20 50 C27 57 27 64 20 68 C13 64 13 57 20 50Z" class="quietline"/><text x="37" y="64" class="sans ivory" font-size="15" text-anchor="middle">0</text><text x="31" y="77" class="tiny" text-anchor="middle" font-size="9">VEL.</text><rect x="9" y="79" width="44" height="44" rx="10" fill="#0a2123"/><text x="31" y="110" class="serif ivory" font-size="22" text-anchor="middle">−</text></g>
+        <g transform="translate(70)"><rect width="62" height="123" rx="11" class="button"/><rect x="9" width="44" height="44" rx="10" fill="#0a2123"/><text x="31" y="31" class="serif ivory" font-size="23" text-anchor="middle">+</text><path d="M20 49 l8 9 l-8 9 l-8-9Z" class="quietline"/><text x="38" y="64" class="sans ivory" font-size="15" text-anchor="middle">2</text><text x="31" y="77" class="tiny" text-anchor="middle" font-size="9">ENE.</text><rect x="9" y="79" width="44" height="44" rx="10" fill="#0a2123"/><text x="31" y="110" class="serif ivory" font-size="22" text-anchor="middle">−</text></g>
+        <g transform="translate(140)"><rect width="62" height="123" rx="11" class="button"/><rect x="9" width="44" height="44" rx="10" fill="#0a2123"/><text x="31" y="31" class="serif ivory" font-size="23" text-anchor="middle">+</text><path d="M20 48 l4 7 l8 1 l-6 6 l2 8 l-8-4 l-8 4 l2-8 l-6-6 l8-1Z" class="quietline"/><text x="39" y="64" class="sans ivory" font-size="15" text-anchor="middle">1</text><text x="31" y="77" class="tiny" text-anchor="middle" font-size="9">ESP.</text><rect x="9" y="79" width="44" height="44" rx="10" fill="#0a2123"/><text x="31" y="110" class="serif ivory" font-size="22" text-anchor="middle">−</text></g>
+      </g>
+    </g>
+  </g>
+
+  <!-- Bottom panel -->
+  <rect x="40" y="870" width="1840" height="405" rx="30" class="panel"/>
+  <text x="68" y="910" class="label">04 · Tavolo e strumenti condivisi</text>
+  <text x="68" y="940" class="sectionTitle">Ruota il contenuto della carta; gli strumenti restano leggibili da ogni lato.</text>
+  <line x1="636" y1="966" x2="636" y2="1245" class="hair" opacity=".45"/>
+  <line x1="1060" y1="966" x2="1060" y2="1245" class="hair" opacity=".45"/>
+  <line x1="1467" y1="966" x2="1467" y2="1245" class="hair" opacity=".45"/>
+
+  <!-- table schematic -->
+  <g transform="translate(68 974)">
+    <text x="0" y="0" class="label">TAVOLO D-034</text>
+    <rect x="54" y="29" width="466" height="233" rx="28" fill="#031113" stroke="#3e5653"/>
+    <g transform="translate(176 176)"><rect width="222" height="75" rx="14" fill="url(#artA)" stroke="#a88a54"/><text x="111" y="24" class="tiny" text-anchor="middle">GIOCATORE 1 · 0°</text><text x="111" y="62" class="serif gold" font-size="34" text-anchor="middle">40</text></g>
+    <g transform="translate(176 115) rotate(90)"><rect width="122" height="75" rx="14" fill="url(#artB)" stroke="#796743"/><text x="61" y="22" class="tiny" text-anchor="middle">G2 · 90°</text><text x="61" y="58" class="serif gold" font-size="28" text-anchor="middle">40</text></g>
+    <g transform="translate(398 104) rotate(180)"><rect width="222" height="75" rx="14" fill="url(#artC)" stroke="#796743"/><text x="111" y="24" class="tiny" text-anchor="middle">GIOCATORE 3 · 180°</text><text x="111" y="61" class="serif gold" font-size="34" text-anchor="middle">40</text></g>
+    <g transform="translate(398 236) rotate(-90)"><rect width="122" height="75" rx="14" fill="#071719" stroke="#d2b36c"/><path d="M0 31 H122" class="hair"/><text x="61" y="21" class="tiny" text-anchor="middle">G4 · −90°</text><text x="61" y="52" class="sans ivory" font-size="11" text-anchor="middle">CONTATORI APERTI</text><text x="61" y="68" class="tiny" text-anchor="middle">dentro la carta</text></g>
+    <g transform="translate(287 141) rotate(45)"><rect x="-18" y="-18" width="36" height="36" rx="6" fill="#0b2527" stroke="#e3c789"/></g>
+    <text x="287" y="291" class="small" text-anchor="middle">Niente trapezi · overflow contenuto · ordine DOM 1→4</text>
+  </g>
+
+  <!-- Dice -->
+  <g transform="translate(665 974)">
+    <text class="label">DADI</text>
+    <rect x="0" y="28" width="365" height="236" rx="22" fill="#051518" stroke="#75623f"/>
+    <rect x="22" y="51" width="74" height="56" rx="13" class="button"/><text x="59" y="86" class="serif ivory" font-size="22" text-anchor="middle">d6</text>
+    <rect x="104" y="51" width="74" height="56" rx="13" class="button"/><text x="141" y="86" class="serif ivory" font-size="22" text-anchor="middle">d20</text>
+    <text x="340" y="79" class="tiny" text-anchor="end">TORNA</text>
+    <circle cx="183" cy="164" r="67" fill="#0b2527" stroke="#d2b36c" filter="url(#softGlow)"/>
+    <text x="183" y="187" class="serif gold" font-size="66" text-anchor="middle">17</text>
+    <text x="183" y="124" class="tiny" text-anchor="middle">d20</text>
+    <text x="183" y="251" class="small" text-anchor="middle">Risultato ripetuto per i lati del tavolo</text>
+  </g>
+
+  <!-- Mana -->
+  <g transform="translate(1089 974)">
+    <text class="label">MANA CONDIVISO</text>
+    <rect x="0" y="28" width="350" height="236" rx="22" fill="#051518" stroke="#75623f"/>
+    <g transform="translate(18 51)">
+      <g><rect width="46" height="122" rx="10" class="button"/><text x="23" y="28" class="serif ivory" font-size="22" text-anchor="middle">+</text><circle cx="23" cy="58" r="11" class="quietline"/><text x="23" y="87" class="sans ivory" font-size="18" text-anchor="middle">2</text><text x="23" y="113" class="serif ivory" font-size="20" text-anchor="middle">−</text></g>
+      <g transform="translate(52)"><rect width="46" height="122" rx="10" class="button"/><text x="23" y="28" class="serif ivory" font-size="22" text-anchor="middle">+</text><path d="M23 47 C35 59 34 67 23 73 C12 67 11 59 23 47Z" class="quietline"/><text x="23" y="87" class="sans ivory" font-size="18" text-anchor="middle">1</text><text x="23" y="113" class="serif ivory" font-size="20" text-anchor="middle">−</text></g>
+      <g transform="translate(104)"><rect width="46" height="122" rx="10" class="button"/><text x="23" y="28" class="serif ivory" font-size="22" text-anchor="middle">+</text><path d="M15 53 h16 v17 h-16z M19 48 h8" class="quietline"/><text x="23" y="87" class="sans ivory" font-size="18" text-anchor="middle">0</text><text x="23" y="113" class="serif ivory" font-size="20" text-anchor="middle">−</text></g>
+      <g transform="translate(156)"><rect width="46" height="122" rx="10" class="button"/><text x="23" y="28" class="serif ivory" font-size="22" text-anchor="middle">+</text><path d="M23 46 C37 58 30 72 23 75 C16 72 9 58 23 46Z" class="quietline"/><text x="23" y="87" class="sans ivory" font-size="18" text-anchor="middle">0</text><text x="23" y="113" class="serif ivory" font-size="20" text-anchor="middle">−</text></g>
+      <g transform="translate(208)"><rect width="46" height="122" rx="10" class="button"/><text x="23" y="28" class="serif ivory" font-size="22" text-anchor="middle">+</text><path d="M23 46 v30 M23 52 l-11 9 M23 59 l12 8" class="quietline"/><text x="23" y="87" class="sans ivory" font-size="18" text-anchor="middle">3</text><text x="23" y="113" class="serif ivory" font-size="20" text-anchor="middle">−</text></g>
+      <g transform="translate(260)"><rect width="46" height="122" rx="10" class="button"/><text x="23" y="28" class="serif ivory" font-size="22" text-anchor="middle">+</text><path d="M15 49 h16 v24 h-16Z" class="quietline"/><text x="23" y="87" class="sans ivory" font-size="18" text-anchor="middle">0</text><text x="23" y="113" class="serif ivory" font-size="20" text-anchor="middle">−</text></g>
+    </g>
+    <rect x="96" y="190" width="158" height="48" rx="12" class="button"/><text x="175" y="219" class="buttonText" text-anchor="middle">AZZERA MANA</text>
+  </g>
+
+  <!-- Coin -->
+  <g transform="translate(1496 974)">
+    <text class="label">MONETA</text>
+    <rect x="0" y="28" width="356" height="236" rx="22" fill="#051518" stroke="#75623f"/>
+    <circle cx="178" cy="126" r="63" fill="#0b2527" stroke="#d2b36c" filter="url(#softGlow)"/>
+    <circle cx="178" cy="126" r="43" class="line"/><path d="M162 110 h32 v32 h-32Z M170 118 h16 v16 h-16Z" class="line"/>
+    <text x="178" y="212" class="serif ivory" font-size="23" text-anchor="middle" letter-spacing="2">TESTA</text>
+    <rect x="113" y="222" width="130" height="44" rx="12" class="button"/><text x="178" y="249" class="buttonText" text-anchor="middle">RILANCIA</text>
+  </g>
+
+  <!-- Verification states -->
+  <rect x="40" y="1300" width="1840" height="350" rx="30" class="panel"/>
+  <text x="68" y="1340" class="label">05 · Stati di verifica</text>
+  <text x="68" y="1370" class="sectionTitle">Fallback e casi limite non cambiano il linguaggio visivo.</text>
+
+  <!-- 2x2 fallback -->
+  <g transform="translate(68 1400)">
+    <text class="label">FALLBACK B · SOLO MANCATO FIT</text>
+    <rect y="22" width="318" height="190" rx="22" fill="#051518" stroke="#75623f"/>
+    <g transform="translate(45 48)">
+      <rect width="104" height="58" rx="13" class="button"/><path d="M18 18 h18 v18 h-18z M27 18 v18" class="line"/><text x="70" y="35" class="buttonText" text-anchor="middle">SEZIONI</text>
+      <rect x="112" width="104" height="58" rx="13" class="button"/><rect x="128" y="18" width="20" height="20" rx="4" class="line"/><text x="181" y="35" class="buttonText" text-anchor="middle">DADI</text>
+      <rect y="66" width="104" height="58" rx="13" class="button"/><path d="M27 80 C39 90 38 101 27 107 C16 101 15 90 27 80Z" class="line"/><text x="70" y="101" class="buttonText" text-anchor="middle">MANA</text>
+      <rect x="112" y="66" width="104" height="58" rx="13" class="button"/><circle cx="139" cy="95" r="12" class="line"/><text x="181" y="101" class="buttonText" text-anchor="middle">MONETA</text>
+      <path d="M226 62 h31" class="hair"/><g transform="translate(268 62) rotate(45)"><rect x="-17" y="-17" width="34" height="34" rx="6" fill="#0b2527" stroke="#e3c789"/></g>
+    </g>
+    <text x="159" y="231" class="tiny" text-anchor="middle">stesso ordine logico · celle ≥ 44 px</text>
+  </g>
+
+  <!-- details sheet -->
+  <g transform="translate(420 1400)">
+    <text class="label">DETTAGLI · SEMPRE VERTICALI</text>
+    <rect y="22" width="318" height="190" rx="22" fill="url(#artA)" stroke="#526a66"/>
+    <rect x="116" y="22" width="202" height="190" rx="22" fill="#071719" stroke="#b18e54"/>
+    <text x="136" y="53" class="serif ivory" font-size="17">DETTAGLI DI DANNY</text><text x="292" y="53" class="tiny" text-anchor="end">CHIUDI</text>
+    <line x1="116" y1="67" x2="318" y2="67" class="hair"/>
+    <text x="136" y="92" class="tiny">NOME GIOCATORE</text><rect x="136" y="101" width="160" height="40" rx="9" class="button"/><text x="148" y="126" class="small">Danny</text>
+    <text x="136" y="163" class="tiny">COMANDANTE / PARTNER</text><text x="136" y="184" class="small">Zimone, Infinite Analyst</text>
+    <text x="136" y="204" class="tiny">Illustrazione di Toni Infante</text>
+    <text x="159" y="231" class="tiny" text-anchor="middle">portal/sheet · non ruota con Tavolo</text>
+  </g>
+
+  <!-- Partner -->
+  <g transform="translate(772 1400)">
+    <text class="label">PARTNER · DUE OPERE / DUE SORGENTI</text>
+    <rect y="22" width="318" height="190" rx="22" fill="url(#artD)" stroke="#8d774e"/>
+    <path d="M159 22 H318 V212 H159Z" fill="url(#artB)" opacity=".82"/><path d="M147 212 L171 22" stroke="#e3c789" stroke-opacity=".7"/>
+    <rect y="22" width="318" height="190" rx="22" fill="url(#veil)"/>
+    <text x="159" y="51" class="serif ivory" font-size="17" text-anchor="middle">ELENA</text><text x="159" y="72" class="tiny" text-anchor="middle">Kraum + Tymna</text>
+    <rect x="35" y="96" width="116" height="48" rx="11" fill="#183032" stroke="#e3c789"/><text x="93" y="116" class="buttonText" text-anchor="middle">MARCO · C1</text><text x="93" y="133" class="tiny" text-anchor="middle">Selezionato ✓</text>
+    <rect x="167" y="96" width="116" height="48" rx="11" class="button"/><text x="225" y="125" class="buttonText" text-anchor="middle">MARCO · C2</text>
+    <text x="159" y="231" class="tiny" text-anchor="middle">hairline diagonale · nessuna sorgente aggregata</text>
+  </g>
+
+  <!-- Offline / defeated -->
+  <g transform="translate(1124 1400)">
+    <text class="label">OFFLINE / VITA ZERO</text>
+    <rect y="22" width="318" height="190" rx="22" fill="#0b2021" stroke="#75623f"/>
+    <path d="M0 167 C69 82 112 143 169 59 C217 117 264 71 318 35 V212H0Z" fill="#5f7772" opacity=".18"/>
+    <rect y="22" width="318" height="190" rx="22" fill="#020b0d" opacity=".56"/>
+    <text x="159" y="52" class="serif ivory" font-size="17" text-anchor="middle">MARCO</text><text x="159" y="73" class="tiny" text-anchor="middle">Comandante non scelto</text>
+    <text x="159" y="141" class="serif gold" font-size="62" text-anchor="middle">0</text><text x="159" y="166" class="buttonText" text-anchor="middle">FUORI DALLA PARTITA</text>
+    <text x="159" y="193" class="tiny" text-anchor="middle">Texture locale · comandi ancora correggibili</text>
+    <text x="159" y="231" class="tiny" text-anchor="middle">nessun toast ripetitivo in assenza di rete</text>
+  </g>
+
+  <!-- oriented result -->
+  <g transform="translate(1476 1400)">
+    <text class="label">ESITO LEGGIBILE DA OGNI LATO</text>
+    <rect y="22" width="376" height="190" rx="22" fill="#051518" stroke="#75623f"/>
+    <circle cx="188" cy="117" r="69" fill="#0b2527" stroke="#d2b36c"/>
+    <text x="188" y="137" class="serif gold" font-size="52" text-anchor="middle">17</text>
+    <text x="188" y="64" class="serif ivory" font-size="19" text-anchor="middle" transform="rotate(180 188 64)">17</text>
+    <text x="139" y="123" class="serif ivory" font-size="19" text-anchor="middle" transform="rotate(90 139 123)">17</text>
+    <text x="237" y="123" class="serif ivory" font-size="19" text-anchor="middle" transform="rotate(-90 237 123)">17</text>
+    <text x="188" y="231" class="tiny" text-anchor="middle">una sola informazione accessibile · copie aria-hidden</text>
+  </g>
+
+  <text x="48" y="1682" class="tiny">Vincoli: WCAG 2.2 AA · target ≥44 px · reduced motion immediato · icone a tratto · nessun reflow</text>
+  <text x="1872" y="1682" class="tiny" text-anchor="end">Radiale A primario · matrice B solo se il radiale non entra nel viewport · tavola C eliminata</text>
+</svg>

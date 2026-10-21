@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { GROUP_WINDOW_MS } from '../game/history'
 import type { GroupDelta } from '../game/history'
 import type { PlayerState } from '../game/types'
-import { COUNTER_LABELS, slotName } from './QuickScoreDock'
+import { COUNTER_LABELS, slotName } from './scoreVocabulary'
 
 const lifeText = (player: PlayerState) => `${player.name}: ${player.life} punti vita`
 

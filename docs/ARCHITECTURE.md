@@ -64,6 +64,22 @@ Invariants enforced by `parseStoredGame`: 2–4 players, unique ids, names 1–2
 - `navigator.storage.persist()` is requested once.
 - The `storage` event keeps several tabs in sync; an external game becomes an undoable step.
 
+## Match presentation (R2, D-039)
+
+- Key `commander-companion.match`, version 1: `matchId`, `randomArtBySeat` (by player id) and up to 4 `spareArt`. It is validated like the game (`parseMatch`) and follows other tabs through the `storage` event. It never enters the score history.
+- `matchId` changes only on a confirmed new game. A score reset keeps it.
+- `fillRandomArt` (`src/media/randomArt.ts`) assigns art in this order: the seat's cached art for this match; a fresh `/cards/random` card; after a network failure only, an unused spare; then the neutral texture.
+- Every Scryfall API request goes through one sequential limiter, at least 125 ms apart.
+- Envelope ids join the art-cache keep-set.
+
+## Transient surface (R2)
+
+`src/match/surface.ts` is a pure reducer over `closed | hub | tool | counters | commander`. It lives in `App`, so only one surface is ever open:
+- a layout change or a player leaving closes it;
+- the seats are `inert` while the hub or a tool is open.
+
+Tool results and the shared mana pool are presentation state in `App`: never saved, never in history.
+
 ## State history
 
 Up to 50 prior snapshots in memory. Consecutive same-direction taps on the same value within 700 ms merge into one step; `getGroupDelta` exposes the cumulative change for the UI. Undo/redo history intentionally does not survive refresh; only the latest match state is persisted. New game clears history; reset is an undoable step.

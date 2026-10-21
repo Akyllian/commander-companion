@@ -184,3 +184,23 @@ Tutti i passi superati tranne uno. Nessun problema di gravità alta, quindi la F
 | 15.7 | Schermo acceso attivo, resta in Altro qualche minuto | lo schermo può spegnersi; tornando in Partita resta acceso | | |
 | 15.8 | Impara → Riferimento rapido Commander | si aprono le Regole come prima | | |
 | 15.9 | Telefono in verticale | annota se il sigillo è facile da trovare (oggi è a metà pagina) | | |
+
+## 16. Partita R2 (D-039)
+
+| # | Passi | Risultato atteso | iPhone | Android |
+| --- | --- | --- | --- | --- |
+| 16.1 | Nuova partita senza comandanti, con rete | ogni carta mostra un'illustrazione diversa con «Comandante non scelto» e «Illustrazione di …» | | |
+| 16.2 | Ricarica la pagina, poi riprova in modalità aereo | le stesse illustrazioni restano sugli stessi posti | | |
+| 16.3 | Modalità aereo: Nuova partita | la partita parte subito; le carte usano illustrazioni già viste o la texture neutra | | |
+| 16.4 | Tocca la corona di un giocatore, poi di un altro | il Monarca passa con un tocco; la corona piena è del possessore | | |
+| 16.5 | Tocca −/+ della vita più volte | ±1 per tocco, delta cumulativo accanto alla vita | | |
+| 16.6 | Contatori: aggiungi veleno, energia, tassa (con Partner: C1 e C2) | la tendina resta dentro la carta; la tassa va di 2 | | |
+| 16.7 | Rombo Commander: scegli la sorgente, tocca + | danno +1, vita −1; con Partner le due sorgenti sono separate | | |
+| 16.8 | Tavolo: apri Contatori sul giocatore a sinistra | la tendina è ruotata verso di lui e non esce dalla carta | | |
+| 16.9 | Orizzontale su telefono: apri Contatori | modalità compatta: colonne + / valore / −, nome e vita a lato, «Chiudi contatori» sempre visibile | | |
+| 16.10 | Tocca il rombo centrale | Sezioni sopra, Dadi a sinistra, Mana a destra, Moneta sotto; le carte non rispondono finché è aperto | | |
+| 16.11 | Tocca fuori dal menu, sopra il + di una carta | il menu si chiude e la vita non cambia | | |
+| 16.12 | Dadi: d20 due volte; Moneta; nel Tavolo | il risultato si legge da ogni lato | | |
+| 16.13 | Mana: aggiungi Rosso, chiudi, vai in Altro e torna | il mana è ancora lì; «Azzera mana» lo azzera | | |
+| 16.14 | Porta un giocatore a 0 vita, poi + | compare «Fuori dalla partita» e l'arte si spegne; con + sparisce | | |
+

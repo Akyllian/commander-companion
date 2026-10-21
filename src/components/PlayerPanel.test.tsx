@@ -1,13 +1,18 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
-import { createHistory, getGroupDelta, GROUP_WINDOW_MS, historyReducer } from '../game/history'
-import { useReducer } from 'react'
+import { useReducer, useState } from 'react'
 import { canRemovePartner, createGame, gameReducer } from '../game/game'
+import { createHistory, getGroupDelta, GROUP_WINDOW_MS, historyReducer } from '../game/history'
 import type { GameAction, GameState } from '../game/types'
+import type { RandomArt } from '../match/presentation'
+import { setArtStoreForTests } from '../media/artStore'
 import { PlayerPanel } from './PlayerPanel'
 
-/** The real reducer and tap grouping behind every panel, like App without persistence. */
-function Table({ initial, compact = false }: { initial: GameState; compact?: boolean }) {
+type Open = { playerId: string; kind: 'counters' | 'commander' } | null
+
+/** The real reducer, tap grouping and one open surface, like App without persistence. */
+function Table({ initial, compact = false, randomArt = {} }: { initial: GameState; compact?: boolean; randomArt?: Record<string, RandomArt> }) {
   const [history, dispatchHistory] = useReducer(historyReducer, initial, createHistory)
+  const [open, setOpen] = useState<Open>(null)
   const dispatch = (action: GameAction) => dispatchHistory({ type: 'apply', action, at: Date.now() })
   const game = history.present
   const groupDelta = getGroupDelta(history)
@@ -24,6 +29,10 @@ function Table({ initial, compact = false }: { initial: GameState; compact?: boo
           compact={compact}
           monarchPlayerId={game.monarchPlayerId}
           initiativePlayerId={game.initiativePlayerId}
+          randomArt={randomArt[player.id] ?? null}
+          openSurface={open?.playerId === player.id ? open.kind : null}
+          onOpenSurface={(kind) => setOpen({ playerId: player.id, kind })}
+          onCloseSurface={() => setOpen(null)}
           dispatch={dispatch}
         />
       ))}
@@ -32,155 +41,184 @@ function Table({ initial, compact = false }: { initial: GameState; compact?: boo
 }
 
 const panel = (name: string) => screen.getByRole('region', { name: `Segnapunti di ${name}` })
-const modes = (name: string) => within(panel(name)).getByRole('group', { name: `Punteggio di ${name}` })
-const mode = (name: string, label: RegExp) => within(modes(name)).getByRole('button', { name: label })
-const press = (name: string, label: RegExp) => fireEvent.click(within(panel(name)).getByRole('button', { name: label }))
+const button = (name: string, label: string | RegExp) => within(panel(name)).getByRole('button', { name: label })
+const press = (name: string, label: string | RegExp) => fireEvent.click(button(name, label), { detail: 1 })
 const lifeOf = (name: string) => within(panel(name)).getByTestId('life-total')
 
-const partnerGame = () => gameReducer(createGame(3), { type: 'set-partner', playerId: 'player-2', hasPartner: true })
+const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`
+const commander = (n: number) => ({ cardId: id(n), name: `Comandante ${n}`, artist: `Artista ${n}` })
+const randomCard: RandomArt = { cardId: id(50), name: 'Carta casuale', artist: 'Rebecca Guay' }
+
+afterEach(() => setArtStoreForTests(undefined))
 
 describe.each([
   ['standard', false],
   ['compact', true],
-])('direct scoring dock (D-033, %s)', (_label, compact) => {
-  it('offers every mode in order, starting on Vita', () => {
+])('closed player card (R2 §3, %s)', (_label, compact) => {
+  it('passes the Monarch with the crown and shows who holds it', () => {
     render(<Table initial={createGame(2)} compact={compact} />)
-    const buttons = within(modes('Giocatore 1')).getAllByRole('button')
-    expect(buttons.map((button) => button.getAttribute('data-score-mode') ?? button.getAttribute('data-table-role'))).toEqual([
-      'life',
-      'commander',
-      'poison',
-      'energy',
-      'experience',
-      'rad',
-      'tax',
-      'monarch',
-      'initiative',
+    press('Giocatore 1', 'Prendi Monarca')
+    expect(button('Giocatore 1', 'Rilascia Monarca')).toHaveAttribute('aria-pressed', 'true')
+    press('Giocatore 2', 'Prendi Monarca')
+    expect(button('Giocatore 1', 'Prendi Monarca')).toHaveAttribute('aria-pressed', 'false')
+    press('Giocatore 2', 'Rilascia Monarca')
+    expect(button('Giocatore 2', 'Prendi Monarca')).toBeInTheDocument()
+  })
+
+  it('shows the name as text, the commander line and the details trigger', () => {
+    render(<Table initial={createGame(2)} compact={compact} randomArt={{ 'player-1': randomCard }} />)
+    expect(within(panel('Giocatore 1')).queryByRole('textbox')).not.toBeInTheDocument()
+    expect(within(panel('Giocatore 1')).getByText('Giocatore 1')).toHaveClass('player-name')
+    // A random illustration is never presented as the commander (spec §14).
+    expect(within(panel('Giocatore 1')).getByText('Comandante non scelto')).toBeInTheDocument()
+    expect(within(panel('Giocatore 1')).queryByText('Carta casuale')).not.toBeInTheDocument()
+    expect(button('Giocatore 1', 'Apri dettagli di Giocatore 1')).toBeInTheDocument()
+  })
+
+  it('names both Partner commanders', () => {
+    let game = gameReducer(createGame(2), { type: 'set-partner', playerId: 'player-1', hasPartner: true })
+    game = gameReducer(game, { type: 'set-commander', playerId: 'player-1', slot: 0, commander: commander(1) })
+    game = gameReducer(game, { type: 'set-commander', playerId: 'player-1', slot: 1, commander: commander(2) })
+    render(<Table initial={game} compact={compact} />)
+    expect(within(panel('Giocatore 1')).getByText('Comandante 1 + Comandante 2')).toBeInTheDocument()
+  })
+
+  it('moves life by one only, with the cumulative delta beside it', () => {
+    render(<Table initial={createGame(2)} compact={compact} />)
+    const lifeButtons = within(within(panel('Giocatore 1')).getByRole('group', { name: 'Punti vita di Giocatore 1' })).getAllByRole('button')
+    expect(lifeButtons.map((control) => control.getAttribute('aria-label'))).toEqual([
+      'Riduci di 1 la vita di Giocatore 1',
+      'Aumenta di 1 la vita di Giocatore 1',
     ])
-    expect(mode('Giocatore 1', /^vita/i)).toHaveAttribute('aria-pressed', 'true')
-    expect(mode('Giocatore 1', /^veleno/i)).toHaveAttribute('aria-pressed', 'false')
-  })
-
-  it('switches mode in place without opening anything', () => {
-    render(<Table initial={createGame(2)} compact={compact} />)
-    fireEvent.click(mode('Giocatore 1', /^veleno/i))
-    expect(mode('Giocatore 1', /^veleno/i)).toHaveAttribute('aria-pressed', 'true')
-    expect(mode('Giocatore 1', /^vita/i)).toHaveAttribute('aria-pressed', 'false')
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    expect(panel('Giocatore 1').querySelector('details[open]')).toBeNull()
-    // Life stays on screen in every mode.
-    expect(lifeOf('Giocatore 1')).toHaveTextContent('40')
-  })
-
-  it('adjusts counters by one and keeps focus on the control used', () => {
-    render(<Table initial={createGame(2)} compact={compact} />)
-    for (const [label, name] of [
-      [/^veleno/i, 'veleno'],
-      [/^energia/i, 'energia'],
-      [/^esperienza/i, 'esperienza'],
-      [/^radiazioni/i, 'radiazioni'],
-    ] as const) {
-      fireEvent.click(mode('Giocatore 1', label))
-      const up = within(panel('Giocatore 1')).getByRole('button', { name: `Aumenta ${name} di Giocatore 1` })
-      up.focus()
-      fireEvent.click(up)
-      fireEvent.click(up)
-      press('Giocatore 1', new RegExp(`^riduci ${name} di giocatore 1`, 'i'))
-      expect(within(panel('Giocatore 1')).getByRole('status', { name: new RegExp(`${name} di giocatore 1`, 'i') })).toHaveTextContent('1')
-      expect(up).toHaveFocus()
-    }
-  })
-
-  it('records Commander damage per opponent and Partner slot, moving life with it', () => {
-    render(<Table initial={partnerGame()} compact={compact} />)
-    fireEvent.click(mode('Giocatore 1', /^commander/i))
-    const sources = within(panel('Giocatore 1')).getByRole('group', { name: 'Fonte dei danni Commander a Giocatore 1' })
-    const sourceNames = within(sources)
-      .getAllByRole('button')
-      .map((button) => button.getAttribute('aria-label'))
-    expect(sourceNames).toEqual([
-      'Giocatore 2, Comandante 1: 0 danni',
-      'Giocatore 2, Comandante 2: 0 danni',
-      'Giocatore 3: 0 danni',
-    ])
-    expect(within(sources).getAllByRole('button')[0]).toHaveAttribute('aria-pressed', 'true')
-
-    fireEvent.click(within(sources).getAllByRole('button')[1])
-    press('Giocatore 1', /^aumenta danni commander da giocatore 2, comandante 2 a giocatore 1/i)
-    press('Giocatore 1', /^aumenta danni commander da giocatore 2, comandante 2 a giocatore 1/i)
+    expect(within(panel('Giocatore 1')).queryByRole('button', { name: /di 5/ })).not.toBeInTheDocument()
+    press('Giocatore 1', 'Riduci di 1 la vita di Giocatore 1')
+    press('Giocatore 1', 'Riduci di 1 la vita di Giocatore 1')
     expect(lifeOf('Giocatore 1')).toHaveTextContent('38')
-    expect(within(sources).getAllByRole('button')[1]).toHaveAccessibleName('Giocatore 2, Comandante 2: 2 danni')
-    expect(within(sources).getAllByRole('button')[0]).toHaveAccessibleName('Giocatore 2, Comandante 1: 0 danni')
-    expect(mode('Giocatore 1', /^commander/i)).toHaveAccessibleName('Commander: massimo 2 su 21')
+    expect(within(panel('Giocatore 1')).getByTestId('delta-badge')).toHaveTextContent('−2')
   })
 
-  it('tracks Commander tax in steps of two mana, separately for each Partner', () => {
-    render(<Table initial={partnerGame()} compact={compact} />)
-    fireEvent.click(mode('Giocatore 2', /^tassa/i))
-    press('Giocatore 2', /^aumenta di 2 mana la tassa del comandante 1 di giocatore 2/i)
-    press('Giocatore 2', /^aumenta di 2 mana la tassa del comandante 1 di giocatore 2/i)
-    expect(within(panel('Giocatore 2')).getByRole('status', { name: /tassa del comandante 1 di giocatore 2/i })).toHaveAccessibleName(
-      'Tassa del Comandante 1 di Giocatore 2: più 4 mana',
-    )
-
-    const slots = within(panel('Giocatore 2')).getByRole('group', { name: 'Comandante della tassa di Giocatore 2' })
-    fireEvent.click(within(slots).getByRole('button', { name: /^comandante 2/i }))
-    press('Giocatore 2', /^aumenta di 2 mana la tassa del comandante 2 di giocatore 2/i)
-    expect(within(panel('Giocatore 2')).getByRole('status', { name: /tassa del comandante 2/i })).toHaveAccessibleName(
-      'Tassa del Comandante 2 di Giocatore 2: più 2 mana',
-    )
-    expect(lifeOf('Giocatore 2')).toHaveTextContent('40')
-  })
-
-  it('shows a single tax without a slot choice for a deck without Partner', () => {
+  it('keeps every counter off the closed card and opens Contatori and Danni Commander inside it', () => {
     render(<Table initial={createGame(2)} compact={compact} />)
-    fireEvent.click(mode('Giocatore 1', /^tassa/i))
-    expect(within(panel('Giocatore 1')).queryByRole('group', { name: /comandante della tassa/i })).not.toBeInTheDocument()
-    press('Giocatore 1', /^riduci di 2 mana la tassa del comandante 1 di giocatore 1/i)
-    expect(within(panel('Giocatore 1')).getByRole('status', { name: /tassa del comandante 1/i })).toHaveAccessibleName(
-      'Tassa del Comandante 1 di Giocatore 1: più 0 mana',
-    )
+    expect(within(panel('Giocatore 1')).queryByText('Veleno')).not.toBeInTheDocument()
+    expect(within(panel('Giocatore 1')).queryByRole('radiogroup')).not.toBeInTheDocument()
+    const counters = button('Giocatore 1', 'Contatori')
+    expect(counters).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(counters)
+    expect(within(panel('Giocatore 1')).getByRole('group', { name: 'Contatori' })).toBeInTheDocument()
+    expect(button('Giocatore 1', 'Contatori')).toHaveAttribute('aria-expanded', 'true')
+
+    const diamond = button('Giocatore 1', 'Danni Commander di Giocatore 1')
+    expect(diamond.textContent).not.toMatch(/\d/)
+    fireEvent.click(diamond)
+    // One surface at a time: the Commander panel replaced the drawer.
+    expect(within(panel('Giocatore 1')).queryByRole('group', { name: 'Contatori' })).not.toBeInTheDocument()
+    expect(within(panel('Giocatore 1')).getByRole('radiogroup', { name: 'Sorgente dei danni Commander' })).toBeInTheDocument()
+    fireEvent.click(button('Giocatore 1', 'Chiudi danni Commander'))
+    expect(within(panel('Giocatore 1')).queryByRole('radiogroup')).not.toBeInTheDocument()
   })
 
-  it('remembers the mode and source of each panel independently', () => {
-    render(<Table initial={partnerGame()} compact={compact} />)
-    fireEvent.click(mode('Giocatore 1', /^commander/i))
-    fireEvent.click(within(panel('Giocatore 1')).getByRole('button', { name: /^giocatore 3/i }))
-    fireEvent.click(mode('Giocatore 1', /^veleno/i))
-    fireEvent.click(mode('Giocatore 1', /^commander/i))
-    expect(within(panel('Giocatore 1')).getByRole('button', { name: /^giocatore 3/i })).toHaveAttribute('aria-pressed', 'true')
-    expect(mode('Giocatore 3', /^vita/i)).toHaveAttribute('aria-pressed', 'true')
-  })
-
-  it('transfers Monarch and Initiative between players and removes them from the owner', () => {
-    render(<Table initial={createGame(3)} compact={compact} />)
-    fireEvent.click(mode('Giocatore 1', /^monarca/i))
-    expect(mode('Giocatore 1', /^monarca/i)).toHaveAttribute('aria-pressed', 'true')
-
-    fireEvent.click(mode('Giocatore 2', /^monarca/i))
-    expect(mode('Giocatore 2', /^monarca/i)).toHaveAttribute('aria-pressed', 'true')
-    expect(mode('Giocatore 1', /^monarca/i)).toHaveAttribute('aria-pressed', 'false')
-
-    fireEvent.click(mode('Giocatore 2', /^iniziativa/i))
-    expect(mode('Giocatore 2', /^iniziativa/i)).toHaveAttribute('aria-pressed', 'true')
-    expect(mode('Giocatore 2', /^monarca/i)).toHaveAttribute('aria-pressed', 'true')
-
-    fireEvent.click(mode('Giocatore 2', /^monarca/i))
-    expect(screen.getAllByRole('button', { name: /^monarca/i }).every((button) => button.getAttribute('aria-pressed') === 'false')).toBe(true)
-    // Choosing a role never changes the selected scoring mode.
-    expect(mode('Giocatore 2', /^vita/i)).toHaveAttribute('aria-pressed', 'true')
+  it('marks a player out of the game for every tracked cause, and clears it after a correction', () => {
+    let game = createGame(2)
+    game = gameReducer(game, { type: 'adjust-life', playerId: 'player-1', amount: -40 })
+    render(<Table initial={game} compact={compact} />)
+    expect(within(panel('Giocatore 1')).getByText('Fuori dalla partita')).toBeInTheDocument()
+    expect(panel('Giocatore 1')).toHaveAttribute('data-out')
+    press('Giocatore 1', 'Aumenta di 1 la vita di Giocatore 1')
+    expect(within(panel('Giocatore 1')).queryByText('Fuori dalla partita')).not.toBeInTheDocument()
+    expect(panel('Giocatore 1')).not.toHaveAttribute('data-out')
   })
 })
 
-it('keeps scoring out of the compact details sheet (D-033)', () => {
-  render(<Table initial={createGame(3)} compact />)
-  fireEvent.click(screen.getByRole('button', { name: 'Dettagli di Giocatore 1' }))
-  const sheet = screen.getByRole('dialog', { name: 'Dettagli di Giocatore 1' })
-  expect(within(sheet).queryByText('Danni Commander')).not.toBeInTheDocument()
-  expect(within(sheet).queryByText('Altri segnalini')).not.toBeInTheDocument()
-  expect(within(sheet).queryByRole('button', { name: /aumenta/i })).not.toBeInTheDocument()
-  expect(within(sheet).getByText('Comandante e mazzo')).toBeInTheDocument()
-  expect(within(sheet).getByRole('button', { name: /rimuovi giocatore/i })).toBeInTheDocument()
+describe('card art (R2 §4)', () => {
+  it('uses the neutral texture without any art, and credits a random illustration on the standard card', async () => {
+    setArtStoreForTests({
+      get: async (cardId) => (cardId === randomCard.cardId ? { bytes: new ArrayBuffer(1), type: 'image/jpeg', veil: { name: 0, life: 0 } } : undefined),
+      put: async () => undefined,
+      delete: async () => undefined,
+      keys: async () => [],
+    })
+    render(<Table initial={createGame(2)} randomArt={{ 'player-1': randomCard }} />)
+    await act(async () => undefined)
+    expect(panel('Giocatore 2')).toHaveAttribute('data-art', 'neutral')
+    expect(within(panel('Giocatore 1')).getByText('Illustrazione di Rebecca Guay')).toBeInTheDocument()
+  })
+
+  it('keeps the credit in Dettagli only on compact cards', () => {
+    render(<Table initial={createGame(2)} compact randomArt={{ 'player-1': randomCard }} />)
+    expect(within(panel('Giocatore 1')).queryByText('Illustrazione di Rebecca Guay')).not.toBeInTheDocument()
+  })
+
+  it('prefers the commander art over the random one', () => {
+    const game = gameReducer(createGame(2), { type: 'set-commander', playerId: 'player-1', slot: 0, commander: commander(1) })
+    render(<Table initial={game} randomArt={{ 'player-1': randomCard }} />)
+    expect(within(panel('Giocatore 1')).getByText('Comandante 1')).toBeInTheDocument()
+    expect(within(panel('Giocatore 1')).queryByText('Illustrazione di Rebecca Guay')).not.toBeInTheDocument()
+  })
+
+  it('shows a cached random art and its full credit in Dettagli', async () => {
+    setArtStoreForTests({
+      get: async () => ({ bytes: new ArrayBuffer(1), type: 'image/jpeg', veil: { name: 0, life: 0 } }),
+      put: async () => undefined,
+      delete: async () => undefined,
+      keys: async () => [],
+    })
+    render(<Table initial={createGame(2)} randomArt={{ 'player-1': randomCard }} />)
+    await act(async () => undefined)
+    expect(panel('Giocatore 1')).toHaveAttribute('data-art', 'random')
+    fireEvent.click(button('Giocatore 1', 'Apri dettagli di Giocatore 1'))
+    const sheet = screen.getByRole('dialog', { name: 'Dettagli di Giocatore 1' })
+    expect(within(sheet).getByText('Arte casuale')).toBeInTheDocument()
+    expect(within(sheet).getByText('Carta casuale')).toBeInTheDocument()
+    expect(within(sheet).getByText('Illustrazione di Rebecca Guay')).toBeInTheDocument()
+  })
+
+  it('says in Dettagli when the illustration is not available offline', async () => {
+    setArtStoreForTests({ get: async () => undefined, put: async () => undefined, delete: async () => undefined, keys: async () => [] })
+    render(<Table initial={createGame(2)} randomArt={{ 'player-1': randomCard }} />)
+    await act(async () => undefined)
+    expect(panel('Giocatore 1')).toHaveAttribute('data-art', 'neutral')
+    fireEvent.click(button('Giocatore 1', 'Apri dettagli di Giocatore 1'))
+    expect(within(screen.getByRole('dialog')).getByText('Illustrazione non disponibile offline')).toBeInTheDocument()
+  })
+})
+
+describe('Dettagli (R2 §4.3)', () => {
+  it('holds the name, the deck, every defeat cause and removal from three players up', () => {
+    let game = createGame(3)
+    game = gameReducer(game, { type: 'adjust-life', playerId: 'player-1', amount: -40 })
+    game = gameReducer(game, { type: 'adjust-counter', playerId: 'player-1', counter: 'poison', amount: 10 })
+    render(<Table initial={game} />)
+    fireEvent.click(button('Giocatore 1', 'Apri dettagli di Giocatore 1'))
+    const sheet = screen.getByRole('dialog', { name: 'Dettagli di Giocatore 1' })
+    expect(within(sheet).getByText('punti vita a zero o meno')).toBeInTheDocument()
+    expect(within(sheet).getByText('10 segnalini veleno')).toBeInTheDocument()
+    expect(within(sheet).getByText('Comandante e mazzo')).toBeInTheDocument()
+    expect(within(sheet).getByRole('button', { name: /rimuovi giocatore/i })).toBeInTheDocument()
+
+    const input = within(sheet).getByRole('textbox', { name: 'Nome giocatore' })
+    fireEvent.change(input, { target: { value: 'Giulia' } })
+    fireEvent.blur(input)
+    expect(panel('Giulia')).toBeInTheDocument()
+  })
+
+  it('restores the name on Escape and blurs on Enter', () => {
+    render(<Table initial={createGame(2)} />)
+    fireEvent.click(button('Giocatore 1', 'Apri dettagli di Giocatore 1'))
+    const input = within(screen.getByRole('dialog')).getByRole('textbox', { name: 'Nome giocatore' })
+    input.focus()
+    fireEvent.change(input, { target: { value: 'Marco' } })
+    fireEvent.keyDown(input, { key: 'Escape' })
+    expect(input).toHaveValue('Giocatore 1')
+    input.focus()
+    fireEvent.keyDown(input, { key: 'Enter' })
+    expect(input).not.toHaveFocus()
+  })
+
+  it('offers no removal with two players', () => {
+    render(<Table initial={createGame(2)} />)
+    fireEvent.click(button('Giocatore 1', 'Apri dettagli di Giocatore 1'))
+    expect(within(screen.getByRole('dialog')).queryByRole('button', { name: /rimuovi giocatore/i })).not.toBeInTheDocument()
+  })
 })
 
 describe('settled announcement (D-036)', () => {
@@ -188,7 +226,6 @@ describe('settled announcement (D-036)', () => {
   afterEach(() => vi.useRealTimers())
 
   const live = (name: string) => panel(name).querySelector('.score-announcement') as HTMLElement
-  /** Every text the live region takes while `run` executes (one entry per mutation batch). */
   const recordLive = async (name: string, run: () => void) => {
     const texts: string[] = []
     const observer = new MutationObserver(() => texts.push(live(name).textContent ?? ''))
@@ -202,69 +239,99 @@ describe('settled announcement (D-036)', () => {
     return texts
   }
 
-  it('keeps one polite region per panel, and silent dock outputs', () => {
+  it('keeps one polite region per card, also with a panel open', () => {
     render(<Table initial={createGame(2)} />)
-    fireEvent.click(mode('Giocatore 1', /^veleno/i))
+    fireEvent.click(button('Giocatore 1', 'Contatori'))
     expect(panel('Giocatore 1').querySelectorAll('[aria-live="polite"]')).toHaveLength(1)
-    expect(within(panel('Giocatore 1')).getByRole('status', { name: /veleno di giocatore 1/i })).toHaveAttribute('aria-live', 'off')
   })
 
   it('announces a counter burst once, after it settles', async () => {
     render(<Table initial={createGame(2)} />)
-    fireEvent.click(mode('Giocatore 1', /^veleno/i))
+    fireEvent.click(button('Giocatore 1', 'Contatori'))
     const texts = await recordLive('Giocatore 1', () => {
-      for (let tap = 0; tap < 3; tap += 1) press('Giocatore 1', /^aumenta veleno di giocatore 1/i)
+      for (let tap = 0; tap < 3; tap += 1) press('Giocatore 1', 'Aggiungi 1 al veleno di Giocatore 1')
     })
     expect(texts).toEqual(['Giocatore 1: veleno 3'])
   })
 
-  it('announces nothing after only changing mode', async () => {
-    render(<Table initial={createGame(2)} />)
-    const texts = await recordLive('Giocatore 1', () => {
-      fireEvent.click(mode('Giocatore 1', /^veleno/i))
-      fireEvent.click(mode('Giocatore 1', /^tassa/i))
-      fireEvent.click(mode('Giocatore 1', /^commander/i))
-    })
-    expect(texts).toEqual([])
-  })
-
-  it('announces nothing after only changing source', async () => {
+  it('announces nothing after only opening panels or changing source', async () => {
     render(<Table initial={createGame(3)} />)
-    fireEvent.click(mode('Giocatore 1', /^commander/i))
     const texts = await recordLive('Giocatore 1', () => {
-      fireEvent.click(within(panel('Giocatore 1')).getByRole('button', { name: /^giocatore 3/i }))
-      fireEvent.click(within(panel('Giocatore 1')).getByRole('button', { name: /^giocatore 2/i }))
+      fireEvent.click(button('Giocatore 1', 'Contatori'))
+      fireEvent.click(button('Giocatore 1', 'Danni Commander di Giocatore 1'))
+      fireEvent.click(within(panel('Giocatore 1')).getByRole('radio', { name: 'Giocatore 3 · Comandante' }))
     })
     expect(texts).toEqual([])
   })
 
-  it('makes a Commander burst one final announcement with damage and life', async () => {
-    render(<Table initial={createGame(2)} />)
-    fireEvent.click(mode('Giocatore 1', /^commander/i))
-    const texts = await recordLive('Giocatore 1', () => {
-      for (let tap = 0; tap < 3; tap += 1) press('Giocatore 1', /^aumenta danni commander da giocatore 2 a giocatore 1/i)
-    })
-    expect(texts).toEqual(['Giocatore 1: 3 danni Commander da Giocatore 2; vita 37'])
-  })
-
-  it('names a single point of damage, the Partner slot and the tax in mana', async () => {
+  it('makes a Commander burst one announcement with source, Partner slot and life', async () => {
     const partner = gameReducer(createGame(2), { type: 'set-partner', playerId: 'player-2', hasPartner: true })
     render(<Table initial={partner} />)
-    fireEvent.click(mode('Giocatore 1', /^commander/i))
-    fireEvent.click(within(panel('Giocatore 1')).getByRole('button', { name: /^giocatore 2, comandante 2/i }))
-    const damage = await recordLive('Giocatore 1', () =>
-      press('Giocatore 1', /^aumenta danni commander da giocatore 2, comandante 2 a giocatore 1/i),
-    )
-    expect(damage).toEqual(['Giocatore 1: 1 danno Commander da Giocatore 2, Comandante 2; vita 39'])
-
-    fireEvent.click(mode('Giocatore 2', /^tassa/i))
-    const tax = await recordLive('Giocatore 2', () => press('Giocatore 2', /^aumenta di 2 mana la tassa del comandante 1 di giocatore 2/i))
-    expect(tax).toEqual(['Giocatore 2: tassa del Comandante 1, più 2 mana'])
+    fireEvent.click(button('Giocatore 1', 'Danni Commander di Giocatore 1'))
+    fireEvent.click(within(panel('Giocatore 1')).getByRole('radio', { name: 'Giocatore 2 · Comandante 2' }))
+    const texts = await recordLive('Giocatore 1', () => {
+      for (let tap = 0; tap < 2; tap += 1) press('Giocatore 1', 'Aggiungi 1 danno Commander da Giocatore 2, Comandante 2 a Giocatore 1')
+    })
+    expect(texts).toEqual(['Giocatore 1: 2 danni Commander da Giocatore 2, Comandante 2; vita 38'])
   })
 
   it('announces a life burst as the settled life total', async () => {
     render(<Table initial={createGame(2)} />)
-    const texts = await recordLive('Giocatore 1', () => press('Giocatore 1', /^aumenta di 1 la vita di giocatore 1/i))
+    const texts = await recordLive('Giocatore 1', () => press('Giocatore 1', 'Aumenta di 1 la vita di Giocatore 1'))
     expect(texts).toEqual(['Giocatore 1: 41 punti vita'])
+  })
+})
+
+describe('closing an inner surface (R2 §10, D-039)', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.unstubAllGlobals()
+  })
+
+  it('stays visible for the 140ms exit, already inert and hidden, then unmounts', () => {
+    vi.useFakeTimers()
+    render(<Table initial={createGame(2)} />)
+    fireEvent.click(button('Giocatore 1', 'Contatori'))
+    fireEvent.click(button('Giocatore 1', 'Chiudi contatori'))
+    const leaving = panel('Giocatore 1').querySelector('[data-drawer="counters"]') as HTMLElement
+    expect(leaving).toHaveAttribute('data-closing')
+    expect(leaving).toHaveAttribute('inert')
+    expect(leaving).toHaveAttribute('aria-hidden', 'true')
+    expect(within(panel('Giocatore 1')).queryByRole('group', { name: 'Contatori' })).not.toBeInTheDocument()
+    act(() => vi.advanceTimersByTime(140))
+    expect(panel('Giocatore 1').querySelector('[data-drawer]')).toBeNull()
+  })
+
+  it('reopens at once when the same surface is asked for during its exit', () => {
+    vi.useFakeTimers()
+    render(<Table initial={createGame(2)} />)
+    fireEvent.click(button('Giocatore 1', 'Contatori'))
+    fireEvent.click(button('Giocatore 1', 'Chiudi contatori'))
+    button('Giocatore 1', 'Contatori').focus()
+    fireEvent.click(button('Giocatore 1', 'Contatori'))
+    const drawer = panel('Giocatore 1').querySelector('[data-drawer="counters"]') as HTMLElement
+    expect(drawer).not.toHaveAttribute('data-closing')
+    // Focus goes back inside the reactivated surface.
+    expect(button('Giocatore 1', 'Chiudi contatori')).toHaveFocus()
+    act(() => vi.advanceTimersByTime(200))
+    expect(panel('Giocatore 1').querySelector('[data-drawer="counters"]')).toBe(drawer)
+  })
+
+  it('refocuses the chosen source when the Commander panel reopens during its exit', () => {
+    vi.useFakeTimers()
+    render(<Table initial={createGame(2)} />)
+    fireEvent.click(button('Giocatore 1', 'Danni Commander di Giocatore 1'))
+    fireEvent.click(button('Giocatore 1', 'Chiudi danni Commander'))
+    button('Giocatore 1', 'Danni Commander di Giocatore 1').focus()
+    fireEvent.click(button('Giocatore 1', 'Danni Commander di Giocatore 1'))
+    expect(within(panel('Giocatore 1')).getByRole('radio', { name: 'Giocatore 2 · Comandante' })).toHaveFocus()
+  })
+
+  it('closes immediately with reduced motion', () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({ matches: query.includes('reduce'), addEventListener() {}, removeEventListener() {} }))
+    render(<Table initial={createGame(2)} />)
+    fireEvent.click(button('Giocatore 1', 'Contatori'))
+    fireEvent.click(button('Giocatore 1', 'Chiudi contatori'))
+    expect(panel('Giocatore 1').querySelector('[data-drawer]')).toBeNull()
   })
 })

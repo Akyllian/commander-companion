@@ -13,6 +13,8 @@ const card = {
 function stubNetwork(mode: 'ok' | 'offline') {
   const fetchMock = vi.fn(async (url: string) => {
     if (mode === 'offline') throw new TypeError('Failed to fetch')
+    // Random seat art (D-039) is out of scope here: it fails once, as offline, and stops.
+    if (url.includes('/cards/random')) throw new TypeError('Failed to fetch')
     if (url.startsWith('https://api.scryfall.com/')) {
       return new Response(JSON.stringify({ data: [card] }), { headers: { 'Content-Type': 'application/json' } })
     }
@@ -33,12 +35,17 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
+/** Opens Giocatore 1's Dettagli (R2 §4.3) and its «Comandante e mazzo» section. */
 const openDeckConfig = () => {
-  const panel = screen.getByRole('region', { name: /giocatore 1/i })
-  const details = within(panel).getByText('Comandante e mazzo').closest('details') as HTMLDetailsElement
+  fireEvent.click(screen.getByRole('button', { name: 'Apri dettagli di Giocatore 1' }))
+  const sheet = screen.getByRole('dialog', { name: 'Dettagli di Giocatore 1' })
+  const details = within(sheet).getByText('Comandante e mazzo').closest('details') as HTMLDetailsElement
   details.open = true
-  return panel
+  return sheet
 }
+const card1 = () => screen.getByRole('region', { name: /giocatore 1/i })
+const scryfallCalls = (fetchMock: ReturnType<typeof stubNetwork>) =>
+  fetchMock.mock.calls.filter(([url]) => !String(url).includes('/cards/random'))
 
 describe('commander picker (Phase 2c)', () => {
   it('searches Scryfall, caches the art and shows it with the artist credit', async () => {
@@ -55,12 +62,12 @@ describe('commander picker (Phase 2c)', () => {
     expect(within(panel).getByText('1 risultato')).toBeInTheDocument()
 
     await act(async () => fireEvent.click(result))
-    await waitFor(() => expect(panel.querySelector('.player-art > img')).toHaveAttribute('src', 'blob:art'))
+    await waitFor(() => expect(card1().querySelector('.player-art > img')).toHaveAttribute('src', 'blob:art'))
 
-    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(scryfallCalls(fetchMock)).toHaveLength(2)
     expect(within(panel).getAllByText('Illustrazione di Ekaterina Burmak').length).toBeGreaterThan(0)
-    expect(panel).toHaveAttribute('data-has-art')
-    expect(panel.querySelector('.player-art')).toHaveAttribute('aria-hidden', 'true')
+    expect(card1()).toHaveAttribute('data-art', 'commander')
+    expect(card1().querySelector('.player-art')).toHaveAttribute('aria-hidden', 'true')
   })
 
   it('explains that a connection is needed when offline', async () => {
@@ -130,11 +137,11 @@ describe('commander picker (Phase 2c)', () => {
     const panel = openDeckConfig()
     expect(within(panel).getByRole('group', { name: 'Comandante 1' })).toBeInTheDocument()
     expect(within(panel).getByRole('group', { name: 'Comandante 2' })).toBeInTheDocument()
-    await waitFor(() => expect(panel.querySelector('.player-art[data-split]')).not.toBeNull())
-    expect(panel.querySelectorAll('.player-art__half img')).toHaveLength(2)
+    await waitFor(() => expect(card1().querySelector('.player-art[data-split]')).not.toBeNull())
+    expect(card1().querySelectorAll('.player-art__half img')).toHaveLength(2)
     // The shared text veils take the stronger reinforcement of the two arts.
-    expect(panel.style.getPropertyValue('--art-veil-name')).toBe('0.6')
-    expect(panel.style.getPropertyValue('--art-veil-life')).toBe('0.5')
+    expect(card1().style.getPropertyValue('--art-veil-name')).toBe('0.6')
+    expect(card1().style.getPropertyValue('--art-veil-life')).toBe('0.5')
     expect(within(panel).getAllByText('Illustrazione di Ekaterina Burmak').length).toBeGreaterThan(1)
   })
 })

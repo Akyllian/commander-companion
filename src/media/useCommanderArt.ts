@@ -13,9 +13,9 @@ export interface ArtImage {
   veil: VeilBoost
 }
 
-/** Object URL and veil for a cached commander art; null while loading or when absent. */
-export function useArtImage(cardId: string | null): ArtImage | null {
-  const [image, setImage] = useState<{ cardId: string; art: ArtImage } | null>(null)
+/** Object URL and veil of a cached art, and whether the cache answered that it has none. */
+export function useArtState(cardId: string | null): { image: ArtImage | null; missing: boolean } {
+  const [state, setState] = useState<{ cardId: string; art: ArtImage | null } | null>(null)
 
   useEffect(() => {
     const store = getArtStore()
@@ -25,9 +25,13 @@ export function useArtImage(cardId: string | null): ArtImage | null {
     store
       .get(cardId)
       .then((stored) => {
-        if (cancelled || !stored) return
+        if (cancelled) return
+        if (!stored) {
+          setState({ cardId, art: null })
+          return
+        }
         url = URL.createObjectURL(new Blob([stored.bytes], { type: stored.type }))
-        setImage({ cardId, art: { url, veil: stored.veil ?? NO_BOOST } })
+        setState({ cardId, art: { url, veil: stored.veil ?? NO_BOOST } })
       })
       .catch(() => undefined)
     return () => {
@@ -36,7 +40,13 @@ export function useArtImage(cardId: string | null): ArtImage | null {
     }
   }, [cardId])
 
-  return image && image.cardId === cardId ? image.art : null
+  const current = state && state.cardId === cardId ? state : null
+  return { image: current?.art ?? null, missing: current !== null && current.art === null }
+}
+
+/** Object URL and veil for a cached commander art; null while loading or when absent. */
+export function useArtImage(cardId: string | null): ArtImage | null {
+  return useArtState(cardId).image
 }
 
 export type SearchState =

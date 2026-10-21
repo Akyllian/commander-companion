@@ -1,39 +1,42 @@
 import type React from 'react'
 
 interface ShellRhombusProps {
+  /** True while the hub or one of its tools is open (R2 §7). */
   expanded: boolean
-  /** Id of the section navigation it reveals. */
+  /** Id of the hub layer it opens. */
   controlsId: string
-  /** The coach label «Tocca ◇ per le sezioni», until the first use (R1 §13.2). */
+  /** The coach label «Tocca ◇ per strumenti e sezioni», until the first use (R1 §13.2, R2 §7.1). */
   showHint: boolean
-  /** `byKeyboard` is true for Enter/Space activation, so focus can move into the bar. */
-  onToggle: (byKeyboard: boolean) => void
+  /** Hidden but still laid out, so the cards keep its reserved band (R2 §7.1). */
+  hintDimmed?: boolean
+  onToggle: () => void
   buttonRef?: React.Ref<HTMLButtonElement>
   /** Placement inside the table, from the centre geometry (R1 Task 7). */
   style?: React.CSSProperties
 }
 
 /**
- * The central sigil (D-037, R1): a real 56px button, upright to the viewport, that reveals the
- * section bar during play. The diamond is drawn inside; the hit area stays square.
+ * The central sigil (D-037, R1, R2 §7): a real 56px button, upright to the viewport, with one
+ * meaning — open tools and sections. Open, it closes them. The diamond is drawn inside; the hit
+ * area stays square.
  */
-export function ShellRhombus({ expanded, controlsId, showHint, onToggle, buttonRef, style }: ShellRhombusProps) {
+export function ShellRhombus({ expanded, controlsId, showHint, hintDimmed = false, onToggle, buttonRef, style }: ShellRhombusProps) {
   return (
     <div className="shell-rhombus-slot" style={style}>
-      {/* Above the rhombus; silent, since the button already says «Mostra le sezioni». */}
+      {/* Above the rhombus; silent, since the button already says what it opens. */}
       {showHint && (
-        <p className="shell-rhombus__hint" aria-hidden="true">
-          Tocca ◇ per le sezioni
+        <p className="shell-rhombus__hint" aria-hidden="true" data-dimmed={hintDimmed || undefined}>
+          Tocca ◇ per strumenti e sezioni
         </p>
       )}
       <button
         ref={buttonRef}
         type="button"
         className="shell-rhombus"
-        aria-label={expanded ? 'Nascondi le sezioni' : 'Mostra le sezioni'}
+        aria-label={expanded ? 'Chiudi strumenti' : 'Apri strumenti e sezioni'}
         aria-expanded={expanded}
         aria-controls={controlsId}
-        onClick={(event) => onToggle(event.detail === 0)}
+        onClick={onToggle}
       >
         <svg viewBox="0 0 56 56" aria-hidden="true" className="shell-rhombus__art">
           <rect className="shell-rhombus__diamond" x="12" y="12" width="32" height="32" rx="5" transform="rotate(45 28 28)" />

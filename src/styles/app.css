@@ -132,39 +132,6 @@ button:disabled {
   border-color: var(--color-danger);
 }
 
-.player-panel__sigil {
-  position: absolute;
-  z-index: -1;
-  top: -5.5rem;
-  right: -4rem;
-  width: 14rem;
-  aspect-ratio: 1;
-  border: 1px solid color-mix(in oklch, var(--player-accent) 45%, transparent);
-  border-radius: 50%;
-  opacity: 0.42;
-  animation: orbit 24s linear infinite;
-}
-
-.player-panel__sigil::before,
-.player-panel__sigil::after,
-.player-panel__sigil span {
-  position: absolute;
-  inset: 16%;
-  content: '';
-  border: 1px solid color-mix(in oklch, var(--player-accent) 50%, transparent);
-  transform: rotate(45deg);
-}
-
-.player-panel__sigil::after {
-  inset: 31%;
-  border-radius: 50%;
-}
-
-.player-panel__sigil span {
-  inset: 8%;
-  transform: rotate(22.5deg);
-}
-
 @keyframes orbit {
   to {
     transform: rotate(360deg);
@@ -195,20 +162,6 @@ button:disabled {
   background: var(--color-surface-raised);
 }
 
-.defeat-line {
-  margin: var(--space-1) 0 0;
-}
-
-.status-badge {
-  display: inline-block;
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-round);
-  color: var(--primitive-neutral-50);
-  background: var(--color-danger);
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
 .icon-button {
   flex: none;
   width: var(--button-height);
@@ -224,12 +177,6 @@ button:disabled {
   padding-block: var(--space-3);
 }
 
-.life-label {
-  align-self: end;
-  color: var(--color-text-muted);
-  font-size: 0.78rem;
-}
-
 .life-total {
   align-self: start;
   color: var(--color-text);
@@ -239,12 +186,6 @@ button:disabled {
   letter-spacing: -0.04em;
   line-height: 0.92;
   text-shadow: 0 0 2.5rem color-mix(in oklch, var(--player-accent) 28%, transparent);
-}
-
-.life-controls {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(3rem, 1fr));
-  gap: var(--space-2);
 }
 
 .score-button {
@@ -263,10 +204,6 @@ button:disabled {
   border-top: 1px solid var(--color-border);
 }
 
-.life-controls + .player-details {
-  margin-top: var(--space-4);
-}
-
 .player-details summary {
   display: flex;
   align-items: center;
@@ -281,17 +218,6 @@ button:disabled {
   display: none;
 }
 
-.summary-total {
-  display: grid;
-  min-width: 1.6rem;
-  min-height: 1.6rem;
-  place-items: center;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-round);
-  font-size: 0.75rem;
-}
-
-.counter-list,
 .commander-damage {
   display: grid;
   gap: var(--space-2);
@@ -306,27 +232,6 @@ button:disabled {
   color: var(--color-text-muted);
   font-size: 0.82rem;
   font-weight: 650;
-}
-
-.counter-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  min-height: 2.75rem;
-}
-
-.counter-label {
-  /* Long names must truncate instead of pushing the stepper out of the panel. */
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.counter-label > span {
-  color: var(--player-accent);
 }
 
 .stepper {
@@ -395,7 +300,6 @@ input[type='checkbox'] {
   min-height: var(--button-height);
 }
 
-.commander-damage__hint,
 .partner-hint {
   margin: 0;
   color: var(--color-text-muted);
@@ -432,12 +336,6 @@ input[type='checkbox'] {
   padding-inline: var(--space-4);
 }
 
-.commander-damage .counter-label {
-  /* "comandante 1/2" must stay readable: wrap rather than truncate. */
-  overflow-wrap: anywhere;
-  white-space: normal;
-}
-
 /* ---- UX decisions 1–9 (2026-10-17) ---- */
 
 .player-name {
@@ -457,17 +355,6 @@ input[type='checkbox'] {
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 1.75;
-}
-
-.remove-button {
-  color: var(--color-text-muted);
-}
-
-.remove-button:hover:not(:disabled),
-.remove-button:focus-visible,
-.remove-button:active:not(:disabled) {
-  border-color: var(--color-danger-foreground);
-  color: var(--color-danger-foreground);
 }
 
 .partner-badge {
@@ -520,12 +407,6 @@ input[type='checkbox'] {
   top: 0;
   left: 100%;
   margin-left: var(--space-2);
-}
-
-.summary-value {
-  color: var(--color-text-muted);
-  font-size: 0.78rem;
-  font-variant-numeric: tabular-nums;
 }
 
 .button-icon {
@@ -693,15 +574,6 @@ input[type='checkbox'] {
   color: var(--color-danger-foreground);
 }
 
-/* P3: match management and Wake Lock are separate groups in the Partita menu. */
-.menu-divider {
-  width: 100%;
-  height: 0;
-  margin: var(--space-1) 0;
-  border: 0;
-  border-top: 1px solid var(--color-gold-hairline);
-}
-
 /* ---- Compact landscape (Phase 1.6, spec 2026-10-18) ----
    Activated by `data-compact-density`, set from COMPACT_DENSITY_QUERY in JS (single source).
    Budget at 844×330: 8 + 52 header + 8 + 2 rows of ~123 + 8 gap + 8. */
@@ -780,68 +652,8 @@ input[type='checkbox'] {
   white-space: nowrap;
 }
 
-.player-panel[data-compact] .status-badge {
-  display: inline-flex;
-  flex: 0 1 auto;
-  min-width: 0;
-  white-space: pre;
-}
-
-.player-panel[data-compact] .status-badge__label {
-  flex: none;
-}
-
-.player-panel[data-compact] .status-badge__reason {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .player-panel[data-compact] .details-button {
   flex: none;
-}
-
-.score-rail {
-  container-type: inline-size;
-  display: grid;
-  /* Fixed tracks: buttons never move between "9", "100" or "-999"; the life cell is ≥ 64px. */
-  grid-template-columns: repeat(2, minmax(var(--button-height), 1fr)) minmax(4rem, 2fr) repeat(
-      2,
-      minmax(var(--button-height), 1fr)
-    );
-  align-items: center;
-  gap: var(--space-1);
-}
-
-.player-panel[data-compact] .score-rail {
-  /* Wide cells (2 players, spanning 3rd panel) add breathing room, not bigger controls. */
-  justify-self: center;
-  width: 100%;
-  max-width: 24rem;
-}
-
-.score-rail .score-button {
-  min-height: var(--button-height);
-  padding: 0;
-}
-
-.score-rail .life-value {
-  justify-self: center;
-  min-width: 0;
-}
-
-.score-rail .life-total {
-  /* 40–48px from a 340px rail (844px viewport); shrinks only on narrow rails so "-999" fits. */
-  font-size: clamp(1.5rem, 12cqi, 3rem);
-  line-height: 0.9;
-}
-
-/* The delta overlays the life cell's upper-right corner: it never changes row dimensions. */
-.score-rail .life-value .delta-badge {
-  top: -0.5rem;
-  right: -0.75rem;
-  left: auto;
-  margin: 0;
 }
 
 .rules-sheet {
@@ -980,11 +792,6 @@ input[type='checkbox'] {
   line-height: 1.125rem;
 }
 
-.player-panel[data-compact] .status-badge {
-  font-size: 0.6875rem;
-  line-height: 0.875rem;
-}
-
 .player-details-sheet .player-details summary {
   color: var(--color-text);
   font-size: 0.875rem;
@@ -1010,11 +817,6 @@ input[type='checkbox'] {
     opacity: 0;
     transform: translateY(2px);
   }
-}
-
-/* Defeat: appears once, never pulses; the border follows with the same timing. */
-.status-badge {
-  animation: fade-in var(--duration-fast) var(--ease-out);
 }
 
 .player-panel {
@@ -1235,18 +1037,6 @@ button:hover:not(:disabled) {
   }
 }
 
-.score-rail .life-total {
-  /* Cormorant's numerals are lighter than a sans: a larger size keeps life the strongest datum. */
-  font-size: clamp(1.75rem, 16cqi, 4rem);
-}
-
-/* Narrow rails (e.g. iPhone SE landscape): leave room around four-character totals like "-999". */
-@container (max-width: 20rem) {
-  .score-rail .life-total {
-    font-size: 13.5cqi;
-  }
-}
-
 /* One-shot local light bloom when the value changes (never scales the numeral). */
 .life-total[data-bloom] {
   animation: life-bloom var(--duration-fast) var(--ease-out);
@@ -1258,11 +1048,6 @@ button:hover:not(:disabled) {
       0 0 0.9rem oklch(0.864 0.101 86 / 70%),
       0 0 2.4rem oklch(0.812 0.11 87 / 40%);
   }
-}
-
-.life-label {
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
 }
 
 .score-button {
@@ -1592,10 +1377,6 @@ button:hover:not(:disabled) {
   background: var(--color-ink);
 }
 
-.player-panel[data-has-art] .player-panel__sigil {
-  opacity: 0.2;
-}
-
 /* Commander name and artist credit (Fan Content Policy). */
 .commander-line {
   display: flex;
@@ -1756,269 +1537,10 @@ button:hover:not(:disabled) {
   font-size: 0.6875rem;
 }
 
-/* ---- Direct scoring dock (D-033) ----
-   One continuous dark strip with gold hairlines; the active mode gets teal plus a gold underline
-   (shape, not colour alone). Life stays the largest number; dock values stay ≤ 60% of it. */
-.score-dock {
-  display: grid;
-  gap: var(--space-2);
-  margin-top: var(--space-2);
-}
-
-.score-dock + .player-details {
-  margin-top: var(--space-4);
-}
-
-.score-modes {
-  display: flex;
-  align-items: stretch;
-  min-width: 0;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  border: 1px solid var(--color-gold-hairline);
-  border-radius: var(--radius-md);
-  background: color-mix(in oklch, var(--color-ink) 82%, transparent);
-  scroll-snap-type: x proximity;
-  scrollbar-width: none;
-}
-
-.score-modes::-webkit-scrollbar {
-  display: none;
-}
-
-.score-mode {
-  position: relative;
-  display: grid;
-  flex: 0 0 auto;
-  align-content: center;
-  justify-items: center;
-  gap: 0.125rem;
-  min-width: 4.25rem;
-  min-height: var(--button-height);
-  padding: var(--space-1) var(--space-2);
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--color-text-muted);
-  font-size: 0.72rem;
-  font-weight: 650;
-  scroll-snap-align: start;
-}
-
-.score-mode + .score-mode {
-  border-inline-start: 1px solid var(--color-gold-hairline);
-}
-
-.score-mode:hover:not(:disabled) {
-  border-color: var(--color-gold-hairline);
-  background: color-mix(in oklch, var(--color-gold) 6%, transparent);
-  color: var(--color-ivory);
-}
-
-.score-mode:focus-visible {
-  z-index: 1;
-  outline-offset: -3px;
-}
-
-.score-mode[aria-pressed='true'] {
-  background: color-mix(in oklch, var(--color-primary) 16%, var(--color-ink));
-  box-shadow: inset 0 -2px 0 var(--color-gold);
-  color: var(--color-ivory);
-}
-
-.score-mode[aria-pressed='true'] .button-icon {
-  color: var(--color-primary);
-}
-
-.score-mode__value {
-  color: var(--color-ivory);
-  font-size: 0.8rem;
-  font-variant-numeric: tabular-nums;
-  font-weight: 720;
-  line-height: 1.1;
-  white-space: nowrap;
-}
-
-.score-mode__value .mana-cost {
-  min-width: 1.15rem;
-  height: 1.15rem;
-  font-size: 0.68rem;
-}
-
-.score-modes__divider {
-  flex: 0 0 1px;
-  margin: var(--space-2) var(--space-1);
-  background: var(--color-gold-line);
-}
-
-.score-modes__divider + .score-mode {
-  border-inline-start: 0;
-}
-
-/* Table roles: a held role fills its icon and keeps the gold underline; text says which. */
-.score-role[data-held] {
-  background: color-mix(in oklch, var(--color-gold) 14%, var(--color-ink));
-  box-shadow: inset 0 -2px 0 var(--color-gold);
-  color: var(--color-gold-bright);
-}
-
-.score-role[data-held] .button-icon {
-  fill: color-mix(in oklch, var(--color-gold) 35%, transparent);
-  animation: role-arrive var(--duration-fast) var(--ease-out);
-}
-
 @keyframes role-arrive {
   from {
     opacity: 0;
   }
-}
-
-.score-sources {
-  display: flex;
-  gap: var(--space-1);
-  min-width: 0;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-}
-
-.score-sources::-webkit-scrollbar {
-  display: none;
-}
-
-.score-source {
-  --source-accent: var(--color-primary);
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: var(--button-height);
-  max-width: 14rem;
-  padding: 0 var(--space-3) 0 var(--space-2);
-  background: color-mix(in oklch, var(--color-ink) 78%, transparent);
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
-}
-
-.score-source[data-accent='gold'] {
-  --source-accent: var(--primitive-gold-500);
-}
-
-.score-source[data-accent='violet'] {
-  --source-accent: var(--primitive-violet-500);
-}
-
-.score-source[data-accent='ember'] {
-  --source-accent: var(--primitive-ember-500);
-}
-
-.score-source[aria-pressed='true'] {
-  border-color: var(--color-primary);
-  box-shadow: inset 0 -2px 0 var(--color-gold);
-  color: var(--color-ivory);
-}
-
-.score-source__art,
-.score-source__sigil {
-  flex: none;
-  width: 1.75rem;
-  height: 1.75rem;
-  border: 1px solid var(--source-accent);
-  border-radius: var(--radius-round);
-}
-
-.score-source__art {
-  object-fit: cover;
-}
-
-.score-source__sigil {
-  background:
-    radial-gradient(circle, var(--source-accent) 0 22%, transparent 24%),
-    color-mix(in oklch, var(--source-accent) 14%, var(--color-ink));
-}
-
-.score-source__name {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.score-source__slot {
-  display: inline-grid;
-  min-width: 1.1rem;
-  height: 1.1rem;
-  place-items: center;
-  border: 1px solid var(--color-gold-line);
-  border-radius: var(--radius-round);
-  font-size: 0.68rem;
-}
-
-.score-source__value {
-  color: var(--color-ivory);
-  font-variant-numeric: tabular-nums;
-  font-weight: 720;
-}
-
-.score-hint {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: 0.78rem;
-}
-
-/* Same height as the life row, so switching modes never moves the panel below it. */
-.score-adjust {
-  display: grid;
-  grid-template-columns: minmax(3rem, 1fr) minmax(5rem, 2fr) minmax(3rem, 1fr);
-  align-items: center;
-  gap: var(--space-2);
-  min-height: 3.25rem;
-}
-
-.score-adjust--empty {
-  display: grid;
-  place-items: center;
-  margin: 0;
-  color: var(--color-text-muted);
-}
-
-.score-adjust .score-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.125rem;
-}
-
-.score-adjust__value,
-.score-adjust__source {
-  position: relative;
-  display: grid;
-  place-items: center;
-}
-
-.score-adjust__value output {
-  color: var(--color-ivory);
-  font-family: var(--font-display);
-  font-size: 2.25rem;
-  font-variant-numeric: lining-nums tabular-nums;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.score-adjust__value .delta-badge {
-  position: absolute;
-  top: -0.5rem;
-  right: -0.25rem;
-}
-
-/* Motion (D-033): a new mode fades in and settles 2px; a new source only fades. 120 ms, no layout
-   movement; the global reduced-motion rule makes both immediate. */
-.score-adjust__value {
-  animation: score-mode-settle var(--duration-mode) var(--ease-out);
-}
-
-.score-adjust__source {
-  animation: score-source-fade var(--duration-mode) var(--ease-out);
 }
 
 @keyframes score-mode-settle {
@@ -2040,66 +1562,6 @@ button:hover:not(:disabled) {
   /* The name keeps ~10 characters; the strip gives way and scrolls instead. */
   flex: 1 0 7.5rem;
   max-width: 14rem;
-}
-
-.player-panel[data-compact] .score-modes {
-  flex: 0 1 auto;
-  border-radius: var(--radius-sm);
-}
-
-.player-panel[data-compact] .score-mode {
-  min-width: var(--button-height);
-  padding: 0;
-}
-
-.player-panel[data-compact] .score-mode__label,
-.player-panel[data-compact] .score-mode__value,
-.player-panel[data-compact] .score-hint {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-.player-panel[data-compact] .score-sources {
-  justify-self: center;
-  width: 100%;
-  max-width: 24rem;
-}
-
-.score-rail--mode {
-  grid-template-columns: minmax(0, 3fr) minmax(4rem, 2fr);
-}
-
-.score-rail--mode .score-adjust {
-  grid-template-columns: var(--button-height) minmax(2.5rem, 1fr) var(--button-height);
-  gap: var(--space-1);
-  min-height: var(--button-height);
-}
-
-.score-rail--mode .score-adjust__value output {
-  font-size: 1.6rem;
-}
-
-/* Mana tokens keep the utility face and lining figures, even inside display-serif values. */
-.score-dock .mana-cost,
-.score-rail .mana-cost {
-  font-family: var(--font-ui);
-  font-variant-numeric: lining-nums tabular-nums;
-}
-
-.score-adjust__value .mana-cost {
-  min-width: 2rem;
-  height: 2rem;
-  font-size: 1rem;
-  font-weight: 700;
-}
-
-.score-adjust__value output {
-  display: inline-flex;
-  align-items: center;
 }
 
 /* ---- Four-player seats (D-034) ----
@@ -2284,32 +1746,11 @@ button:hover:not(:disabled) {
   stroke: var(--color-gold-bright);
 }
 
-
 /* Delta sizes (D-036): clearly visible, always far smaller than the value it belongs to. */
 .life-value .delta-badge {
   min-width: 2.75rem;
   min-height: 1.9rem;
   font-size: 1.05rem;
-}
-
-.score-rail .life-value .delta-badge {
-  /* Above the digits' top corner: the compact rail has no free space beside the number. */
-  top: -1.05rem;
-  right: -1rem;
-  min-width: 2.4rem;
-  min-height: 1.6rem;
-  font-size: 0.9rem;
-}
-
-.score-adjust__value .delta-badge {
-  /* Beside the number, never over its digits. */
-  top: -0.6rem;
-  right: auto;
-  left: 100%;
-  min-width: 2.25rem;
-  min-height: 1.5rem;
-  margin-left: 0.25rem;
-  font-size: 0.85rem;
 }
 
 /* ---- R1 app shell (D-037; design 2026-10-20-r1-shell-design.md) ---- */
@@ -2825,4 +2266,1062 @@ button:hover:not(:disabled) {
   background: var(--color-ink-raised);
   box-shadow: var(--shadow-panel);
   font-size: 0.85rem;
+}
+
+/* ── R2 player card (spec R2 §3–6, D-039) ─────────────────────────────────────────────────────
+   Closed: crown, name and commander, life ±1, Contatori and the Commander diamond. Contatori and
+   Danni Commander open inside the card (inset 0, clipped), so they rotate with its seat. */
+.player-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  overflow: clip;
+}
+
+.player-panel__header {
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem;
+  flex-wrap: nowrap;
+  align-items: start;
+  gap: var(--space-2);
+}
+
+.player-panel__header .icon-button {
+  width: 2.75rem;
+  min-width: 2.75rem;
+  height: 2.75rem;
+  min-height: 2.75rem;
+  margin: 0;
+}
+
+.player-panel__identity {
+  display: grid;
+  justify-items: center;
+  min-width: 0;
+  padding-top: var(--space-1);
+  text-align: center;
+}
+
+.player-panel__identity .name-field {
+  flex: none;
+  justify-content: center;
+  max-width: 100%;
+}
+
+.player-panel__identity .player-name {
+  width: auto;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  color: var(--color-ivory);
+  background: none;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.player-commander {
+  max-width: 100%;
+  margin: 0;
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-panel[data-has-art] .player-commander {
+  --halo: oklch(0.07 0.012 188 / min(1, calc(var(--art-veil-name, 0) * 1.6)));
+  color: var(--color-ivory);
+  text-shadow:
+    0 0 9px var(--halo),
+    0 0 9px var(--halo),
+    0 0 9px var(--halo);
+}
+
+/* The holder's crown is filled; everyone else sees the outline (never colour alone). */
+.monarch-button[aria-pressed='true'] {
+  border-color: var(--color-gold);
+  color: var(--color-gold-bright);
+}
+
+.monarch-button[aria-pressed='true'] svg path:first-child {
+  fill: currentColor;
+}
+
+.out-line {
+  align-self: center;
+  margin: 0;
+  padding: 0.1rem var(--space-2);
+  border: 1px solid var(--color-gold-line);
+  border-radius: var(--radius-sm);
+  color: var(--color-ivory);
+  background: color-mix(in oklch, var(--color-ink) 80%, transparent);
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.player-panel[data-out] .player-art img {
+  filter: saturate(0.2) brightness(0.8);
+}
+
+.player-panel .life-zone {
+  display: grid;
+  grid-template-columns: 2.75rem auto 2.75rem;
+  flex: 1 1 auto;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 0;
+  padding: 0;
+}
+
+.player-panel .life-zone .score-button {
+  width: 2.75rem;
+  min-width: 2.75rem;
+  height: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  font-size: 1.4rem;
+}
+
+.player-panel .life-zone .life-total {
+  align-self: center;
+}
+
+.player-panel__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.counters-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.75rem;
+  padding-inline: var(--space-3);
+  border: 1px solid var(--color-gold-line);
+  border-radius: var(--radius-sm);
+  color: var(--color-ivory);
+  background: color-mix(in oklch, var(--color-ink) 72%, transparent);
+  font-size: 0.74rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.player-panel[data-compact] .counters-trigger {
+  width: 2.75rem;
+  padding: 0;
+  justify-content: center;
+}
+
+.player-panel[data-compact] .counters-trigger__label {
+  display: none;
+}
+
+/* The Commander diamond: a square 44px hit area with the rhombus drawn inside. */
+.commander-trigger {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  min-width: 2.75rem;
+  height: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  color: var(--color-ivory);
+  background: none;
+}
+
+.commander-trigger::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0.45rem;
+  border: 1px solid var(--color-gold-line);
+  border-radius: 3px;
+  background: color-mix(in oklch, var(--color-ink) 78%, transparent);
+  content: '';
+  transform: rotate(45deg);
+}
+
+.commander-trigger[aria-expanded='true']::before,
+.counters-trigger[aria-expanded='true'] {
+  border-color: var(--color-gold);
+}
+
+.commander-trigger .button-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.art-credit {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: 0.66rem;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Art enters with a short fade and never moves text or controls (R2 §4.2). */
+.player-art img {
+  animation: art-in var(--duration-art-fade) var(--ease-out);
+}
+
+@keyframes art-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ── Inner surfaces: Contatori and Danni Commander ─────────────────────────────────────────── */
+.card-surface {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-top: 1px solid var(--color-gold-hairline);
+  border-radius: inherit;
+  background: var(--color-ink);
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--duration-surface-in) var(--ease-out),
+    transform var(--duration-surface-in) var(--ease-out);
+}
+
+@starting-style {
+  .card-surface {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* Closing: inert at once, then a 140ms fade before it unmounts (R2 §10). */
+.card-surface[data-closing] {
+  opacity: 0;
+  pointer-events: none;
+  transition-duration: var(--duration-surface-out);
+}
+
+/* Focus stays inside the clipped card. */
+.card-surface :focus-visible {
+  outline-offset: -2px;
+}
+
+.card-surface__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.card-surface__title {
+  margin: 0;
+  color: var(--color-ivory);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.card-surface .card-surface__close {
+  width: 2.75rem;
+  min-width: 2.75rem;
+  height: 2.75rem;
+  min-height: 2.75rem;
+  margin-left: auto;
+}
+
+.counters-drawer__rail {
+  display: none;
+}
+
+.counters-drawer__track {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: stretch;
+  gap: var(--space-2);
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior: contain;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+}
+
+.counter-column {
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-rows: 2.75rem minmax(0, 1fr) 2.75rem;
+  justify-items: center;
+  align-items: center;
+  gap: 2px;
+  min-width: 4.75rem;
+  max-height: 11rem;
+  padding: 2px var(--space-1);
+  border: 1px solid var(--color-gold-hairline);
+  border-radius: var(--radius-sm);
+  scroll-snap-align: start;
+}
+
+.counter-column__step {
+  width: 2.75rem;
+  min-width: 2.75rem;
+  height: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.counter-column__value,
+.commander-panel__value {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+}
+
+.counter-column__value {
+  align-content: center;
+  max-height: 100%;
+  gap: 0;
+}
+
+.counter-column__value .button-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.counter-column__value strong {
+  color: var(--color-ivory);
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.counter-column__name {
+  color: var(--color-text-muted);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.counter-column__abbr {
+  display: none;
+}
+
+.counter-column__value .delta-badge,
+.commander-panel__value .delta-badge {
+  position: absolute;
+  top: -0.4rem;
+  left: calc(100% + 0.15rem);
+}
+
+.commander-panel__sources {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  overscroll-behavior: contain;
+  scroll-snap-type: x proximity;
+}
+
+.commander-source {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 2.75rem;
+  padding-inline: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  background: transparent;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  scroll-snap-align: start;
+}
+
+.commander-source[aria-checked='true'] {
+  border-color: var(--color-gold);
+  background: color-mix(in oklch, var(--color-gold) 14%, var(--color-ink));
+}
+
+.commander-source .button-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.commander-source__state {
+  color: var(--color-gold-bright);
+  font-size: 0.64rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.commander-panel__stepper {
+  display: grid;
+  grid-template-columns: 2.75rem auto 2.75rem;
+  flex: 1 1 auto;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.commander-panel__value {
+  grid-auto-flow: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.commander-panel__value strong {
+  color: var(--color-ivory);
+  font-size: 2rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.commander-panel__empty {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* Compact full-card mode under 200px of usable height (R2 §5.3, D-039): a 56px rail with name and life,
+   columns exactly 44 + 35 + 44 = 123px, the close control always reachable. Opacity only. */
+.player-panel[data-short] .card-surface {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  transition-duration: var(--duration-tool-swap);
+}
+
+@starting-style {
+  .player-panel[data-short] .card-surface {
+    transform: none;
+  }
+}
+
+.player-panel[data-short] .card-surface__title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.player-panel[data-short] .card-surface__header {
+  order: 3;
+  flex: none;
+}
+
+.player-panel[data-short] .counters-drawer__rail {
+  display: grid;
+  flex: none;
+  align-content: center;
+  justify-items: center;
+  width: 56px;
+  min-width: 0;
+  text-align: center;
+}
+
+.counters-drawer__rail-name {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: 0.66rem;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.counters-drawer__rail-life {
+  color: var(--color-ivory);
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.player-panel[data-short] .counter-column {
+  grid-template-rows: 44px 35px 44px;
+  gap: 0;
+  min-width: 56px;
+  height: 123px;
+  padding: 0;
+  border: 0;
+}
+
+.player-panel[data-short] .counter-column__value {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.player-panel[data-short] .counter-column__value .button-icon {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+.player-panel[data-short] .counter-column__value strong {
+  font-size: 1rem;
+}
+
+.player-panel[data-short] .counter-column__name {
+  display: none;
+}
+
+.player-panel[data-short] .counter-column__abbr {
+  display: inline;
+  color: var(--color-text-muted);
+  font-size: 0.56rem;
+  letter-spacing: 0.04em;
+}
+
+.player-panel[data-short] .commander-panel {
+  flex-wrap: wrap;
+  align-content: center;
+}
+
+.player-panel[data-short] .commander-panel__sources {
+  flex: 1 1 calc(100% - 3rem);
+  order: 1;
+}
+
+.player-panel[data-short] .commander-panel .card-surface__header {
+  order: 2;
+}
+
+.player-panel[data-short] .commander-panel__stepper,
+.player-panel[data-short] .commander-panel__empty {
+  flex: 1 1 100%;
+  order: 3;
+}
+
+/* Compact density (landscape phones, Tavolo strips): two rows only, so the closed card is no taller
+   than the R1 compact panel. Contatori and the Commander diamond flank life on the second row. */
+.player-panel[data-compact] {
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem;
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas:
+    'head head head'
+    'counters life commander';
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  padding: var(--space-2);
+}
+
+.player-panel[data-compact] .player-panel__header {
+  grid-area: head;
+}
+
+.player-panel[data-compact] .player-panel__footer {
+  display: contents;
+}
+
+.player-panel[data-compact] .counters-trigger {
+  grid-area: counters;
+}
+
+.player-panel[data-compact] .commander-trigger {
+  grid-area: commander;
+}
+
+.player-panel[data-compact] .life-zone {
+  grid-area: life;
+  gap: var(--space-2);
+}
+
+.player-panel[data-compact] .player-panel__identity {
+  padding-top: 0;
+}
+
+.player-panel[data-compact] .player-panel__identity .player-name {
+  font-size: 1rem;
+}
+
+/* Out of the game, the label takes the commander line's place on compact cards. */
+.player-panel[data-compact][data-out] .player-commander {
+  display: none;
+}
+
+/* ── Rhombus hub (R2 §7): screen-oriented, non-modal, no scrim ────────────────────────────── */
+/* Transparent: it only catches the tap outside, closes the hub and consumes that tap. */
+.hub-dismiss {
+  position: fixed;
+  z-index: 6;
+  inset: 0;
+  background: transparent;
+}
+
+.player-grid .shell-rhombus-slot {
+  z-index: 8;
+}
+
+.rhombus-hub {
+  position: fixed;
+  z-index: 7;
+  width: 0;
+  height: 0;
+}
+
+.rhombus-hub__actions {
+  position: absolute;
+}
+
+.rhombus-hub__action {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  width: 56px;
+  min-width: 56px;
+  height: 56px;
+  min-height: 56px;
+  padding: 0;
+  border: 1px solid var(--color-gold-line);
+  border-radius: var(--radius-md);
+  color: var(--color-ivory);
+  background: var(--color-ink);
+  box-shadow: var(--shadow-panel-compact);
+  font-size: 0.6rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--duration-surface-in) var(--ease-out),
+    transform var(--duration-surface-in) var(--ease-out);
+}
+
+.rhombus-hub__action .button-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+/* Radial A: Sezioni above, Dadi left, Mana right, Moneta below; ≤ 8px of radial travel. */
+.rhombus-hub[data-variant='radial'] .rhombus-hub__action {
+  position: absolute;
+  translate: -50% -50%;
+}
+
+.rhombus-hub[data-variant='radial'] [data-action='sections'] {
+  top: -86px;
+  left: 0;
+  --from: 0 8px;
+}
+
+.rhombus-hub[data-variant='radial'] [data-action='dice'] {
+  top: 0;
+  left: -86px;
+  --from: 8px 0;
+}
+
+.rhombus-hub[data-variant='radial'] [data-action='mana'] {
+  top: 0;
+  left: 86px;
+  --from: -8px 0;
+}
+
+.rhombus-hub[data-variant='radial'] [data-action='coin'] {
+  top: 86px;
+  left: 0;
+  --from: 0 -8px;
+}
+
+@starting-style {
+  .rhombus-hub__action {
+    opacity: 0;
+    transform: translate(var(--from, 0 0));
+  }
+}
+
+/* Fallback B: a 2×2 matrix in the largest free quadrant, tied to the rhombus by a short hairline. */
+.rhombus-hub[data-variant='grid'] .rhombus-hub__actions {
+  display: grid;
+  grid-template-columns: repeat(2, 64px);
+  grid-auto-rows: 56px;
+  gap: 6px;
+}
+
+.rhombus-hub[data-variant='grid'] .rhombus-hub__action {
+  width: 64px;
+}
+
+.rhombus-hub[data-variant='grid'] .rhombus-hub__actions::before {
+  position: absolute;
+  width: 16px;
+  height: 1px;
+  background: var(--color-gold-line);
+  content: '';
+}
+
+.rhombus-hub[data-quadrant='bottom-end'] .rhombus-hub__actions::before {
+  top: -6px;
+  left: -14px;
+  rotate: 45deg;
+}
+
+.rhombus-hub[data-quadrant='bottom-start'] .rhombus-hub__actions::before {
+  top: -6px;
+  right: -14px;
+  rotate: -45deg;
+}
+
+.rhombus-hub[data-quadrant='top-end'] .rhombus-hub__actions::before {
+  bottom: -6px;
+  left: -14px;
+  rotate: -45deg;
+}
+
+.rhombus-hub[data-quadrant='top-start'] .rhombus-hub__actions::before {
+  right: -14px;
+  bottom: -6px;
+  rotate: 45deg;
+}
+
+/* ── Rhombus tools (R2 §8): Dadi, Mana, Moneta ──────────────────────────────────────────────── */
+.hub-tool {
+  position: fixed;
+  z-index: 7;
+  width: max-content;
+  /* 12px padding and a 1px border: ToolFrame adds the same to the measured content. */
+  padding: 12px;
+  overflow: hidden;
+  border: 1px solid var(--color-gold-line);
+  border-radius: var(--radius-md);
+  color: var(--color-ivory);
+  background: var(--color-ink);
+  box-shadow: var(--shadow-panel);
+  opacity: 1;
+  transition: opacity var(--duration-tool-swap) var(--ease-out);
+}
+
+@starting-style {
+  .hub-tool {
+    opacity: 0;
+  }
+}
+
+/* Never constrained, so ToolFrame measures its natural size. */
+.hub-tool__content {
+  display: grid;
+  gap: var(--space-3);
+  width: max-content;
+}
+
+/* Too large for the free area: only the panel scrolls, never the page. */
+.hub-tool[data-scroll] {
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.hub-tool__tether {
+  position: fixed;
+  z-index: 7;
+  height: 1px;
+  background: var(--color-gold-line);
+  transform-origin: 0 50%;
+  pointer-events: none;
+}
+
+.hub-tool__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.hub-tool__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hub-tool__back {
+  min-height: 2.75rem;
+  font-size: 0.78rem;
+}
+
+.dice-tool,
+.coin-tool {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+}
+
+.dice-tool__dice {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.hub-tool[data-narrow] .dice-tool__dice {
+  flex-direction: column;
+}
+
+.tool-button {
+  min-width: 56px;
+  min-height: 56px;
+  padding-inline: var(--space-4);
+  border-color: var(--color-gold-line);
+  font-size: 1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.tool-button--wide {
+  padding-inline: var(--space-5);
+}
+
+/* The result: one token per seat edge, the same value turned (R2 §8.1). */
+.oriented-result {
+  display: grid;
+  grid-template-areas: 'bottom';
+  justify-items: center;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.oriented-result[data-copies='2'] {
+  grid-template-areas:
+    'top'
+    'bottom';
+}
+
+.oriented-result[data-copies='4'] {
+  grid-template-areas:
+    '. top .'
+    'left . right'
+    '. bottom .';
+}
+
+.oriented-result__copy {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-bottom: 1px solid var(--color-gold-line);
+}
+
+.oriented-result__copy[data-orientation='0'] {
+  grid-area: bottom;
+}
+
+.oriented-result__copy[data-orientation='180'] {
+  grid-area: top;
+  rotate: 180deg;
+}
+
+/* Side copies are laid out vertically, so they take their turned size instead of their width. */
+.oriented-result__copy[data-orientation='90'] {
+  grid-area: left;
+  writing-mode: vertical-rl;
+}
+
+.oriented-result__copy[data-orientation='-90'] {
+  grid-area: right;
+  writing-mode: vertical-rl;
+  rotate: 180deg;
+}
+
+.oriented-result__copy[data-orientation='90'],
+.oriented-result__copy[data-orientation='-90'] {
+  padding: var(--space-3) var(--space-1);
+  border-bottom: 0;
+  border-left: 1px solid var(--color-gold-line);
+}
+
+.tool-result__label {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.tool-result__value {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.tool-result--dice .oriented-result__copy {
+  animation: result-in var(--duration-dice) var(--ease-out);
+}
+
+.tool-result--coin .oriented-result__copy {
+  align-items: center;
+  animation: result-in var(--duration-coin) var(--ease-out);
+}
+
+/* Fade and a lit gold hairline; no 3D, no bounce. */
+@keyframes result-in {
+  from {
+    border-bottom-color: transparent;
+    opacity: 0;
+  }
+}
+
+/* Mana: 3 × 2 by default and always under 360px; one row of six from 832px, where it fits beside the rhombus. */
+.mana-tool {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+}
+
+.mana-tool__pool {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(3.25rem, auto));
+  gap: var(--space-2);
+}
+
+@media (min-width: 52rem) {
+  .hub-tool:not([data-narrow]) .mana-tool__pool {
+    grid-template-columns: repeat(6, minmax(3.25rem, auto));
+    /* Tight enough to open beside the rhombus on a 330px-high landscape phone. */
+    gap: var(--space-1);
+  }
+}
+
+.mana-column {
+  display: grid;
+  grid-template-rows: 2.75rem auto 2.75rem;
+  justify-items: center;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--color-gold-hairline);
+  border-radius: var(--radius-sm);
+}
+
+.mana-column__value {
+  display: grid;
+  justify-items: center;
+}
+
+.mana-symbol {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.6;
+}
+
+/* The only coloured pictograms (F34 exception, D-039): shape and hue both name the type. */
+.mana-symbol[data-mana='W'] {
+  color: var(--mana-w);
+}
+
+.mana-symbol[data-mana='U'] {
+  color: var(--mana-u);
+}
+
+.mana-symbol[data-mana='B'] {
+  color: var(--mana-b);
+}
+
+.mana-symbol[data-mana='R'] {
+  color: var(--mana-r);
+}
+
+.mana-symbol[data-mana='G'] {
+  color: var(--mana-g);
+}
+
+.mana-symbol[data-mana='C'] {
+  color: var(--mana-c);
+}
+
+.mana-column__value strong {
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.mana-tool__reset {
+  min-height: 2.75rem;
+  border: 1px solid color-mix(in oklch, var(--color-gold) 40%, transparent);
+}
+
+/* While a surface is open the first-use label is hidden but keeps its box: the cards' reserved
+   band stays the same until the first hub session closes (R2 §7.1, D-039). */
+.shell-rhombus__hint[data-dimmed] {
+  visibility: hidden;
+}
+
+/* Compact life follows the viewport height too, so two rows of cards fit a 330px landscape
+   viewport without the page scrolling (R2 review, D-039). It stays the largest element. */
+.player-panel[data-compact] .life-zone .life-total {
+  font-size: min(6rem, 22dvh);
+}
+
+/* Short viewports (landscape phones): a compact result, so all the copies show at once without
+   scrolling the panel (R2 review). Buttons keep their 56px. */
+@media (max-height: 26rem) {
+  .hub-tool__content {
+    gap: var(--space-2);
+  }
+
+  .oriented-result {
+    gap: 2px;
+  }
+
+  .oriented-result__copy {
+    padding: 2px var(--space-2);
+  }
+
+  .oriented-result__copy[data-orientation='90'],
+  .oriented-result__copy[data-orientation='-90'] {
+    padding: var(--space-2) 2px;
+  }
+
+  .tool-result__value {
+    font-size: 1.35rem;
+  }
+
+  .tool-result__label {
+    font-size: 0.66rem;
+  }
+
+  .tool-result .button-icon {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+}
+
+/* «Azzera mana» stays in view at the bottom of a scrolling panel, over a short ink fade that
+   says the grid continues above (R2 review, 640×400). */
+.hub-tool[data-scroll] .mana-tool__reset {
+  position: sticky;
+  bottom: 0;
+  background: var(--color-ink);
+  box-shadow: 0 -1.25rem 1rem -0.5rem var(--color-ink);
 }
