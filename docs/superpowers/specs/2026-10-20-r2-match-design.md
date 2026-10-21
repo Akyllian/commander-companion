@@ -105,7 +105,7 @@ Le icone non hanno i colori di mana o altre tinte tematiche. Il nome accessibile
 
 ### 5.3 Carta compatta orizzontale
 
-Sotto l'altezza utile di 132 px la tendina diventa una modalità interna compatta:
+Sotto l'altezza utile di 200 px la tendina diventa una modalità interna compatta (valore normativo aggiornato con D-039: la tendina standard, con titolo da 44 px sopra colonne 44 + valore + 44, entra solo da circa 190 px):
 
 - occupa l'intera area della carta senza superarne i bordi;
 - conserva un binario laterale da 56 px con nome abbreviato del giocatore e vita, solo informativi;

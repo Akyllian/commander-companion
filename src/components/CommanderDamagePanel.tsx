@@ -13,6 +13,8 @@ interface CommanderDamagePanelProps {
   delta: GroupDelta | null
   dispatch: (action: GameAction) => void
   onClose: () => void
+  /** Fading out after closing: no longer interactive or announced (R2 §10). */
+  closing?: boolean
 }
 
 interface Choice {
@@ -27,7 +29,7 @@ const NEXT_KEYS: Record<string, number> = { ArrowRight: 1, ArrowDown: 1, ArrowLe
  * commander on its own), then one horizontal stepper. Each step moves life in the same action.
  * The chosen source is presentation state; a source that disappears falls back to the first.
  */
-export function CommanderDamagePanel({ id, player, opponents, delta, dispatch, onClose }: CommanderDamagePanelProps) {
+export function CommanderDamagePanel({ id, player, opponents, delta, dispatch, onClose, closing = false }: CommanderDamagePanelProps) {
   const [choice, setChoice] = useState<Choice | null>(null)
   const sources = damageSources(opponents)
   const selectedIndex = Math.max(
@@ -72,7 +74,18 @@ export function CommanderDamagePanel({ id, player, opponents, delta, dispatch, o
   }
 
   return (
-    <div ref={rootRef} className="commander-panel card-surface" id={id} role="group" aria-labelledby={titleId} aria-describedby={`${id}-hint`} data-drawer="commander">
+    <div
+      ref={rootRef}
+      className="commander-panel card-surface"
+      id={id}
+      role="group"
+      aria-labelledby={titleId}
+      aria-describedby={`${id}-hint`}
+      data-drawer="commander"
+      data-closing={closing || undefined}
+      aria-hidden={closing || undefined}
+      inert={closing || undefined}
+    >
       <p className="sr-only" id={`${id}-hint`}>
         {COMMANDER_HINT}
       </p>

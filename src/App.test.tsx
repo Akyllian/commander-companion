@@ -820,7 +820,7 @@ describe('app shell (D-037, R1, R2 §7)', () => {
     render(<App />)
     openCounters(panel(/giocatore 1/i))
     fireEvent.click(rhombus())
-    expect(document.querySelector('[data-drawer]')).toBeNull()
+    expect(document.querySelector('[data-drawer]:not([data-closing])')).toBeNull()
     expect(hub()).toBeInTheDocument()
   })
 
@@ -990,10 +990,10 @@ describe('one transient surface at a time (R2 §2.5)', () => {
     render(<App />)
     openCounters(panel(/giocatore 1/i))
     openCommander(panel(/giocatore 2/i))
-    expect(document.querySelectorAll('[data-drawer]')).toHaveLength(1)
+    expect(document.querySelectorAll('[data-drawer]:not([data-closing])')).toHaveLength(1)
     expect(within(panel(/giocatore 2/i)).getByRole('radiogroup')).toBeInTheDocument()
     fireEvent.keyDown(window, { key: 'Escape' })
-    expect(document.querySelector('[data-drawer]')).toBeNull()
+    expect(document.querySelector('[data-drawer]:not([data-closing])')).toBeNull()
     expect(within(panel(/giocatore 2/i)).getByRole('button', { name: 'Danni Commander di Giocatore 2' })).toHaveFocus()
   })
 
@@ -1011,7 +1011,7 @@ describe('one transient surface at a time (R2 §2.5)', () => {
     goTo('Altro')
     fireEvent.click(screen.getByRole('radio', { name: /tavolo/i }))
     goTo('Partita')
-    expect(document.querySelector('[data-drawer]')).toBeNull()
+    expect(document.querySelector('[data-drawer]:not([data-closing])')).toBeNull()
   })
 
   it('leaves no panel and lands focus on the rhombus when that player is removed', async () => {
@@ -1021,7 +1021,7 @@ describe('one transient surface at a time (R2 §2.5)', () => {
     await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 0))
     })
-    expect(document.querySelector('[data-drawer]')).toBeNull()
+    expect(document.querySelector('[data-drawer]:not([data-closing])')).toBeNull()
     expect(document.activeElement).not.toBe(document.body)
     expect(document.activeElement).toHaveClass('shell-rhombus')
   })

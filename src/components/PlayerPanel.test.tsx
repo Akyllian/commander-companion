@@ -281,3 +281,44 @@ describe('settled announcement (D-036)', () => {
     expect(texts).toEqual(['Giocatore 1: 41 punti vita'])
   })
 })
+
+describe('closing an inner surface (R2 §10, D-039)', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.unstubAllGlobals()
+  })
+
+  it('stays visible for the 140ms exit, already inert and hidden, then unmounts', () => {
+    vi.useFakeTimers()
+    render(<Table initial={createGame(2)} />)
+    fireEvent.click(button('Giocatore 1', 'Contatori'))
+    fireEvent.click(button('Giocatore 1', 'Chiudi contatori'))
+    const leaving = panel('Giocatore 1').querySelector('[data-drawer="counters"]') as HTMLElement
+    expect(leaving).toHaveAttribute('data-closing')
+    expect(leaving).toHaveAttribute('inert')
+    expect(leaving).toHaveAttribute('aria-hidden', 'true')
+    expect(within(panel('Giocatore 1')).queryByRole('group', { name: 'Contatori' })).not.toBeInTheDocument()
+    act(() => vi.advanceTimersByTime(140))
+    expect(panel('Giocatore 1').querySelector('[data-drawer]')).toBeNull()
+  })
+
+  it('reopens at once when the same surface is asked for during its exit', () => {
+    vi.useFakeTimers()
+    render(<Table initial={createGame(2)} />)
+    fireEvent.click(button('Giocatore 1', 'Contatori'))
+    fireEvent.click(button('Giocatore 1', 'Chiudi contatori'))
+    fireEvent.click(button('Giocatore 1', 'Contatori'))
+    const drawer = panel('Giocatore 1').querySelector('[data-drawer="counters"]') as HTMLElement
+    expect(drawer).not.toHaveAttribute('data-closing')
+    act(() => vi.advanceTimersByTime(200))
+    expect(panel('Giocatore 1').querySelector('[data-drawer="counters"]')).toBe(drawer)
+  })
+
+  it('closes immediately with reduced motion', () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({ matches: query.includes('reduce'), addEventListener() {}, removeEventListener() {} }))
+    render(<Table initial={createGame(2)} />)
+    fireEvent.click(button('Giocatore 1', 'Contatori'))
+    fireEvent.click(button('Giocatore 1', 'Chiudi contatori'))
+    expect(panel('Giocatore 1').querySelector('[data-drawer]')).toBeNull()
+  })
+})

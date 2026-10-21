@@ -15,6 +15,8 @@ interface CountersDrawerProps {
   initiativePlayerId: string | null
   dispatch: (action: GameAction) => void
   onClose: () => void
+  /** Fading out after closing: no longer interactive or announced (R2 §10). */
+  closing?: boolean
 }
 
 const COUNTER_ICONS = { poison: PoisonIcon, energy: EnergyIcon, experience: ExperienceIcon, rad: RadIcon }
@@ -62,10 +64,10 @@ const ROLES: Array<{ role: TableRole; label: string; abbreviation: string; Icon:
 
 /**
  * Every counter of one player, inside the card (R2 §5). It covers the card (`inset: 0`) and never
- * grows it; under 132px of height the CSS turns it into the compact full-card mode with a
+ * grows it; under 200px of height (D-039) the CSS turns it into the compact full-card mode with a
  * decorative rail of name and life. Mounted only while open.
  */
-export function CountersDrawer({ id, player, delta, monarchPlayerId, initiativePlayerId, dispatch, onClose }: CountersDrawerProps) {
+export function CountersDrawer({ id, player, delta, monarchPlayerId, initiativePlayerId, dispatch, onClose, closing = false }: CountersDrawerProps) {
   const closeRef = useRef<HTMLButtonElement>(null)
   useEffect(() => closeRef.current?.focus(), [])
   const titleId = `${id}-title`
@@ -140,7 +142,16 @@ export function CountersDrawer({ id, player, delta, monarchPlayerId, initiativeP
   })
 
   return (
-    <div className="counters-drawer card-surface" id={id} role="group" aria-labelledby={titleId} data-drawer="counters">
+    <div
+      className="counters-drawer card-surface"
+      id={id}
+      role="group"
+      aria-labelledby={titleId}
+      data-drawer="counters"
+      data-closing={closing || undefined}
+      aria-hidden={closing || undefined}
+      inert={closing || undefined}
+    >
       <div className="counters-drawer__rail" aria-hidden="true">
         <span className="counters-drawer__rail-name">{player.name}</span>
         <strong className="counters-drawer__rail-life">{player.life}</strong>

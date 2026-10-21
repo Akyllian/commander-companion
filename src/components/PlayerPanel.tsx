@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type React from 'react'
 import { getDefeatReasons } from '../game/game'
 import type { GroupDelta } from '../game/history'
@@ -18,12 +18,35 @@ export type { PanelDelta } from './DeltaBadge'
 export type CardSurface = 'counters' | 'commander'
 
 /**
- * Below this usable height the inner panels use the compact full-card mode (R2 §5.3, D-039). The
- * spec names 132px, but the standard drawer needs its 44px title row above 44 + value + 44px
- * columns, so it only fits from about 190px: the compact mode (columns of exactly 123px) takes
- * over everywhere the standard one would clip its controls.
+ * Below this usable height the inner panels use the compact full-card mode (R2 §5.3, D-039: 200px
+ * is normative). The standard drawer needs its 44px title row above 44 + value + 44px columns, so
+ * it only fits from about 190px.
  */
 export const SHORT_CARD_HEIGHT = 200
+
+/** The inner surfaces fade out over this long before they unmount (R2 §10, `--duration-surface-out`). */
+export const SURFACE_EXIT_MS = 140
+
+const prefersReducedMotion = () => typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+/**
+ * The surface still fading out after it closed, if any. It stays mounted for the exit but is
+ * inert and hidden at once; with reduced motion it goes immediately.
+ */
+function useLeavingSurface(open: CardSurface | null): CardSurface | null {
+  const [previous, setPrevious] = useState(open)
+  const [leaving, setLeaving] = useState<CardSurface | null>(null)
+  if (previous !== open) {
+    setPrevious(open)
+    setLeaving(previous && previous !== open && !prefersReducedMotion() ? previous : null)
+  }
+  useEffect(() => {
+    if (!leaving) return
+    const timer = window.setTimeout(() => setLeaving(null), SURFACE_EXIT_MS)
+    return () => window.clearTimeout(timer)
+  }, [leaving])
+  return leaving === open ? null : leaving
+}
 
 /** True while the card is shorter than {@link SHORT_CARD_HEIGHT}, measured in its own (unrotated) frame. */
 function useShortCard(ref: React.RefObject<HTMLElement | null>): boolean {
@@ -85,6 +108,7 @@ export function PlayerPanel({
   const [detailsOpen, setDetailsOpen] = useState(false)
   const cardRef = useRef<HTMLElement>(null)
   const short = useShortCard(cardRef)
+  const leaving = useLeavingSurface(openSurface)
   // One-shot light bloom on the life total when it changes (never on first render, D-024).
   const [lastLife, setLastLife] = useState(player.life)
   const [bloom, setBloom] = useState(0)
@@ -255,8 +279,9 @@ export function PlayerPanel({
         </button>
       </div>
 
-      {openSurface === 'counters' && (
+      {(openSurface === 'counters' || leaving === 'counters') && (
         <CountersDrawer
+          closing={leaving === 'counters'}
           id={countersId}
           player={player}
           delta={delta}
@@ -266,8 +291,9 @@ export function PlayerPanel({
           onClose={onCloseSurface}
         />
       )}
-      {openSurface === 'commander' && (
+      {(openSurface === 'commander' || leaving === 'commander') && (
         <CommanderDamagePanel
+          closing={leaving === 'commander'}
           id={commanderId}
           player={player}
           opponents={opponents}

@@ -2516,6 +2516,13 @@ button:hover:not(:disabled) {
   }
 }
 
+/* Closing: inert at once, then a 140ms fade before it unmounts (R2 §10). */
+.card-surface[data-closing] {
+  opacity: 0;
+  pointer-events: none;
+  transition-duration: var(--duration-surface-out);
+}
+
 /* Focus stays inside the clipped card. */
 .card-surface :focus-visible {
   outline-offset: -2px;
@@ -2701,7 +2708,7 @@ button:hover:not(:disabled) {
   text-align: center;
 }
 
-/* Compact full-card mode under 132px of usable height (R2 §5.3): a 56px rail with name and life,
+/* Compact full-card mode under 200px of usable height (R2 §5.3, D-039): a 56px rail with name and life,
    columns exactly 44 + 35 + 44 = 123px, the close control always reachable. Opacity only. */
 .player-panel[data-short] .card-surface {
   flex-direction: row;

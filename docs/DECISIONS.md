@@ -420,7 +420,7 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
   - **Rombo:** `RhombusHub` con il radiale A e la matrice 2×2 B scelta da `radialFits`; `placeMatrix` tiene la matrice dentro i margini. `ToolFrame` colloca Dadi, Mana e Moneta con `placePanel` e disegna la hairline quando li sposta. La geometria pura è in `src/shell/hubGeometry.ts`, coperta al 100%.
   - **Strumenti:** `src/tools/`: `random.ts` e `mana.ts` puri al 100%; un'unica regione live nel livello del rombo.
 - **Scostamenti dal piano, da confermare in revisione:**
-  1. **Soglia della modalità compatta a 200 px invece di 132.** La tendina standard ha una riga titolo da 44 px sopra colonne 44 + valore + 44, quindi entra solo da circa 190 px. A 844×330 le carte misurano 153 px e il «−» veniva tagliato. Sotto i 200 px vale la modalità compatta della specifica, con colonne di esattamente 123 px.
+  1. **Soglia della modalità compatta: 200 px (normativa, approvata da ChatGPT il 2026-10-21; sostituisce i 132 px della specifica).** La tendina standard ha una riga titolo da 44 px sopra colonne 44 + valore + 44, quindi entra solo da circa 190 px. A 844×330 le carte misurano 153 px e il «−» veniva tagliato. Sotto i 200 px vale la modalità compatta, con colonne di esattamente 123 px.
   2. **Chiusura delle superfici interne senza dissolvenza.** Si chiudono smontandosi, quindi i 140 ms di uscita non si vedono; resta l'ingresso di 180 ms.
   3. **Suggerimento del rombo nascosto mentre una superficie è aperta.** Altrimenti copriva la tendina; la fascia riservata resta, quindi nessuna carta si muove.
 - **Verifica:**
