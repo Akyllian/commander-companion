@@ -69,7 +69,10 @@ const ROLES: Array<{ role: TableRole; label: string; abbreviation: string; Icon:
  */
 export function CountersDrawer({ id, player, delta, monarchPlayerId, initiativePlayerId, dispatch, onClose, closing = false }: CountersDrawerProps) {
   const closeRef = useRef<HTMLButtonElement>(null)
-  useEffect(() => closeRef.current?.focus(), [])
+  // On open, and again when reopened during its exit, focus goes to the close control (R2 §11).
+  useEffect(() => {
+    if (!closing) closeRef.current?.focus()
+  }, [closing])
   const titleId = `${id}-title`
   const badge = (target: GroupTarget) => deltaFor(delta, target)
 

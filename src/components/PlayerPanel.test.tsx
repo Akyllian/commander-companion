@@ -307,11 +307,24 @@ describe('closing an inner surface (R2 §10, D-039)', () => {
     render(<Table initial={createGame(2)} />)
     fireEvent.click(button('Giocatore 1', 'Contatori'))
     fireEvent.click(button('Giocatore 1', 'Chiudi contatori'))
+    button('Giocatore 1', 'Contatori').focus()
     fireEvent.click(button('Giocatore 1', 'Contatori'))
     const drawer = panel('Giocatore 1').querySelector('[data-drawer="counters"]') as HTMLElement
     expect(drawer).not.toHaveAttribute('data-closing')
+    // Focus goes back inside the reactivated surface.
+    expect(button('Giocatore 1', 'Chiudi contatori')).toHaveFocus()
     act(() => vi.advanceTimersByTime(200))
     expect(panel('Giocatore 1').querySelector('[data-drawer="counters"]')).toBe(drawer)
+  })
+
+  it('refocuses the chosen source when the Commander panel reopens during its exit', () => {
+    vi.useFakeTimers()
+    render(<Table initial={createGame(2)} />)
+    fireEvent.click(button('Giocatore 1', 'Danni Commander di Giocatore 1'))
+    fireEvent.click(button('Giocatore 1', 'Chiudi danni Commander'))
+    button('Giocatore 1', 'Danni Commander di Giocatore 1').focus()
+    fireEvent.click(button('Giocatore 1', 'Danni Commander di Giocatore 1'))
+    expect(within(panel('Giocatore 1')).getByRole('radio', { name: 'Giocatore 2 · Comandante' })).toHaveFocus()
   })
 
   it('closes immediately with reduced motion', () => {

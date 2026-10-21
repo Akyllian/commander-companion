@@ -3009,10 +3009,9 @@ button:hover:not(:disabled) {
 .hub-tool {
   position: fixed;
   z-index: 7;
-  display: grid;
-  gap: var(--space-3);
   width: max-content;
-  padding: var(--space-3);
+  /* 12px padding and a 1px border: ToolFrame adds the same to the measured content. */
+  padding: 12px;
   overflow: hidden;
   border: 1px solid var(--color-gold-line);
   border-radius: var(--radius-md);
@@ -3027,6 +3026,13 @@ button:hover:not(:disabled) {
   .hub-tool {
     opacity: 0;
   }
+}
+
+/* Never constrained, so ToolFrame measures its natural size. */
+.hub-tool__content {
+  display: grid;
+  gap: var(--space-3);
+  width: max-content;
 }
 
 /* Too large for the free area: only the panel scrolls, never the page. */
@@ -3275,4 +3281,47 @@ button:hover:not(:disabled) {
    viewport without the page scrolling (R2 review, D-039). It stays the largest element. */
 .player-panel[data-compact] .life-zone .life-total {
   font-size: min(6rem, 22dvh);
+}
+
+/* Short viewports (landscape phones): a compact result, so all the copies show at once without
+   scrolling the panel (R2 review). Buttons keep their 56px. */
+@media (max-height: 26rem) {
+  .hub-tool__content {
+    gap: var(--space-2);
+  }
+
+  .oriented-result {
+    gap: 2px;
+  }
+
+  .oriented-result__copy {
+    padding: 2px var(--space-2);
+  }
+
+  .oriented-result__copy[data-orientation='90'],
+  .oriented-result__copy[data-orientation='-90'] {
+    padding: var(--space-2) 2px;
+  }
+
+  .tool-result__value {
+    font-size: 1.35rem;
+  }
+
+  .tool-result__label {
+    font-size: 0.66rem;
+  }
+
+  .tool-result .button-icon {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+}
+
+/* «Azzera mana» stays in view at the bottom of a scrolling panel, over a short ink fade that
+   says the grid continues above (R2 review, 640×400). */
+.hub-tool[data-scroll] .mana-tool__reset {
+  position: sticky;
+  bottom: 0;
+  background: var(--color-ink);
+  box-shadow: 0 -1.25rem 1rem -0.5rem var(--color-ink);
 }

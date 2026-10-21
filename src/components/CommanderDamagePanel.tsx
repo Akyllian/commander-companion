@@ -43,7 +43,10 @@ export function CommanderDamagePanel({ id, player, opponents, delta, dispatch, o
 
   // Opening focuses the chosen source, or the close control when there is none (R2 §11).
   const rootRef = useRef<HTMLDivElement>(null)
-  useEffect(() => (rootRef.current?.querySelector<HTMLElement>('[aria-checked="true"]') ?? closeRef.current)?.focus(), [])
+  // Also when reopened during its exit: focus goes back inside the reactivated panel.
+  useEffect(() => {
+    if (!closing) (rootRef.current?.querySelector<HTMLElement>('[aria-checked="true"]') ?? closeRef.current)?.focus()
+  }, [closing])
 
   const choose = (index: number) => {
     const source = sources[index]
