@@ -73,6 +73,8 @@ export default defineConfig(({ mode }) => {
           'src/match/**': { lines: 100, branches: 100, functions: 100, statements: 100 },
           'src/shell/hubGeometry.ts': { lines: 100, branches: 100, functions: 100, statements: 100 },
           'src/tools/{random,mana}.ts': { lines: 100, branches: 100, functions: 100, statements: 100 },
+          // R3 deck domain and storage; the views in src/decks/ui are covered by their own tests.
+          'src/decks/*.ts': { lines: 100, branches: 100, functions: 100, statements: 100 },
           // Network, cache and contrast maths for commander art (D-026); canvas glue and hooks excluded.
           'src/media/{scryfall,artAnalysis,artStore,commanderArt,randomArt}.ts': { lines: 100, branches: 100, functions: 100, statements: 100 },
         },
