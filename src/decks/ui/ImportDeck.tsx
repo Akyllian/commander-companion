@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { CheckIcon } from '../../components/icons'
 import { analyzeArt } from '../../media/analyzeImage'
 import { getArtStore } from '../../media/artStore'
@@ -7,7 +8,7 @@ import type { CardData } from '../../media/scryfall'
 import type { DeckStore } from '../deckStore'
 import { clearDraft, draftForText, emptyDraft, hashText, loadDraft, saveDraft } from '../importDraft'
 import type { ImportDraft } from '../importDraft'
-import { DECK_NAME_MAX, OWNER_NAME_MAX } from '../model'
+import { DECK_NAME_MAX, OWNER_NAME_MAX, withListChange } from '../model'
 import type { DeckCard, DeckRecord, OfflineState } from '../model'
 import { parseList } from '../parseList'
 import type { ParsedLine } from '../parseList'
@@ -58,6 +59,10 @@ interface ImportDeckProps {
   onCancel: () => void
   onSaved: () => void
   services?: ImportServices
+  /** «Incolla aggiornamento» (R3 §8.2): replace this deck's list, keeping name, owner, notes and key cards. */
+  replace?: DeckRecord
+  /** Card data already known (the deck being updated), so dropped key cards can be named. */
+  knownCards?: Map<string, CardData>
 }
 
 /**
@@ -65,16 +70,19 @@ interface ImportDeckProps {
  * draft is saved at every change, and the analysis is stored with the card data, so a reload at
  * Verifica comes back even offline (plan fix 2). One polite region speaks progress and errors.
  */
-export function ImportDeck({ store, onDone, onCancel, onSaved, services = defaultImportServices }: ImportDeckProps) {
-  const [draft, setDraft] = useState<ImportDraft>(() => loadDraft() ?? emptyDraft())
-  const [recovered] = useState(() => loadDraft() !== null)
-  const [cards, setCards] = useState<Map<string, CardData>>(new Map())
+export function ImportDeck({ store, onDone, onCancel, onSaved, services = defaultImportServices, replace, knownCards }: ImportDeckProps) {
+  // An update never touches the import draft of a new deck.
+  const [draft, setDraft] = useState<ImportDraft>(() => (replace ? null : loadDraft()) ?? emptyDraft())
+  const [recovered] = useState(() => !replace && loadDraft() !== null)
+  const [cards, setCards] = useState<Map<string, CardData>>(() => new Map(knownCards ?? []))
   const [notice, setNotice] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [outcome, setOutcome] = useState<Outcome>(null)
   const [announcement, setAnnouncement] = useState(recovered ? 'Bozza di importazione recuperata' : '')
 
-  useEffect(() => void saveDraft(draft), [draft])
+  useEffect(() => {
+    if (!replace) saveDraft(draft)
+  }, [draft, replace])
 
   // A recovered analysis reads its card data from the store: no request, works offline.
   const recognition = draft.recognition
@@ -97,7 +105,7 @@ export function ImportDeck({ store, onDone, onCancel, onSaved, services = defaul
       const result = await services.recognize(lines)
       const found = [...result.matched.map(({ card }) => card), ...result.ambiguous.flatMap(({ options }) => options)]
       await store.putCards(found)
-      setCards(new Map(found.map((card) => [card.cardId, card])))
+      setCards((previous) => new Map([...previous, ...found.map((card) => [card.cardId, card] as const)]))
       setDraft((previous) => ({
         ...previous,
         step: 2,
@@ -147,7 +155,7 @@ export function ImportDeck({ store, onDone, onCancel, onSaved, services = defaul
     (!usePartner || (second !== null && second !== first)) &&
     (draft.details.owner.kind === 'me' || ownerName.trim().length > 0)
 
-  const save = async () => {
+  const buildCards = () => {
     const deckCards: DeckCard[] = []
     for (const [lineNumber, cardId] of resolved) {
       const line = lineByNumber.get(lineNumber)
@@ -155,6 +163,11 @@ export function ImportDeck({ store, onDone, onCancel, onSaved, services = defaul
       if (!card || line?.kind !== 'card') continue
       deckCards.push({ cardId, name: card.name, quantity: line.quantity, set: line.set ?? card.set, number: line.number ?? card.number })
     }
+    return deckCards
+  }
+
+  const save = async () => {
+    const deckCards = buildCards()
     for (const commander of [first, usePartner ? second : null]) {
       const card = commander ? cards.get(commander) : undefined
       if (card && !deckCards.some((entry) => entry.cardId === card.cardId)) {
@@ -250,7 +263,23 @@ export function ImportDeck({ store, onDone, onCancel, onSaved, services = defaul
     updateDetails({ commanders })
   }
 
-  const stepLabel = ['1 di 3 · Lista', '2 di 3 · Verifica', '3 di 3 · Dettagli'][draft.step - 1]
+  const stepLabel = ['1 di 3 · Lista', '2 di 3 · Verifica', replace ? '3 di 3 · Conferma' : '3 di 3 · Dettagli'][draft.step - 1]
+
+  // Update mode, step 3: what the new list keeps and what it drops.
+  const [replacement, setReplacement] = useState('')
+  const [confirmReplace, setConfirmReplace] = useState(false)
+  const newCards = replace && draft.step === 3 ? buildCards() : []
+  const missingCommander = replace ? replace.commanders.some((cardId) => cardId && !newCards.some((entry) => entry.cardId === cardId)) : false
+  const droppedKeys = replace ? replace.keyCards.filter((key) => !newCards.some((entry) => entry.cardId === key.cardId)) : []
+  const applyReplace = async () => {
+    if (!replace) return
+    const kept = replace.commanders.filter((cardId): cardId is string => Boolean(cardId && newCards.some((entry) => entry.cardId === cardId)))
+    const commanders: [string, string | null] = missingCommander ? [replacement, kept.find((cardId) => cardId !== replacement) ?? null] : replace.commanders
+    const unrecognized = draft.acceptedMissing ? pendingMissing.map((line) => lineByNumber.get(line)?.source ?? '').filter(Boolean) : []
+    const { deck } = withListChange({ ...replace, commanders, unrecognized }, newCards, services.now())
+    await store.putDeck({ ...deck, offline: 'incomplete' })
+    await runPrepare({ ...deck, offline: 'incomplete' })
+  }
 
   if (outcome?.kind === 'saving') {
     return (
@@ -321,9 +350,9 @@ export function ImportDeck({ store, onDone, onCancel, onSaved, services = defaul
   return (
     <div className="screen deck-import">
       <button type="button" className="quiet-button deck-back" onClick={onCancel}>
-        <BackIcon /> Torna ai mazzi
+        <BackIcon /> {replace ? 'Torna al mazzo' : 'Torna ai mazzi'}
       </button>
-      <h1 tabIndex={-1}>Importa mazzo</h1>
+      <h1 tabIndex={-1}>{replace ? 'Incolla aggiornamento' : 'Importa mazzo'}</h1>
       <p className="deck-import__step">{stepLabel}</p>
       {notice && (
         <p className="inline-notice" role="alert">
@@ -503,7 +532,48 @@ export function ImportDeck({ store, onDone, onCancel, onSaved, services = defaul
         </section>
       )}
 
-      {draft.step === 3 && (
+      {draft.step === 3 && replace && (
+        <section className="deck-import__panel">
+          <p className="deck-import__summary">{newCards.reduce((sum, entry) => sum + entry.quantity, 0)} carte nella nuova lista</p>
+          {missingCommander && (
+            <label className="deck-import__field">
+              <span>Il comandante non è nella nuova lista: scegli un sostituto</span>
+              <select value={replacement} onChange={(event) => setReplacement(event.currentTarget.value)}>
+                <option value="">Scegli…</option>
+                {legendary.map((card) => (
+                  <option key={card.cardId} value={card.cardId}>
+                    {card.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          {droppedKeys.length > 0 && (
+            <p className="deck-line__hint">Saranno rimosse anche da Carte chiave: {droppedKeys.map((key) => cards.get(key.cardId)?.name ?? key.cardId).join(', ')}</p>
+          )}
+          <div className="deck-import__actions">
+            <button type="button" className="quiet-button" onClick={() => update({ step: 2 })}>
+              Indietro
+            </button>
+            <button type="button" className="primary-button" disabled={missingCommander && !replacement} onClick={() => setConfirmReplace(true)}>
+              Sostituisci lista
+            </button>
+          </div>
+          <ConfirmDialog
+            open={confirmReplace}
+            title="Sostituire la lista?"
+            description="Nome, proprietario, note e carte chiave restano; la lista viene sostituita."
+            confirmLabel="Sostituisci lista"
+            onConfirm={() => {
+              setConfirmReplace(false)
+              void applyReplace()
+            }}
+            onCancel={() => setConfirmReplace(false)}
+          />
+        </section>
+      )}
+
+      {draft.step === 3 && !replace && (
         <section className="deck-import__panel">
           <label className="deck-import__field">
             <span>Nome del mazzo</span>
