@@ -10,7 +10,8 @@ import type { SurfaceEvent, Tool } from './match/surface'
 import { useMatchArt } from './media/useMatchArt'
 import { useDecks } from './decks/ui/useDecks'
 import { DecksContext } from './decks/ui/DecksContext'
-import { canRemovePartner, createGame } from './game/game'
+import { canRemovePartner, createGame, startGameWithLinks } from './game/game'
+import { resolveLinkSources } from './decks/linkSource'
 import { createHistory, getGroupDelta, historyReducer } from './game/history'
 import { loadGame, requestPersistentStorage, saveGame, subscribeToExternalChanges } from './game/storage'
 import type { LoadStatus } from './game/storage'
@@ -302,7 +303,12 @@ export default function App() {
 
   const confirm = () => {
     if (pending?.kind === 'new-game') {
-      dispatchHistory({ type: 'replace', game: createGame(pending.playerCount) })
+      // Linked decks are resolved first, so the new game is one state and one replace (R3, fix 3).
+      const linked = game.players.some((player) => player.deck)
+      const next = linked
+        ? startGameWithLinks(game, pending.playerCount, resolveLinkSources(game, decks.decks ?? [], decks.cards ?? new Map()))
+        : createGame(pending.playerCount)
+      dispatchHistory({ type: 'replace', game: next })
       startNewMatch()
       setMana(EMPTY_POOL)
     }
@@ -383,7 +389,7 @@ export default function App() {
         </main>
 
         <section className="app-view" data-section="mazzi" hidden={section !== 'mazzi'}>
-          <DecksScreen />
+          <DecksScreen players={game.players} dispatch={dispatch} />
         </section>
         <section className="app-view" data-section="impara" hidden={section !== 'impara'}>
           <LearnScreen onOpenRules={() => setRulesOpen(true)} />
