@@ -9,9 +9,9 @@ export const SECTION_LABELS: Record<Section, string> = {
   altro: 'Altro',
 }
 
-/** `#mazzi`, `#impara`, `#altro`; anything else (no hash included) is the game. */
+/** `#mazzi` (and `#mazzi/…`), `#impara`, `#altro`; anything else (no hash included) is the game. */
 export function sectionFromHash(hash: string): Section {
-  const name = hash.replace(/^#/, '')
+  const name = hash.replace(/^#/, '').split('/')[0]
   return (SECTIONS as readonly string[]).includes(name) ? (name as Section) : 'partita'
 }
 

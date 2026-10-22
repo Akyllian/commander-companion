@@ -1,18 +1,23 @@
-import { DecksIcon } from '../components/icons'
+import { useDecksContext } from '../decks/ui/DecksContext'
+import { DeckLibrary } from '../decks/ui/DeckLibrary'
+import { useDeckRoute } from '../decks/ui/useDeckRoute'
 
-/** Mazzi until R3 (R1 design §7): an honest "in preparation" page, no disabled buttons. */
+/** Mazzi (R3): the library, the import and each deck, under `#mazzi/…`. */
 export function DecksScreen() {
-  return (
-    <div className="screen placeholder-screen placeholder-screen--decks">
-      <h1 tabIndex={-1}>Mazzi</h1>
-      <div className="placeholder-screen__body">
-        <span className="placeholder-screen__icon">
-          <DecksIcon />
-        </span>
-        <h2>Il tuo grimorio è in preparazione</h2>
-        <p>Qui potrai importare le tue liste, aggiungere strategie e provare una mano iniziale.</p>
-        <p className="placeholder-screen__status">In preparazione</p>
+  const { decks, cards } = useDecksContext()
+  const { route, go } = useDeckRoute()
+
+  if (decks === null || cards === null) {
+    return (
+      <div className="screen decks-screen">
+        <h1 tabIndex={-1}>Mazzi</h1>
+        <p className="decks-none">I mazzi non sono leggibili su questo dispositivo.</p>
       </div>
-    </div>
-  )
+    )
+  }
+
+  if (route.view === 'library') {
+    return <DeckLibrary decks={decks} cards={cards} onOpen={(deckId) => go({ view: 'deck', deckId, tab: 'panoramica' })} onImport={() => go({ view: 'import' })} />
+  }
+  return null
 }

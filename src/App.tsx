@@ -9,6 +9,7 @@ import { blocksSeats, CLOSED, surfaceReducer } from './match/surface'
 import type { SurfaceEvent, Tool } from './match/surface'
 import { useMatchArt } from './media/useMatchArt'
 import { useDecks } from './decks/ui/useDecks'
+import { DecksContext } from './decks/ui/DecksContext'
 import { canRemovePartner, createGame } from './game/game'
 import { createHistory, getGroupDelta, historyReducer } from './game/history'
 import { loadGame, requestPersistentStorage, saveGame, subscribeToExternalChanges } from './game/storage'
@@ -309,111 +310,115 @@ export default function App() {
     setPending(null)
   }
 
+  const decksValue = { decks: decks.decks, cards: decks.cards, store: decks.store, reload: decks.reload }
+
   return (
-    <div className="app-shell" data-compact-density={compact} data-active-section={section}>
-      <SectionNav
-        id={NAV_ID}
-        section={section}
-        state={playing ? (revealed ? 'revealed' : 'hidden') : 'persistent'}
-        onNavigate={goTo}
-        onRequestClose={hideBar}
-      />
-
-      <AppNotices
-        loadStatus={loadStatus}
-        saveFailed={saveFailed}
-        onDismissLoadStatus={() => setLoadStatus('restored')}
-        placement={playing ? 'toast' : 'inline'}
-      />
-
-      <main
-        id="main"
-        ref={gridRef}
-        className="player-grid"
-        data-player-count={playerCount}
-        data-layout={layout}
-        data-section="partita"
-        hidden={!playing}
-        tabIndex={-1}
-      >
-        {cells}
-        <ShellRhombus
-          expanded={hubOpen}
-          controlsId={HUB_ID}
-          // The label hides while a surface is open but keeps its place, so its reserved band stays.
-          showHint={hintShown}
-          hintDimmed={surface.kind !== 'closed'}
-          onToggle={toggleHub}
-          buttonRef={rhombusRef}
-          style={centre.point ? { left: centre.point.x, top: centre.point.y } : undefined}
+    <DecksContext.Provider value={decksValue}>
+      <div className="app-shell" data-compact-density={compact} data-active-section={section}>
+        <SectionNav
+          id={NAV_ID}
+          section={section}
+          state={playing ? (revealed ? 'revealed' : 'hidden') : 'persistent'}
+          onNavigate={goTo}
+          onRequestClose={hideBar}
         />
-        {hubOpen && hubFrame && (
-          <RhombusHub
-            id={HUB_ID}
-            surface={surface}
-            anchor={hubFrame.anchor}
-            viewport={hubFrame.viewport}
-            insets={hubFrame.insets}
-            returnFocusTo={surface.kind === 'hub' ? lastTool : null}
-            onEvent={onHubEvent}
-            onShowSections={showSections}
-            announcement={announcement}
-            tool={
-              surface.kind === 'tool' && (
-                <ToolFrame
-                  key={surface.tool}
-                  title={TOOL_TITLES[surface.tool]}
-                  anchor={hubFrame.anchor}
-                  viewport={hubFrame.viewport}
-                  insets={hubFrame.insets}
-                  onBack={() => dispatchSurface({ type: 'back-to-hub' })}
-                >
-                  {surface.tool === 'dice' && <DiceTool layout={layout} announce={announce} />}
-                  {surface.tool === 'mana' && <ManaTool pool={mana} onChange={setMana} announce={announce} />}
-                  {surface.tool === 'coin' && <CoinTool layout={layout} announce={announce} />}
-                </ToolFrame>
-              )
-            }
+
+        <AppNotices
+          loadStatus={loadStatus}
+          saveFailed={saveFailed}
+          onDismissLoadStatus={() => setLoadStatus('restored')}
+          placement={playing ? 'toast' : 'inline'}
+        />
+
+        <main
+          id="main"
+          ref={gridRef}
+          className="player-grid"
+          data-player-count={playerCount}
+          data-layout={layout}
+          data-section="partita"
+          hidden={!playing}
+          tabIndex={-1}
+        >
+          {cells}
+          <ShellRhombus
+            expanded={hubOpen}
+            controlsId={HUB_ID}
+            // The label hides while a surface is open but keeps its place, so its reserved band stays.
+            showHint={hintShown}
+            hintDimmed={surface.kind !== 'closed'}
+            onToggle={toggleHub}
+            buttonRef={rhombusRef}
+            style={centre.point ? { left: centre.point.x, top: centre.point.y } : undefined}
           />
-        )}
-      </main>
+          {hubOpen && hubFrame && (
+            <RhombusHub
+              id={HUB_ID}
+              surface={surface}
+              anchor={hubFrame.anchor}
+              viewport={hubFrame.viewport}
+              insets={hubFrame.insets}
+              returnFocusTo={surface.kind === 'hub' ? lastTool : null}
+              onEvent={onHubEvent}
+              onShowSections={showSections}
+              announcement={announcement}
+              tool={
+                surface.kind === 'tool' && (
+                  <ToolFrame
+                    key={surface.tool}
+                    title={TOOL_TITLES[surface.tool]}
+                    anchor={hubFrame.anchor}
+                    viewport={hubFrame.viewport}
+                    insets={hubFrame.insets}
+                    onBack={() => dispatchSurface({ type: 'back-to-hub' })}
+                  >
+                    {surface.tool === 'dice' && <DiceTool layout={layout} announce={announce} />}
+                    {surface.tool === 'mana' && <ManaTool pool={mana} onChange={setMana} announce={announce} />}
+                    {surface.tool === 'coin' && <CoinTool layout={layout} announce={announce} />}
+                  </ToolFrame>
+                )
+              }
+            />
+          )}
+        </main>
 
-      <section className="app-view" data-section="mazzi" hidden={section !== 'mazzi'}>
-        <DecksScreen />
-      </section>
-      <section className="app-view" data-section="impara" hidden={section !== 'impara'}>
-        <LearnScreen onOpenRules={() => setRulesOpen(true)} />
-      </section>
-      <section className="app-view" data-section="altro" hidden={section !== 'altro'}>
-        <MoreScreen
-          key={playerCount}
-          playerCount={playerCount}
-          preferences={preferences}
-          onPreferencesChange={updatePreferences}
-          wakeLockSupported={isWakeLockSupported()}
-          onNewGame={(count) => setPending({ kind: 'new-game', playerCount: count })}
-          onReset={() => setPending({ kind: 'reset' })}
+        <section className="app-view" data-section="mazzi" hidden={section !== 'mazzi'}>
+          <DecksScreen />
+        </section>
+        <section className="app-view" data-section="impara" hidden={section !== 'impara'}>
+          <LearnScreen onOpenRules={() => setRulesOpen(true)} />
+        </section>
+        <section className="app-view" data-section="altro" hidden={section !== 'altro'}>
+          <MoreScreen
+            key={playerCount}
+            playerCount={playerCount}
+            preferences={preferences}
+            onPreferencesChange={updatePreferences}
+            wakeLockSupported={isWakeLockSupported()}
+            onNewGame={(count) => setPending({ kind: 'new-game', playerCount: count })}
+            onReset={() => setPending({ kind: 'reset' })}
+          />
+        </section>
+
+        <RulesDialog open={rulesOpen} onClose={() => setRulesOpen(false)} />
+
+        <ConfirmDialog
+          open={pending?.kind === 'new-game'}
+          title="Iniziare una nuova partita?"
+          description="I punteggi attuali verranno sostituiti."
+          confirmLabel="Nuova partita"
+          onConfirm={confirm}
+          onCancel={() => setPending(null)}
         />
-      </section>
-
-      <RulesDialog open={rulesOpen} onClose={() => setRulesOpen(false)} />
-
-      <ConfirmDialog
-        open={pending?.kind === 'new-game'}
-        title="Iniziare una nuova partita?"
-        description="I punteggi attuali verranno sostituiti."
-        confirmLabel="Nuova partita"
-        onConfirm={confirm}
-        onCancel={() => setPending(null)}
-      />
-      <ConfirmDialog
-        open={pending?.kind === 'reset'}
-        title="Azzerare tutti i punteggi?"
-        description="Vita, danni, segnalini, tassa, Monarca e Iniziativa torneranno ai valori iniziali. Nomi, Partner e comandanti resteranno invariati."
-        confirmLabel="Azzera punteggi"
-        onConfirm={confirm}
-        onCancel={() => setPending(null)}
-      />
-    </div>
+        <ConfirmDialog
+          open={pending?.kind === 'reset'}
+          title="Azzerare tutti i punteggi?"
+          description="Vita, danni, segnalini, tassa, Monarca e Iniziativa torneranno ai valori iniziali. Nomi, Partner e comandanti resteranno invariati."
+          confirmLabel="Azzera punteggi"
+          onConfirm={confirm}
+          onCancel={() => setPending(null)}
+        />
+      </div>
+    </DecksContext.Provider>
   )
 }
