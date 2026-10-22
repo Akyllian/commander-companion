@@ -49,6 +49,7 @@ describe('deck model (R3)', () => {
     ['an empty card name', deck({ cards: [card(1), { ...card(2), name: '' }] })],
     ['a non-string set', deck({ cards: [card(1), { ...card(2), set: 3 as unknown as string }] })],
     ['a non-array card list', { ...deck(), cards: {} }],
+    ['a non-object card line', { ...deck(), cards: [card(1), 'Sol Ring'] }],
     ['a commander not in the list', deck({ commanders: [id(999), null] })],
     ['a missing commander', deck({ commanders: [null as unknown as string, null] })],
     ['a second commander equal to the first', deck({ commanders: [id(1), id(1)] })],
