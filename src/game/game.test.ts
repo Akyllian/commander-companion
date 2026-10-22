@@ -1,15 +1,4 @@
-import {
-  COMMANDER_DAMAGE_LIMIT,
-  COUNTER_MAX,
-  LIFE_MAX,
-  LIFE_MIN,
-  canRemovePartner,
-  createGame,
-  gameReducer,
-  getDefeatReasons,
-  isPlayerDefeated,
-  normalizePlayerName,
-} from './game'
+import { canRemovePartner, carryDeckLinks, COMMANDER_DAMAGE_LIMIT, COUNTER_MAX, createGame, gameReducer, getDefeatReasons, isPlayerDefeated, LIFE_MAX, LIFE_MIN, normalizePlayerName, startGameWithLinks } from './game'
 import type { GameAction, GameState } from './types'
 
 const commanderHit = (
@@ -486,5 +475,101 @@ describe('frequent scores (D-033)', () => {
     state = gameReducer(state, { type: 'remove-player', playerId: 'player-2' })
     expect(state.monarchPlayerId).toBeNull()
     expect(state.initiativePlayerId).toBe('player-3')
+  })
+})
+
+describe('deck links (R3, schema v6)', () => {
+  const art = (n: number) => ({ cardId: `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`, name: `Comandante ${n}`, artist: `Artista ${n}` })
+  const link = (state: GameState, playerId = 'player-1', hasPartner = false) =>
+    gameReducer(state, { type: 'link-deck', playerId, deckId: 'deck-a', commanders: [art(1), hasPartner ? art(2) : null], hasPartner })
+
+  it('starts every player without a deck', () => {
+    expect(createGame(4).players.every((player) => player.deck === null)).toBe(true)
+  })
+
+  it('applies the deck’s commanders, never the name or the scores', () => {
+    let game = gameReducer(createGame(2), { type: 'adjust-life', playerId: 'player-1', amount: -5 })
+    game = gameReducer(game, { type: 'rename-player', playerId: 'player-1', name: 'Giulia' })
+    const linked = link(game)
+    expect(linked.players[0]).toMatchObject({ name: 'Giulia', life: 35, commanders: [art(1), null], hasPartner: false, deck: { deckId: 'deck-a', overridden: false } })
+    expect(link(linked)).toBe(linked)
+  })
+
+  it('applies a Partner deck to both slots', () => {
+    expect(link(createGame(2), 'player-1', true).players[0]).toMatchObject({ hasPartner: true, commanders: [art(1), art(2)] })
+  })
+
+  it('refuses an unknown player or an invalid commander', () => {
+    const game = createGame(2)
+    expect(gameReducer(game, { type: 'link-deck', playerId: 'nobody', deckId: 'd', commanders: [art(1), null], hasPartner: false })).toBe(game)
+    expect(gameReducer(game, { type: 'link-deck', playerId: 'player-1', deckId: '', commanders: [art(1), null], hasPartner: false })).toBe(game)
+    expect(gameReducer(game, { type: 'link-deck', playerId: 'player-1', deckId: 'd', commanders: [{ ...art(1), cardId: 'x' }, null], hasPartner: false })).toBe(game)
+  })
+
+  it('keeps Partner when it cannot be removed (damage or tax from Comandante 2)', () => {
+    let game = link(createGame(2), 'player-1', true)
+    game = gameReducer(game, { type: 'adjust-commander-tax', playerId: 'player-1', commander: 1, amount: 2 })
+    const relinked = gameReducer(game, { type: 'link-deck', playerId: 'player-1', deckId: 'deck-b', commanders: [art(3), null], hasPartner: false })
+    expect(relinked).toBe(game)
+  })
+
+  it('marks a manual commander or Partner change on a linked player as an override for this match', () => {
+    const linked = link(createGame(2))
+    const changed = gameReducer(linked, { type: 'set-commander', playerId: 'player-1', slot: 0, commander: art(5) })
+    expect(changed.players[0].deck).toEqual({ deckId: 'deck-a', overridden: true })
+    const partner = gameReducer(linked, { type: 'set-partner', playerId: 'player-1', hasPartner: true })
+    expect(partner.players[0].deck).toEqual({ deckId: 'deck-a', overridden: true })
+    // Unlinked players have nothing to override.
+    expect(gameReducer(createGame(2), { type: 'set-commander', playerId: 'player-1', slot: 0, commander: art(5) }).players[0].deck).toBeNull()
+  })
+
+  it('re-applying the deck clears the override', () => {
+    const changed = gameReducer(link(createGame(2)), { type: 'set-commander', playerId: 'player-1', slot: 0, commander: art(5) })
+    expect(link(changed).players[0]).toMatchObject({ commanders: [art(1), null], deck: { deckId: 'deck-a', overridden: false } })
+  })
+
+  it('unlinks keeping or removing the applied commander', () => {
+    const linked = link(createGame(2), 'player-1', true)
+    expect(gameReducer(linked, { type: 'unlink-deck', playerId: 'player-1', keepCommander: true }).players[0]).toMatchObject({ deck: null, commanders: [art(1), art(2)] })
+    expect(gameReducer(linked, { type: 'unlink-deck', playerId: 'player-1', keepCommander: false }).players[0]).toMatchObject({ deck: null, commanders: [null, null] })
+    const plain = createGame(2)
+    expect(gameReducer(plain, { type: 'unlink-deck', playerId: 'player-1', keepCommander: false })).toBe(plain)
+  })
+
+  it('keeps links through a score reset, and drops them with the removed player (Review Focus 2)', () => {
+    const linked = link(link(createGame(3)), 'player-3')
+    expect(gameReducer(linked, { type: 'reset-game' }).players.map((player) => player.deck?.deckId ?? null)).toEqual(['deck-a', null, 'deck-a'])
+    const removed = gameReducer(linked, { type: 'remove-player', playerId: 'player-3' })
+    expect(removed.players.map((player) => player.deck?.deckId ?? null)).toEqual(['deck-a', null])
+  })
+
+  it('carries links to the same seats of a new game, dropping seats that are gone', () => {
+    const previous = link(link(createGame(4)), 'player-4')
+    const next = carryDeckLinks(previous, createGame(2))
+    expect(next.players.map((player) => player.deck)).toEqual([{ deckId: 'deck-a', overridden: false }, null])
+    const unchanged = createGame(2)
+    expect(carryDeckLinks(createGame(2), unchanged)).toBe(unchanged)
+  })
+
+  it('starts a new game with resolved links in one state (fix 3)', () => {
+    let previous = link(createGame(3))
+    previous = gameReducer(previous, { type: 'link-deck', playerId: 'player-2', deckId: 'deck-gone', commanders: [art(7), null], hasPartner: false })
+    previous = gameReducer(previous, { type: 'adjust-life', playerId: 'player-1', amount: -10 })
+    previous = gameReducer(previous, { type: 'set-commander', playerId: 'player-1', slot: 0, commander: art(9) })
+    const decks = new Map([
+      ['deck-a', { commanders: [art(1), art(2)] as [ReturnType<typeof art>, ReturnType<typeof art> | null], hasPartner: true }],
+      ['deck-gone', null],
+    ])
+    const next = startGameWithLinks(previous, 3, decks)
+    // The current deck is applied afresh, the override cleared; life starts over.
+    expect(next.players[0]).toMatchObject({ life: 40, hasPartner: true, commanders: [art(1), art(2)], deck: { deckId: 'deck-a', overridden: false } })
+    // A deleted deck keeps the commander already applied, and its link («Mazzo non disponibile»).
+    expect(next.players[1]).toMatchObject({ commanders: [art(7), null], deck: { deckId: 'deck-gone', overridden: false } })
+    expect(next.players[2]).toMatchObject({ commanders: [null, null], deck: null })
+  })
+
+  it('treats a link missing from the resolved map like a deleted deck', () => {
+    const previous = link(createGame(2))
+    expect(startGameWithLinks(previous, 2, new Map()).players[0]).toMatchObject({ commanders: [art(1), null], deck: { deckId: 'deck-a' } })
   })
 })

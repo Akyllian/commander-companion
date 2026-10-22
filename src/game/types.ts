@@ -44,11 +44,28 @@ export interface PlayerState {
   commanders: CommanderSlots
   /** Commander tax per own commander slot; slot 1 stays 0 without Partner. Always even. */
   commanderTax: CommanderTaxBySlot
+  /** The saved deck linked to this seat, if any (R3). */
+  deck: DeckLink | null
 }
 
 export type CommanderSlots = [CommanderArt | null, CommanderArt | null]
 
-export const GAME_SCHEMA_VERSION = 5
+/**
+ * A saved deck linked to a seat (R3, D-040). It survives reload, reset and new games while the
+ * seat exists; `overridden` marks a commander changed by hand for this match only.
+ */
+export interface DeckLink {
+  deckId: string
+  overridden: boolean
+}
+
+/** What a new game needs from a linked deck, resolved before the game is replaced. */
+export interface DeckLinkSource {
+  commanders: CommanderSlots
+  hasPartner: boolean
+}
+
+export const GAME_SCHEMA_VERSION = 6
 
 export interface GameState {
   version: typeof GAME_SCHEMA_VERSION
@@ -75,3 +92,12 @@ export type GameAction =
   | { type: 'rename-player'; playerId: string; name: string }
   | { type: 'remove-player'; playerId: string }
   | { type: 'reset-game' }
+  | {
+      /** Applies a saved deck's commanders to a player and links it; name and scores are untouched. */
+      type: 'link-deck'
+      playerId: string
+      deckId: string
+      commanders: CommanderSlots
+      hasPartner: boolean
+    }
+  | { type: 'unlink-deck'; playerId: string; keepCommander: boolean }

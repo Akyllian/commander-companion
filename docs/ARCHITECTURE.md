@@ -35,11 +35,11 @@ Platform adapters live outside the domain:
 | Commander damage is also life loss | `adjust-commander-damage` moves life by the applied amount (D-006) |
 | Partner commanders count separately | `hasPartner` + `[number, number]` per source (D-007) |
 
-## Schema (version 5)
+## Schema (version 6)
 
 ```ts
 GameState {
-  version: 5,
+  version: 6,
   players: PlayerState[],
   monarchPlayerId: string | null,      // table-wide (D-033): one holder at most
   initiativePlayerId: string | null,   // the same player may hold both
@@ -50,6 +50,7 @@ PlayerState {
   commanderDamage: Record<sourcePlayerId, [commander1, commander2]>,
   commanders: [Commander1 | null, Commander2 | null]   // { cardId, name, artist }; slot 2 only with partner; art bytes in IndexedDB
   commanderTax: [commander1, commander2]               // generic mana, always even; slot 2 is 0 without partner
+  deck: { deckId, overridden } | null                  // R3: linked saved deck; overridden = commander changed for this match
 }
 ```
 
@@ -58,7 +59,7 @@ Invariants enforced by `parseStoredGame`: 2–4 players, unique ids, names 1–2
 ## Storage
 
 - Key `commander-companion.game.v1` (historical name; the payload `version` drives parsing).
-- Version 1–4 payloads are migrated to version 5 (v1 values are clamped; v2 gains empty slots; v3 `commander` becomes slot 1; v4 gains zero rad and tax and no table roles).
+- Version 1–5 payloads are migrated to version 6 (v1 values are clamped; v2 gains empty slots; v3 `commander` becomes slot 1; v4 gains zero rad and tax and no table roles; v5 gains no linked deck).
 - Unreadable or future-version payloads are copied to `commander-companion.game.backup` before a new game starts; the UI says so.
 - Writes are synchronous on every change; a failed write is surfaced in the UI.
 - `navigator.storage.persist()` is requested once.

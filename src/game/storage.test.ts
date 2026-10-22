@@ -70,8 +70,9 @@ describe('loadGame', () => {
     const result = loadGame()
 
     expect(result.status).toBe('migrated')
-    expect(result.game.version).toBe(5)
+    expect(result.game.version).toBe(6)
     expect(result.game.players[0]).toMatchObject({
+      deck: null,
       name: 'Atraxa',
       life: 31,
       poison: 2,
@@ -101,7 +102,7 @@ describe('loadGame', () => {
   })
 
   it('backs up a payload written by a newer app version', () => {
-    const future = JSON.stringify({ ...createGame(2), version: 6 })
+    const future = JSON.stringify({ ...createGame(2), version: 7 })
     localStorage.setItem(STORAGE_KEY, future)
 
     expect(loadGame().status).toBe('recovered')
@@ -313,6 +314,7 @@ describe('schema v5: frequent scores (D-033)', () => {
     v4.players.forEach((player) => {
       delete player.rad
       delete player.commanderTax
+      delete player.deck
     })
     return v4
   }
@@ -359,5 +361,50 @@ describe('schema v5: frequent scores (D-033)', () => {
     const game = structuredClone(createGame(2)) as unknown as Record<string, unknown> & { players: Array<Record<string, unknown>> }
     corrupt(game)
     expect(parseStoredGame(game)).toBeNull()
+  })
+})
+
+describe('schema v6: deck links (R3)', () => {
+  const asV5 = (game: GameState) => {
+    const v5 = structuredClone(game) as unknown as Record<string, unknown> & { players: Array<Record<string, unknown>> }
+    v5.version = 5
+    v5.players.forEach((player) => delete player.deck)
+    return v5
+  }
+
+  it('migrates a version 5 game exactly, with no linked decks', () => {
+    let game = gameReducer(createGame(3), { type: 'adjust-life', playerId: 'player-2', amount: -6 })
+    game = gameReducer(game, { type: 'set-table-role', role: 'monarch', playerId: 'player-3' })
+    store(asV5(game))
+    expect(loadGame()).toEqual({ status: 'migrated', game })
+  })
+
+  it('round-trips a linked deck', () => {
+    const game = gameReducer(createGame(2), {
+      type: 'link-deck',
+      playerId: 'player-1',
+      deckId: 'deck-a',
+      commanders: [{ cardId: '00000000-0000-4000-8000-000000000001', name: 'Zimone', artist: 'Artista' }, null],
+      hasPartner: false,
+    })
+    store(game)
+    expect(loadGame()).toEqual({ status: 'restored', game })
+  })
+
+  it.each([
+    ['a non-object link', 'deck-a'],
+    ['an empty deck id', { deckId: '', overridden: false }],
+    ['a long deck id', { deckId: 'x'.repeat(65), overridden: false }],
+    ['a non-boolean override', { deckId: 'deck-a', overridden: 'no' }],
+    ['a missing link field', undefined],
+  ])('rejects %s', (_, deck) => {
+    const game = structuredClone(createGame(2)) as unknown as { players: Array<Record<string, unknown>> }
+    game.players[0].deck = deck
+    expect(parseStoredGame(game)).toBeNull()
+  })
+
+  it('rejects a version 5 payload without a player list', () => {
+    expect(parseStoredGame({ version: 5, players: 'x' })).toBeNull()
+    expect(parseStoredGame({ version: 5, players: [3, 4] })).toBeNull()
   })
 })
