@@ -63,7 +63,7 @@ export default defineConfig(({ mode }) => {
       coverage: {
         provider: 'v8',
         include: ['src/**/*.{ts,tsx}'],
-        exclude: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/main.tsx', 'src/pwa/register.ts', 'src/**/*.d.ts'],
+        exclude: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/decks/testing.ts', 'src/main.tsx', 'src/pwa/register.ts', 'src/**/*.d.ts'],
         reporter: ['text', 'html'],
         thresholds: {
           // Scoring rules, persistence and history are the reliability core.

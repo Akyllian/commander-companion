@@ -8,6 +8,7 @@ import { RulesDialog } from './components/RulesDialog'
 import { blocksSeats, CLOSED, surfaceReducer } from './match/surface'
 import type { SurfaceEvent, Tool } from './match/surface'
 import { useMatchArt } from './media/useMatchArt'
+import { useDecks } from './decks/ui/useDecks'
 import { canRemovePartner, createGame } from './game/game'
 import { createHistory, getGroupDelta, historyReducer } from './game/history'
 import { loadGame, requestPersistentStorage, saveGame, subscribeToExternalChanges } from './game/storage'
@@ -86,7 +87,9 @@ export default function App() {
   useEffect(() => setSaveFailed(!saveGame(game)), [game])
 
   // Random art for seats without a commander, fixed for the whole match (D-039).
-  const { match, startNew: startNewMatch } = useMatchArt(game.players)
+  // Saved decks (R3): one snapshot for the Mazzi section and the art-cache prune.
+  const decks = useDecks()
+  const { match, startNew: startNewMatch } = useMatchArt(game.players, decks.deckArt)
 
   useEffect(() => {
     void requestPersistentStorage()
