@@ -17,7 +17,8 @@ interface DeckStrategyProps {
 /**
  * Strategia (R3 §9): the owner's plain notes, saved on the device as they type, and up to eight
  * key cards chosen by hand. Writes are serialised (plan fix 9): one at a time, the latest text
- * wins, and a pending change is flushed on blur and when the view goes away.
+ * wins, and a pending change is flushed on blur and when the view goes away. A failed write keeps
+ * its text and stops the autosave until «Riprova salvataggio», blur or leaving retry it.
  */
 export function DeckStrategy({ deck, cards, saveDeck }: DeckStrategyProps) {
   const [notes, setNotes] = useState(deck.notes)
@@ -27,6 +28,8 @@ export function DeckStrategy({ deck, cards, saveDeck }: DeckStrategyProps) {
   const timer = useRef<number | null>(null)
   const queued = useRef<string | null>(null)
   const writing = useRef(false)
+  // After a failed write the drain stops until an explicit retry: blur, unmount or the button.
+  const failed = useRef(false)
   const saveRef = useRef(saveDeck)
   useEffect(() => {
     saveRef.current = saveDeck
@@ -40,19 +43,26 @@ export function DeckStrategy({ deck, cards, saveDeck }: DeckStrategyProps) {
       queued.current = null
       try {
         await saveRef.current((current) => ({ ...current, notes: value, updatedAt: Date.now() }))
+        failed.current = false
         setStatus('saved')
+        setErrorAnnounced(false)
       } catch {
+        // The failed text stays dirty unless newer text was typed meanwhile.
+        queued.current ??= value
+        failed.current = true
         setStatus('error')
         setErrorAnnounced(true)
+        break
       }
     }
     writing.current = false
   }
 
-  const flush = () => {
+  /** Writes what is pending; `retry` also writes after a failure. */
+  const flush = (retry = true) => {
     if (timer.current !== null) window.clearTimeout(timer.current)
     timer.current = null
-    if (queued.current !== null) void drain()
+    if (queued.current !== null && (retry || !failed.current)) void drain()
   }
 
   // Leaving the view writes what is pending.
@@ -66,7 +76,7 @@ export function DeckStrategy({ deck, cards, saveDeck }: DeckStrategyProps) {
     setNotes(value)
     queued.current = value
     if (timer.current !== null) window.clearTimeout(timer.current)
-    timer.current = window.setTimeout(flush, AUTOSAVE_MS)
+    timer.current = window.setTimeout(() => flush(false), AUTOSAVE_MS)
   }
 
   const keyCards = deck.keyCards
@@ -88,13 +98,18 @@ export function DeckStrategy({ deck, cards, saveDeck }: DeckStrategyProps) {
           rows={10}
           aria-describedby={`${deck.id}-notes-help`}
           onChange={(event) => onType(event.currentTarget.value)}
-          onBlur={flush}
+          onBlur={() => flush()}
         />
       </label>
       <p id={`${deck.id}-notes-help`} className="deck-import__help">
         Scrivi il piano di gioco, le priorità e le sinergie da ricordare.
       </p>
       <p className="deck-strategy__status">{status === 'saved' ? 'Salvato sul dispositivo' : status === 'error' ? 'Salvataggio non riuscito' : ''}</p>
+      {status === 'error' && (
+        <button type="button" className="quiet-button" onClick={() => flush()}>
+          Riprova salvataggio
+        </button>
+      )}
       <p className="sr-only" aria-live="polite">
         {errorAnnounced ? 'Le note non sono state salvate sul dispositivo' : ''}
       </p>

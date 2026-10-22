@@ -231,4 +231,11 @@ Icon family: 24×24 viewBox, rounded 1.75px stroke, `currentColor` (muted ivory 
   - selection is a 2px gold border plus a numbered check;
   - the rail is full-bleed with 4px gaps; cards deal in over `--duration-hand-deal` 160ms with a 20ms stagger.
 - **Check rows:** `.check-option` makes the whole label row a 44px target.
+- **Action menu:** `.anchored-menu` lives in a portal on `<body>`, 224px wide, raised ink with a gold line, 44px items; it hangs below its trigger, right-aligned, and shifts or flips to stay 8px inside the viewport.
+- **Form fields:** every text input, textarea and select reads the `--field-*` tokens (zero-specificity rule, so components can still size them):
+  - ink-raised well, opaque gold-700 edge (3.15:1 on the field, 3.38:1 on ink), ivory text and muted placeholder;
+  - hover brightens the edge to gold, focus to bright gold plus the global focus ring;
+  - an error is `aria-invalid="true"` with a 2px danger edge and a described message, never colour alone;
+  - disabled uses a hairline edge, ink background and muted text.
+- **Hand exit:** Mulligan and Nuova prova fade the old hand out over `--duration-hand-out` (120ms, opacity only) before dealing; immediate with reduced motion.
 

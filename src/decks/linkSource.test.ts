@@ -1,5 +1,7 @@
 import { createGame, gameReducer } from '../game/game'
-import { deckLinkSource, resolveLinkSources } from './linkSource'
+import { IDBFactory } from 'fake-indexeddb'
+import { createIndexedDbDeckStore } from './deckStore'
+import { deckLinkSource, readLinkSources, resolveLinkSources } from './linkSource'
 import { cardData, deckRecord, uuid } from './testing'
 
 const cards = new Map([
@@ -27,5 +29,25 @@ describe('deck link sources (R3 §11)', () => {
       ['a', { commanders: [art(1), null], hasPartner: false }],
       ['gone', null],
     ])
+  })
+
+  it('reads the linked decks and their commanders straight from the store (review fix 3)', async () => {
+    const store = createIndexedDbDeckStore(new IDBFactory())
+    await store.putCards([...cards.values()])
+    await store.putDeck(deckRecord({ id: 'a', commanders: [uuid(2), null] }))
+    let game = gameReducer(createGame(3), { type: 'link-deck', playerId: 'player-1', deckId: 'a', commanders: [art(1) as never, null], hasPartner: false })
+    game = gameReducer(game, { type: 'link-deck', playerId: 'player-2', deckId: 'gone', commanders: [art(2) as never, null], hasPartner: false })
+    game = gameReducer(game, { type: 'link-deck', playerId: 'player-3', deckId: 'a', commanders: [art(1) as never, null], hasPartner: false })
+    expect([...(await readLinkSources(game, store)).entries()]).toEqual([
+      ['a', { commanders: [art(2), null], hasPartner: false }],
+      ['gone', null],
+    ])
+  })
+
+  it('resolves every link as unknown when the store is missing or fails', async () => {
+    const game = gameReducer(createGame(2), { type: 'link-deck', playerId: 'player-1', deckId: 'a', commanders: [art(1) as never, null], hasPartner: false })
+    expect([...(await readLinkSources(game, null)).entries()]).toEqual([['a', null]])
+    const broken = { ...createIndexedDbDeckStore(new IDBFactory()), getDeck: async () => Promise.reject(new Error('closed')) }
+    expect([...(await readLinkSources(game, broken)).entries()]).toEqual([['a', null]])
   })
 })

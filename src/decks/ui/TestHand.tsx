@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { CheckIcon } from '../../components/icons'
 import { ModalSideSheet } from '../../components/ModalSideSheet'
 import type { CardData } from '../../media/scryfall'
@@ -8,6 +8,11 @@ import type { HandState } from '../hand'
 import { drawablePool } from '../model'
 import type { DeckRecord } from '../model'
 import { CardCrop } from './CardCrop'
+
+/** The old hand fades out over this long before the next deal (R3 §15, `--duration-hand-out`). */
+export const HAND_EXIT_MS = 120
+
+const prefersReducedMotion = () => typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 interface TestHandProps {
   deck: DeckRecord
@@ -25,6 +30,26 @@ export function TestHand({ deck, cards, rng = Math.random }: TestHandProps) {
   const [state, setState] = useState<HandState>(() => startHand(pool, rng))
   const [deal, setDeal] = useState(0)
   const [details, setDetails] = useState<string | null>(null)
+  const [leaving, setLeaving] = useState(false)
+  const exit = useRef<number | null>(null)
+  useEffect(
+    () => () => {
+      if (exit.current !== null) window.clearTimeout(exit.current)
+    },
+    [],
+  )
+
+  /** Mulligan and Nuova prova: the old hand fades out, then the new one is dealt; at once with reduced motion. */
+  const redeal = (next: () => HandState) => {
+    const dealNext = () => {
+      setState(next())
+      setDeal((count) => count + 1)
+      setLeaving(false)
+    }
+    if (prefersReducedMotion()) return dealNext()
+    setLeaving(true)
+    exit.current = window.setTimeout(dealNext, HAND_EXIT_MS)
+  }
 
   if (state.phase === 'unavailable') {
     return (
@@ -45,7 +70,7 @@ export function TestHand({ deck, cards, rng = Math.random }: TestHandProps) {
         Mano iniziale · {state.hand.length} carte{state.mulligans > 0 ? ` · Mulligan ${state.mulligans}` : ''}
       </h2>
       <p className="deck-import__help">Simulazione locale: nessuna carta intera viene mostrata.</p>
-      <ol className="test-hand__cards" key={deal}>
+      <ol className="test-hand__cards" key={deal} data-leaving={leaving || undefined}>
         {state.hand.map((cardId, index) => {
           const card = cards.get(cardId)
           const order = choosing ? state.chosen.indexOf(index) : -1
@@ -78,17 +103,14 @@ export function TestHand({ deck, cards, rng = Math.random }: TestHandProps) {
       {state.phase === 'dealt' && (
         <div className="test-hand__actions">
           {limit && <p className="deck-line__hint">Limite raggiunto: puoi tenere una mano da zero carte</p>}
-          <button type="button" className="primary-button" onClick={() => setState(keep(state))}>
+          <button type="button" className="primary-button" disabled={leaving} onClick={() => setState(keep(state))}>
             Tieni
           </button>
           <button
             type="button"
             className="quiet-button"
-            disabled={limit}
-            onClick={() => {
-              setState(mulligan(state, rng))
-              setDeal(deal + 1)
-            }}
+            disabled={limit || leaving}
+            onClick={() => redeal(() => mulligan(state, rng))}
           >
             Mulligan
           </button>
@@ -112,10 +134,8 @@ export function TestHand({ deck, cards, rng = Math.random }: TestHandProps) {
           <button
             type="button"
             className="primary-button"
-            onClick={() => {
-              setState(newTry(pool, rng))
-              setDeal(deal + 1)
-            }}
+            disabled={leaving}
+            onClick={() => redeal(() => newTry(pool, rng))}
           >
             Nuova prova
           </button>

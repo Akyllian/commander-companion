@@ -1,8 +1,8 @@
 # Commander Companion — R3 Mazzi
 
-**Stato:** proposta completa per approvazione del product owner  
-**Ruolo:** art direction, interaction design e motion  
-**Dipende da:** D-025, D-031, D-037, D-038 e D-039  
+**Stato:** proposta completa per approvazione del product owner\
+**Ruolo:** art direction, interaction design e motion\
+**Dipende da:** D-025, D-031, D-037, D-038 e D-039\
 **Tavola:** [`../../art-direction/r3-decks-board.svg`](../../art-direction/r3-decks-board.svg)
 
 ## 1. Intento

@@ -10,8 +10,9 @@ import type { SurfaceEvent, Tool } from './match/surface'
 import { useMatchArt } from './media/useMatchArt'
 import { useDecks } from './decks/ui/useDecks'
 import { DecksContext } from './decks/ui/DecksContext'
+import type { DecksValue } from './decks/ui/DecksContext'
 import { canRemovePartner, createGame, startGameWithLinks } from './game/game'
-import { resolveLinkSources } from './decks/linkSource'
+import { readLinkSources } from './decks/linkSource'
 import { createHistory, getGroupDelta, historyReducer } from './game/history'
 import { loadGame, requestPersistentStorage, saveGame, subscribeToExternalChanges } from './game/storage'
 import type { LoadStatus } from './game/storage'
@@ -301,22 +302,29 @@ export default function App() {
     </PlayerSeat>
   ))
 
+  const startNewGame = async (count: number) => {
+    // Linked decks are read from the store first, so the new game is one state and one replace
+    // with the decks as they are now, not as the screen last saw them (R3 fix 3, review fix 3).
+    const linked = game.players.some((player) => player.deck)
+    const next = linked ? startGameWithLinks(game, count, await readLinkSources(game, decks.store)) : createGame(count)
+    dispatchHistory({ type: 'replace', game: next })
+    startNewMatch()
+    setMana(EMPTY_POOL)
+  }
+
   const confirm = () => {
-    if (pending?.kind === 'new-game') {
-      // Linked decks are resolved first, so the new game is one state and one replace (R3, fix 3).
-      const linked = game.players.some((player) => player.deck)
-      const next = linked
-        ? startGameWithLinks(game, pending.playerCount, resolveLinkSources(game, decks.decks ?? [], decks.cards ?? new Map()))
-        : createGame(pending.playerCount)
-      dispatchHistory({ type: 'replace', game: next })
-      startNewMatch()
-      setMana(EMPTY_POOL)
-    }
+    if (pending?.kind === 'new-game') void startNewGame(pending.playerCount)
     if (pending?.kind === 'reset') dispatch({ type: 'reset-game' })
     setPending(null)
   }
 
-  const decksValue = { decks: decks.decks, cards: decks.cards, store: decks.store, reload: decks.reload }
+  const decksValue: DecksValue = {
+    status: decks.deckArt === 'loading' || decks.deckArt === 'unavailable' ? decks.deckArt : 'ready',
+    decks: decks.decks,
+    cards: decks.cards,
+    store: decks.store,
+    reload: decks.reload,
+  }
 
   return (
     <DecksContext.Provider value={decksValue}>

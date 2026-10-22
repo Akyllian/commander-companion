@@ -97,6 +97,53 @@ describe('Strategia (R3 §9)', () => {
     expect(screen.getByText('Le note non sono state salvate sul dispositivo')).toBeInTheDocument()
   })
 
+  it('keeps the text of a failed write and saves it on retry (review fix 2)', async () => {
+    let stored = deckRecord()
+    let attempt = 0
+    const saveDeck = vi.fn(async (update: (deck: DeckRecord) => DeckRecord) => {
+      attempt += 1
+      if (attempt === 1) throw new Error('quota')
+      stored = update(stored)
+    })
+    render(<DeckStrategy deck={deckRecord()} cards={cards} saveDeck={saveDeck} />)
+    fireEvent.change(notes(), { target: { value: 'prima' } })
+    fireEvent.blur(notes())
+    await act(async () => undefined)
+    expect(screen.getByText('Salvataggio non riuscito')).toBeInTheDocument()
+    // The drain stopped: no write runs on its own after the failure.
+    await act(async () => vi.advanceTimersByTime(AUTOSAVE_MS * 3))
+    expect(saveDeck).toHaveBeenCalledOnce()
+    // Typing more keeps the latest text dirty; the retry writes it.
+    fireEvent.change(notes(), { target: { value: 'prima e dopo' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Riprova salvataggio' }))
+    await act(async () => undefined)
+    expect(saveDeck).toHaveBeenCalledTimes(2)
+    expect(stored.notes).toBe('prima e dopo')
+    expect(screen.getByText('Salvato sul dispositivo')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Riprova salvataggio' })).not.toBeInTheDocument()
+  })
+
+  it('retries a failed write on blur and on unmount (review fix 2)', async () => {
+    let stored = deckRecord()
+    let attempt = 0
+    const saveDeck = vi.fn(async (update: (deck: DeckRecord) => DeckRecord) => {
+      attempt += 1
+      if (attempt < 3) throw new Error('quota')
+      stored = update(stored)
+    })
+    const { unmount } = render(<DeckStrategy deck={deckRecord()} cards={cards} saveDeck={saveDeck} />)
+    fireEvent.change(notes(), { target: { value: 'nota' } })
+    fireEvent.blur(notes())
+    await act(async () => undefined)
+    fireEvent.blur(notes())
+    await act(async () => undefined)
+    expect(saveDeck).toHaveBeenCalledTimes(2)
+    unmount()
+    await act(async () => undefined)
+    expect(saveDeck).toHaveBeenCalledTimes(3)
+    expect(stored.notes).toBe('nota')
+  })
+
   it('chooses up to eight key cards, reorders them and notes them', async () => {
     vi.useRealTimers()
     render(<Live initial={deckRecord({ cards: Array.from({ length: 12 }, (_, i) => ({ cardId: uuid(i + 1), name: `Carta ${i + 1}`, quantity: 1, set: null, number: null })) })} />)

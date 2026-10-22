@@ -16,10 +16,20 @@ interface DecksScreenProps {
 
 /** Mazzi (R3): the library, the import and each deck, under `#mazzi/…`. */
 export function DecksScreen({ players, dispatch }: DecksScreenProps) {
-  const { decks, cards, store, reload } = useDecksContext()
+  const { status, decks, cards, store, reload } = useDecksContext()
   const { route, go, setTab } = useDeckRoute()
   const [linking, setLinking] = useState(false)
 
+  if (status === 'loading') {
+    return (
+      <div className="screen decks-screen" aria-busy="true">
+        <h1 tabIndex={-1}>Mazzi</h1>
+        <p className="decks-none" role="status">
+          Caricamento dei mazzi…
+        </p>
+      </div>
+    )
+  }
   if (decks === null || cards === null || store === null) {
     return (
       <div className="screen decks-screen">

@@ -107,9 +107,10 @@ describe('linking decks and players (R3 §11)', () => {
     goTo('Altro')
     fireEvent.click(screen.getByRole('button', { name: 'Nuova partita' }))
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Nuova partita' }))
+    await settle()
     goTo('Partita')
-    // The snapshot is refreshed on reload of the decks; the new game applies the stored deck.
-    expect(commanderOf(1)).toMatch(/Zimone, Infinite Analyst|Tymna the Weaver/)
+    // The new game reads the deck from the store, not from the screen's snapshot (review fix 3).
+    expect(commanderOf(1)).toBe('Tymna the Weaver')
   })
 
   it('keeps the applied commander when the linked deck is deleted, through a new game with one replace (fix 3)', async () => {
@@ -123,6 +124,7 @@ describe('linking decks and players (R3 §11)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Nuova partita' }))
     const writes = vi.spyOn(Storage.prototype, 'setItem')
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Nuova partita' }))
+    await settle()
     expect(writes.mock.calls.filter(([key]) => key === STORAGE_KEY)).toHaveLength(1)
     writes.mockRestore()
     goTo('Partita')

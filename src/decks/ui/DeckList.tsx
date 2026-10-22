@@ -230,7 +230,12 @@ export function DeckList({ deck, cards, editing, online, onEdit, onSave, recogni
           {commanderGone && (
             <label className="deck-import__field">
               <span>Nuovo comandante</span>
-              <select value={replacement} onChange={(event) => setReplacement(event.currentTarget.value)}>
+              <select
+                value={replacement}
+                aria-invalid={problem !== null && !replacement}
+                aria-describedby={problem ? `${deck.id}-list-problem` : undefined}
+                onChange={(event) => setReplacement(event.currentTarget.value)}
+              >
                 <option value="">Scegli…</option>
                 {pending
                   .map((line) => cards.get(line.cardId) ?? added.find((entry) => entry.cardId === line.cardId))
@@ -244,7 +249,7 @@ export function DeckList({ deck, cards, editing, online, onEdit, onSave, recogni
             </label>
           )}
           {problem && (
-            <p className="inline-notice" role="alert">
+            <p id={`${deck.id}-list-problem`} className="inline-notice" role="alert">
               {problem}
             </p>
           )}

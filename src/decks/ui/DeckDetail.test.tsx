@@ -88,6 +88,16 @@ describe('deck detail (R3 §6–8)', () => {
     fireEvent.keyDown(tabs[0], { key: 'ArrowLeft' })
     expect(tabs[3]).toHaveFocus()
     expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
+    // The single tab stop moves with focus, without activating (review fix 4): Tab then leaves.
+    expect(tabs.map((tab) => tab.tabIndex)).toEqual([-1, -1, -1, 0])
+    fireEvent.keyDown(tabs[3], { key: 'ArrowRight' })
+    expect(tabs[0]).toHaveFocus()
+    fireEvent.keyDown(tabs[0], { key: 'ArrowRight' })
+    expect(tabs.map((tab) => tab.tabIndex)).toEqual([-1, 0, -1, -1])
+    expect(screen.getByRole('tabpanel')).toHaveAttribute('aria-labelledby', 'q-tab-panoramica')
+    // Leaving the tablist puts the stop back on the chosen tab.
+    fireEvent.blur(tabs[1], { relatedTarget: document.body })
+    expect(tabs.map((tab) => tab.tabIndex)).toEqual([0, -1, -1, -1])
     fireEvent.keyDown(tabs[3], { key: 'Home' })
     fireEvent.keyDown(tabs[0], { key: 'End' })
     fireEvent.keyDown(tabs[3], { key: 'x' })
@@ -152,6 +162,8 @@ describe('deck detail (R3 §6–8)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Salva modifiche' }))
     await settle()
     expect(screen.getByRole('alert')).toHaveTextContent('Scegli un nuovo comandante prima di salvare.')
+    expect(screen.getByRole('combobox', { name: 'Nuovo comandante' })).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByRole('combobox', { name: 'Nuovo comandante' })).toHaveAccessibleDescription('Scegli un nuovo comandante prima di salvare.')
     fireEvent.change(screen.getByRole('combobox', { name: 'Nuovo comandante' }), { target: { value: uuid(8) } })
     fireEvent.click(screen.getByRole('button', { name: 'Salva modifiche' }))
     await settle()
@@ -185,6 +197,29 @@ describe('deck detail (R3 §6–8)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Salva modifiche' }))
     await settle()
     expect((await store.getDeck('q'))?.cards.some((entry) => entry.name === 'Ponder')).toBe(true)
+  })
+
+  it('renders the actions menu outside the clipped hero, anchored, with focus and dismissal rules (review fix 1)', () => {
+    render(<Harness store={store} initial={baseDeck()} />)
+    const trigger = screen.getByRole('button', { name: 'Azioni del mazzo' })
+    vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue(DOMRect.fromRect({ x: 330, y: 20, width: 44, height: 44 }))
+    fireEvent.click(trigger)
+    const menu = screen.getByRole('menu', { name: 'Azioni del mazzo' })
+    // In a portal on <body>, not inside the hero that clips its overflow.
+    expect(menu.closest('.deck-hero')).toBeNull()
+    expect(menu.parentElement).toBe(document.body)
+    expect(within(menu).getAllByRole('menuitem')[0]).toHaveFocus()
+    // Kept inside the viewport: never past the right edge.
+    expect(Number.parseFloat(menu.style.left) + 224).toBeLessThanOrEqual(window.innerWidth - 8 + 0.5)
+    fireEvent.keyDown(within(menu).getAllByRole('menuitem')[0], { key: 'ArrowDown' })
+    expect(within(menu).getAllByRole('menuitem')[1]).toHaveFocus()
+    fireEvent.keyDown(menu, { key: 'Escape' })
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    expect(trigger).toHaveFocus()
+    fireEvent.click(trigger)
+    fireEvent.pointerDown(document.body)
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    expect(trigger).toHaveFocus()
   })
 
   it('duplicates and deletes the deck from its menu', async () => {

@@ -10,6 +10,8 @@ import type { DeckRecord } from '../model'
 import { DECK_TABS } from '../routes'
 import type { DeckTab } from '../routes'
 import { commanderLine, ownerLabel } from '../summary'
+import { AnchoredMenu } from './AnchoredMenu'
+import type { MenuItem } from './AnchoredMenu'
 import { CardCrop } from './CardCrop'
 import { BackIcon } from './deckIcons'
 import { DeckList, singleLine } from './DeckList'
@@ -49,6 +51,22 @@ export function DeckDetail({ deck, cards, store, tab, onTab, onBack, onChanged, 
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [online, setOnline] = useState(() => navigator.onLine)
   const tabs = useRef<Array<HTMLButtonElement | null>>([])
+  // The tablist's single tab stop: it follows arrow focus (review fix 4), else sits on the chosen tab.
+  const [stop, setStop] = useState<number | null>(null)
+  const stopIndex = stop ?? DECK_TABS.indexOf(tab)
+  const menuTrigger = useRef<HTMLButtonElement>(null)
+
+  const duplicate = () => {
+    const copy: DeckRecord = { ...deck, id: services.newId(), name: `${deck.name} (copia)`.slice(0, DECK_NAME_MAX), createdAt: services.now(), updatedAt: services.now() }
+    void store.putDeck(copy).then(onChanged).then(() => onOpenDeck(copy.id))
+  }
+  const menuItems: MenuItem[] = [
+    { label: 'Modifica dettagli', onSelect: () => setEditingDetails(true) },
+    { label: 'Modifica lista', onSelect: () => (setEditingList(true), onTab('lista')) },
+    { label: 'Duplica mazzo', onSelect: duplicate },
+    ...(deck.offline !== 'complete' ? [{ label: 'Prepara di nuovo offline', onSelect: () => void prepare(deck) }] : []),
+    { label: 'Elimina mazzo', danger: true, onSelect: () => setConfirmDelete(true) },
+  ]
 
   const saveDeck = async (update: (current: DeckRecord) => DeckRecord) => {
     const current = (await store.getDeck(deck.id)) ?? deck
@@ -67,6 +85,7 @@ export function DeckDetail({ deck, cards, store, tab, onTab, onBack, onChanged, 
     if (!(event.key in moves)) return
     event.preventDefault()
     const next = (index + moves[event.key] + DECK_TABS.length) % DECK_TABS.length
+    setStop(next)
     tabs.current[next]?.focus()
   }
 
@@ -97,49 +116,18 @@ export function DeckDetail({ deck, cards, store, tab, onTab, onBack, onChanged, 
           <button type="button" className="quiet-button deck-back" onClick={onBack}>
             <BackIcon /> Torna ai mazzi
           </button>
-          <button type="button" className="icon-button" aria-label="Azioni del mazzo" aria-expanded={menu} onClick={() => setMenu(!menu)}>
+          <button
+            ref={menuTrigger}
+            type="button"
+            className="icon-button"
+            aria-label="Azioni del mazzo"
+            aria-haspopup="menu"
+            aria-expanded={menu}
+            onClick={() => setMenu(!menu)}
+          >
             <DetailsIcon />
           </button>
         </div>
-        {menu && (
-          <ul className="deck-menu" role="menu" aria-label="Azioni del mazzo">
-            <li role="none">
-              <button type="button" role="menuitem" onClick={() => (setMenu(false), setEditingDetails(true))}>
-                Modifica dettagli
-              </button>
-            </li>
-            <li role="none">
-              <button type="button" role="menuitem" onClick={() => (setMenu(false), setEditingList(true), onTab('lista'))}>
-                Modifica lista
-              </button>
-            </li>
-            <li role="none">
-              <button
-                type="button"
-                role="menuitem"
-                onClick={() => {
-                  setMenu(false)
-                  const copy: DeckRecord = { ...deck, id: services.newId(), name: `${deck.name} (copia)`.slice(0, DECK_NAME_MAX), createdAt: services.now(), updatedAt: services.now() }
-                  void store.putDeck(copy).then(onChanged).then(() => onOpenDeck(copy.id))
-                }}
-              >
-                Duplica mazzo
-              </button>
-            </li>
-            {deck.offline !== 'complete' && (
-              <li role="none">
-                <button type="button" role="menuitem" onClick={() => (setMenu(false), void prepare(deck))}>
-                  Prepara di nuovo offline
-                </button>
-              </li>
-            )}
-            <li role="none" className="deck-menu__danger">
-              <button type="button" role="menuitem" className="quiet-danger" onClick={() => (setMenu(false), setConfirmDelete(true))}>
-                Elimina mazzo
-              </button>
-            </li>
-          </ul>
-        )}
         <div className="deck-hero__identity">
           <h1 tabIndex={-1}>{deck.name}</h1>
           <p className="deck-hero__commander">
@@ -149,7 +137,16 @@ export function DeckDetail({ deck, cards, store, tab, onTab, onBack, onChanged, 
         </div>
       </header>
 
-      <div className="deck-tabs" role="tablist" aria-label="Sezioni del mazzo">
+      {menu && <AnchoredMenu label="Azioni del mazzo" trigger={menuTrigger} items={menuItems} onClose={() => setMenu(false)} />}
+
+      <div
+        className="deck-tabs"
+        role="tablist"
+        aria-label="Sezioni del mazzo"
+        onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setStop(null)
+        }}
+      >
         {DECK_TABS.map((name, index) => (
           <button
             key={name}
@@ -161,10 +158,13 @@ export function DeckDetail({ deck, cards, store, tab, onTab, onBack, onChanged, 
             id={`${deck.id}-tab-${name}`}
             aria-selected={tab === name}
             aria-controls={`${deck.id}-panel`}
-            tabIndex={tab === name ? 0 : -1}
+            tabIndex={index === stopIndex ? 0 : -1}
             className="deck-tab"
             onKeyDown={(event) => onTabKey(event, index)}
-            onClick={() => onTab(name)}
+            onClick={() => {
+              setStop(null)
+              onTab(name)
+            }}
           >
             {TAB_LABELS[name]}
           </button>

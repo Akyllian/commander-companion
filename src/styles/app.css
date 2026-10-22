@@ -286,6 +286,49 @@ button:disabled {
   }
 }
 
+/* Form fields (R3 review fix 7): one ink and gold treatment for text fields, textareas and
+   selects. Zero specificity, so a component can still size or place its own field. */
+:where(input:not([type='checkbox'], [type='radio'], [type='range'], [type='color'], [type='file']), textarea, select) {
+  min-height: var(--button-height);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--field-border);
+  border-radius: var(--radius-md);
+  color: var(--field-text);
+  background: var(--field-bg);
+  font: inherit;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+:where(textarea) {
+  line-height: 1.5;
+  resize: vertical;
+}
+
+:where(input, textarea)::placeholder {
+  color: var(--field-placeholder);
+  opacity: 1;
+}
+
+:where(input, textarea, select):hover:not(:disabled) {
+  border-color: var(--field-border-hover);
+}
+
+:where(input, textarea, select):focus-visible {
+  border-color: var(--field-border-focus);
+}
+
+:where(input, textarea, select)[aria-invalid='true'] {
+  border-color: var(--field-border-error);
+  border-width: 2px;
+}
+
+:where(input, textarea, select):disabled {
+  border-color: var(--color-gold-hairline);
+  color: var(--field-text-disabled);
+  background: var(--field-bg-disabled);
+  cursor: not-allowed;
+}
+
 /* ---- Phase 1 functional additions (D-010: visuals pending UX review) ---- */
 
 button,
@@ -3841,22 +3884,20 @@ button:hover:not(:disabled) {
   }
 }
 
-.deck-menu {
-  position: absolute;
-  z-index: 3;
-  top: 3.5rem;
-  right: var(--space-2);
+.anchored-menu {
+  position: fixed;
+  z-index: 40;
   display: grid;
-  min-width: 14rem;
   margin: 0;
   padding: var(--space-1);
   border: 1px solid var(--color-gold-line);
   border-radius: var(--radius-md);
   background: var(--color-ink);
+  box-shadow: var(--shadow-panel);
   list-style: none;
 }
 
-.deck-menu button {
+.anchored-menu button {
   width: 100%;
   min-height: 44px;
   border: 0;
@@ -3864,7 +3905,14 @@ button:hover:not(:disabled) {
   text-align: start;
 }
 
-.deck-menu__danger {
+.anchored-menu button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -2px;
+}
+
+.anchored-menu__danger {
+  margin-top: var(--space-1);
+  padding-top: var(--space-1);
   border-top: 1px solid var(--color-gold-hairline);
 }
 
@@ -4220,6 +4268,13 @@ button:hover:not(:disabled) {
   scroll-snap-align: start;
   animation: hand-deal var(--duration-hand-deal) var(--ease-out) both;
   animation-delay: calc(var(--deal-index, 0) * 20ms);
+}
+
+/* Mulligan and Nuova prova: the old hand fades out first (spec §15); reduced motion skips it in JS. */
+.test-hand__cards[data-leaving] .test-hand__item {
+  opacity: 0;
+  transition: opacity var(--duration-hand-out) var(--ease-out);
+  animation: none;
 }
 
 @keyframes hand-deal {
