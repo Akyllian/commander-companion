@@ -209,3 +209,26 @@ Icon family: 24×24 viewBox, rounded 1.75px stroke, `currentColor` (muted ivory 
 - **Compact life:** `min(6rem, 22dvh)`, so 844×330 shows two rows without vertical scroll.
 - **Tokens:** `--mana-w|u|b|r|g|c`, `--duration-surface-in` 180, `--duration-surface-out` 140, `--duration-tool-swap` 140, `--duration-dice` 160, `--duration-coin` 220, `--duration-art-fade` 140. The global reduced-motion rule makes them immediate.
 
+## Mazzi (R3, D-040) — implemented, awaiting design review
+
+- **Library:**
+  - `.deck-row` is one link per deck: a 64px `.card-crop` (Partner split on the D-031 diagonal), serif name, commander, owner as text, offline state as icon plus text, and up to three category counts;
+  - rows are at least 88px (`--deck-row-min-height`) and separated by gold hairlines at 35%;
+  - the search appears from seven decks;
+  - the empty state follows §4.3.
+- **Neutral texture:** `.card-crop[data-empty]` is two soft arcane and gold glows on raised ink. It is used whenever a crop is not cached, never replaced by a random illustration.
+- **Import:**
+  - one page with a text step indicator (`.deck-import__step`, gold uppercase) and steps entering over `--duration-deck-step` (180ms, ≤ 6px translateX);
+  - ambiguous lines have a gold border, missing ones a red border, and the text always says why;
+  - result rows (`.card-result`) are at least 64px, with a 48px crop, name and artist.
+- **Detail:**
+  - `.deck-hero` is 168px on phones, 220px from 48rem and 128px in landscape up to 26rem; it uses the D-031 veil and a text halo;
+  - `.deck-tabs` is a real tablist, with gold text and a 2px line;
+  - category rows show a serif count and a 2px bar (arcane; muted for «Non classificate»), with no percentages;
+  - in Lista, group titles stick inside the page scroll only.
+- **Hand:**
+  - `.hand-card` uses `--hand-crop-width` and is 156–176px tall: crop, then an opaque name band, never frame elements;
+  - selection is a 2px gold border plus a numbered check;
+  - the rail is full-bleed with 4px gaps; cards deal in over `--duration-hand-deal` 160ms with a 20ms stagger.
+- **Check rows:** `.check-option` makes the whole label row a 44px target.
+

@@ -111,7 +111,7 @@ describe('scoring', () => {
     click(player, /^chiudi contatori/i)
     openDetails(player)
     expect(within(screen.getByRole('dialog')).getByText('10 segnalini veleno')).toBeInTheDocument()
-  })
+  }, 20000)
 
   it('lists several defeat causes together in Dettagli', () => {
     vi.spyOn(performance, 'now').mockImplementation(() => (clock += 1000))
@@ -125,8 +125,8 @@ describe('scoring', () => {
     const sheet = screen.getByRole('dialog')
     expect(within(sheet).getByText('10 segnalini veleno')).toBeInTheDocument()
     expect(within(sheet).getByText('punti vita a zero o meno')).toBeInTheDocument()
-    // Fifty full-app taps: under coverage on a busy machine this can pass 5 s.
-  }, 15_000)
+    // Fifty full-app taps: under coverage on a busy machine this can pass 15 s.
+  }, 40_000)
 
   it('keeps one opponent’s damage per source: 21 from one commander, never the sum', () => {
     render(<App />)

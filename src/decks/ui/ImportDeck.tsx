@@ -49,6 +49,9 @@ export const defaultImportServices: ImportServices = {
 }
 
 type CardLine = Extract<ParsedLine, { kind: 'card' }>
+
+/** «1 riga», «2 righe». */
+const lineCount = (count: number) => `${count} ${count === 1 ? 'riga' : 'righe'}`
 type Outcome = { kind: 'saving'; done: number; total: number } | { kind: 'saved'; deckId: string; result: PrepareResult } | null
 
 const NETWORK_NOTICE = 'Serve una connessione per riconoscere nuove carte. La partita e i mazzi già salvati restano disponibili.'
@@ -395,7 +398,7 @@ export function ImportDeck({ store, onDone, onCancel, onSaved, services = defaul
       {draft.step === 2 && recognition && (
         <section className="deck-import__panel">
           <p className="deck-import__summary">
-            {recognisedCopies} carte riconosciute · {pendingAmbiguous.length + pendingMissing.length} righe da correggere
+            {recognisedCopies} {recognisedCopies === 1 ? 'carta riconosciuta' : 'carte riconosciute'} · {lineCount(pendingAmbiguous.length + pendingMissing.length)} da correggere
           </p>
 
           {(pendingAmbiguous.length > 0 || recognition.missing.length > 0) && (
@@ -473,11 +476,11 @@ export function ImportDeck({ store, onDone, onCancel, onSaved, services = defaul
               {pendingMissing.length > 0 &&
                 (draft.acceptedMissing ? (
                   <p className="deck-import__accepted">
-                    <CheckIcon /> {pendingMissing.length} righe escluse
+                    <CheckIcon /> {lineCount(pendingMissing.length)} {pendingMissing.length === 1 ? 'esclusa' : 'escluse'}
                   </p>
                 ) : (
                   <button type="button" className="quiet-button" onClick={() => update({ acceptedMissing: true })}>
-                    Salva senza {pendingMissing.length} righe
+                    Salva senza {lineCount(pendingMissing.length)}
                   </button>
                 ))}
             </div>
@@ -505,7 +508,7 @@ export function ImportDeck({ store, onDone, onCancel, onSaved, services = defaul
               </ul>
               <label className="check-option">
                 <input type="checkbox" checked={draft.ignoredLines} onChange={(event) => update({ ignoredLines: event.currentTarget.checked })} />
-                <span>Ignora {excluded.length} righe fuori lista</span>
+                <span>Ignora {lineCount(excluded.length)} fuori lista</span>
               </label>
             </div>
           )}

@@ -73,6 +73,17 @@ Invariants enforced by `parseStoredGame`: 2–4 players, unique ids, names 1–2
 - Every Scryfall API request goes through one sequential limiter, at least 125 ms apart.
 - Envelope ids join the art-cache keep-set.
 
+## Decks (R3, D-040)
+
+- `src/decks/*.ts` holds the pure modules, all at 100% coverage:
+  - the model and its invariants;
+  - the list parser and recognition;
+  - categories, the mulligan engine, routes and summaries;
+  - storage (`deckStore`, `prepareOffline`, `importDraft`).
+- `src/decks/ui/` holds the views.
+- `useDecks` loads decks and their cards as one snapshot, in App; `DecksContext` hands it to Mazzi and to the players' Dettagli.
+- IndexedDB `commander-companion-decks` has the stores `decks` (key `id`) and `cards` (key `cardId`). Crops live in the art store, keyed by card id.
+
 ## Transient surface (R2)
 
 `src/match/surface.ts` is a pure reducer over `closed | hub | tool | counters | commander`. It lives in `App`, so only one surface is ever open:

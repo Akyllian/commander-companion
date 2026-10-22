@@ -64,6 +64,15 @@
   --mana-r: oklch(0.7 0.17 35);
   --mana-g: oklch(0.74 0.15 150);
   --mana-c: oklch(0.8 0.02 250);
+  /* R3 Mazzi (spec §16). */
+  --deck-row-min-height: 88px;
+  --deck-hero-height: 168px;
+  --deck-hero-height-wide: 220px;
+  --deck-art-size: 64px;
+  --hand-crop-width: clamp(7rem, 31vw, 8.5rem);
+  --duration-deck-step: 180ms;
+  --duration-hand-deal: 160ms;
+  --duration-hand-out: 120ms;
   --duration-fast: 140ms;
   --duration-normal: 220ms;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);

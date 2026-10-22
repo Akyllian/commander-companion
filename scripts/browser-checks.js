@@ -1,10 +1,11 @@
 /**
- * R2 browser checks (D-039). Paste into the console of the running app on the Partita section,
+ * Browser checks for R2 (D-039) and R3 (D-040). Paste into the console of the running app on the Partita section,
  * at each viewport under review (320×568, 390×844, 640×400, 768×1024, 832×400, 844×390, 844×330,
  * 1440×900) and layout (Griglia, Fronte a fronte, Tavolo, 2 giocatori fronte a fronte), then run:
  *
  *   await r2CardChecks()   // cards, inner surfaces, hub, page overflow
  *   await r2ToolChecks()   // tools after a result: focus, containment, rhombus left free
+ *   await r3DeckChecks()   // Mazzi: rows ≥ 88px, hero height, no nested scroll, hand crops and names
  *
  * The page must be visible (a hidden tab renders no frames, so transitions never finish).
  * Expected: no `small`, `cardIssues` or `hubOutside` entries; `hscroll` false; `bodyFits` true in
@@ -131,4 +132,38 @@ async function r2ToolChecks() {
   return out
 }
 
-Object.assign(window, { r2CardChecks, r2ToolChecks })
+/** R3 Mazzi: library, each deck tab and the import, at the current viewport. Needs at least one saved deck. */
+async function r3DeckChecks() {
+  const smallInMazzi = () =>
+    [...document.querySelectorAll('[data-section="mazzi"] button, [data-section="mazzi"] a[href], [data-section="mazzi"] select, [data-section="mazzi"] summary, [data-section="mazzi"] .check-option')]
+      .filter(visible)
+      .filter((el) => el.getBoundingClientRect().height < 43.5)
+      .map((el) => (el.getAttribute('aria-label') || el.textContent).trim().slice(0, 24))
+  const hscroll = () => document.documentElement.scrollWidth > document.documentElement.clientWidth
+  const report = { vw: innerWidth, vh: innerHeight }
+  location.hash = '#mazzi'
+  await wait(500)
+  report.library = { hscroll: hscroll(), rows: [...document.querySelectorAll('.deck-row')].map((row) => Math.round(row.getBoundingClientRect().height)), small: smallInMazzi() }
+  const href = document.querySelector('.deck-row')?.getAttribute('href')
+  for (const tab of ['', '/lista', '/strategia', '/mano']) {
+    location.hash = href + tab
+    await wait(600)
+    const entry = { hscroll: hscroll(), small: smallInMazzi() }
+    if (!tab) entry.hero = Math.round(document.querySelector('.deck-hero').getBoundingClientRect().height)
+    if (tab === '/lista') entry.nestedScroll = [...document.querySelectorAll('.deck-list *')].some((el) => /(auto|scroll)/.test(getComputedStyle(el).overflowY) && el.scrollHeight > el.clientHeight)
+    if (tab === '/mano') {
+      const rail = document.querySelector('.test-hand__cards')
+      const crop = document.querySelector('.hand-card').getBoundingClientRect().width
+      entry.visibleCrops = Math.round((rail.clientWidth / (crop + 4)) * 10) / 10
+      entry.namesVisible = [...document.querySelectorAll('.hand-card__name')].every((name) => name.getBoundingClientRect().height > 8)
+    }
+    report[tab || '/panoramica'] = entry
+  }
+  location.hash = '#mazzi/importa'
+  await wait(500)
+  report.import = { hscroll: hscroll(), small: smallInMazzi() }
+  location.hash = '#mazzi'
+  return report
+}
+
+Object.assign(window, { r2CardChecks, r2ToolChecks, r3DeckChecks })

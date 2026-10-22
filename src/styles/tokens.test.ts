@@ -14,6 +14,18 @@ describe('R2 motion tokens', () => {
     expect(tokens).toContain(`${name}: ${value};`)
   })
 
+  it.each([
+    ['--deck-row-min-height', '88px'],
+    ['--deck-hero-height', '168px'],
+    ['--deck-art-size', '64px'],
+    ['--hand-crop-width', 'clamp(7rem, 31vw, 8.5rem)'],
+    ['--duration-deck-step', '180ms'],
+    ['--duration-hand-deal', '160ms'],
+    ['--duration-hand-out', '120ms'],
+  ])('defines the R3 token %s as %s', (name, value) => {
+    expect(tokens).toContain(`${name}: ${value};`)
+  })
+
   it('keeps the global reduced-motion rule for animations and transitions', () => {
     const rule = app.slice(app.indexOf('@media (prefers-reduced-motion: reduce)'))
     expect(rule).toMatch(/animation-duration: 0\.01ms !important/)

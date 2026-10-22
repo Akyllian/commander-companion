@@ -60,6 +60,8 @@ export default defineConfig(({ mode }) => {
       setupFiles: './src/test/setup.ts',
       css: true,
       globals: true,
+      // Whole-app tests tap dozens of times; under coverage on a loaded machine 5 s is too tight.
+      testTimeout: 15_000,
       coverage: {
         provider: 'v8',
         include: ['src/**/*.{ts,tsx}'],

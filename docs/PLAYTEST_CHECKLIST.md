@@ -204,3 +204,19 @@ Tutti i passi superati tranne uno. Nessun problema di gravità alta, quindi la F
 | 16.13 | Mana: aggiungi Rosso, chiudi, vai in Altro e torna | il mana è ancora lì; «Azzera mana» lo azzera | | |
 | 16.14 | Porta un giocatore a 0 vita, poi + | compare «Fuori dalla partita» e l'arte si spegne; con + sparisce | | |
 
+## 17. Mazzi R3 (D-040)
+
+| # | Passi | Risultato atteso | iPhone | Android |
+| --- | --- | --- | --- | --- |
+| 17.1 | Mazzi vuoto → «Importa il primo mazzo», incolla una lista da Moxfield o Archidekt (testo) | Verifica mostra le carte riconosciute; Sideboard tra «Sezioni non importate» | | |
+| 17.2 | Correggi una riga sbagliata con «Cerca carta» | la carta si sceglie da una lista con ritaglio e artista | | |
+| 17.3 | Dettagli: nome, comandante, «Salva e prepara offline» | «Carte N di M», poi «Mazzo disponibile offline» | | |
+| 17.4 | Modalità aereo, chiudi e riapri l'app, apri il mazzo | lista, categorie, note e mano funzionano | | |
+| 17.5 | Panoramica: tocca una categoria | si apre l'elenco delle carte, nessuna percentuale | | |
+| 17.6 | Mano: Mulligan due volte, Tieni, scegli due carte, «Metti 2 in fondo» | restano cinque carte; «Nuova prova» ricomincia | | |
+| 17.7 | Strategia: scrivi le note, esci e rientra | le note sono salvate («Salvato sul dispositivo») | | |
+| 17.8 | Panoramica → «Collega a un giocatore» → Giocatore 1 | in Partita compare il comandante, vita e nome invariati | | |
+| 17.9 | Nei Dettagli del giocatore cambia Partner, poi «Riapplica dal mazzo» | prima «Comandante modificato per questa partita», poi torna il mazzo | | |
+| 17.10 | Elimina il mazzo collegato, poi Nuova partita | il comandante resta; nei Dettagli «Mazzo non disponibile» | | |
+| 17.11 | Apri un mazzo, cambia tre tab, premi Indietro | torni alla Libreria | | |
+

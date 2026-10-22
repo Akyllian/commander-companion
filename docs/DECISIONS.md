@@ -448,3 +448,42 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
   2. valutare un header sticky per Mana nei pannelli che scorrono;
   3. sostituire i troncamenti della tendina compatta (per esempio il nome nel binario da 56 px) con abbreviazioni intenzionali.
 
+## D-040 — R3: Mazzi (implementazione)
+- **Stato:** Implementata da Claude (2026-10-22) secondo il design R3 approvato (`docs/superpowers/specs/2026-10-21-r3-decks-design.md`, 15 decisioni della §19 approvate dal product owner) e il piano `docs/superpowers/plans/2026-10-21-r3-decks.md`, approvato da ChatGPT dopo due revisioni. In attesa della revisione finale di ChatGPT.
+- **Dati:**
+  - mazzi e dati delle carte in IndexedDB (`commander-companion-decks`, store `decks` e `cards`), validati in lettura (`parseDeck`, `parseCardData`);
+  - i ritagli restano nell'art store, e tutte le carte dei mazzi entrano nel keep-set;
+  - la prima pulizia della cache aspetta il caricamento dei mazzi e non avviene se lo store non è leggibile;
+  - la bozza di importazione sta in localStorage (`commander-companion.import-draft`) con `textHash`, che ignora solo le differenze di a-capo; l'analisi viene salvata subito, quindi la Verifica torna anche offline.
+- **Schema v6:**
+  - `PlayerState.deck = { deckId, overridden } | null`;
+  - un cambio manuale del comandante su un posto collegato vale come override per la partita;
+  - la Nuova partita risolve prima i collegamenti e sostituisce lo stato una sola volta (`startGameWithLinks`);
+  - un mazzo eliminato lascia il comandante applicato e mostra «Mazzo non disponibile».
+- **Rotte:** `#mazzi`, `#mazzi/importa`, `#mazzi/<id>/<tab>`. Aprire un mazzo aggiunge una voce alla cronologia, cambiare tab la sostituisce: un solo Indietro torna alla Libreria.
+- **Riconoscimento:**
+  - `/cards/collection` a gruppi di 75, prima per stampa (set e numero) e poi per nome;
+  - per i nomi non trovati, una ricerca esatta multilingue (`include_multilingual`), con risultati deduplicati, ordinati in modo stabile e al massimo cinque;
+  - tutte le richieste passano dal limitatore condiviso da 125 ms.
+- **Categorie:**
+  - matrice deterministica sul testo oracle inglese, senza reminder text, verificata su 67 testi reali di Scryfall;
+  - lo script delle fixture (`scripts/fetch-category-fixtures.mjs`) è l'unica eccezione build-time al confine di rete;
+  - regola adattata in implementazione: le ricerche in libreria accettano anche «your library and/or graveyard» (Finale of Devastation), e gli apostrofi tipografici sono normalizzati.
+- **Spazio misurato** (campione del 2026-10-22, art crop Scryfall):
+
+  | Mazzo | Ritagli | Minimo | Mediana | Massimo | Totale |
+  | --- | ---: | ---: | ---: | ---: | ---: |
+  | Mazzo con molte terre base | 43 | 29,8 KB | 59,4 KB | 88,2 KB | 2,6 MB |
+  | Mazzo con 68 carte uniche | 68 | 29,8 KB | 61,1 KB | 120,9 KB | 4,2 MB |
+
+  Un mazzo da 100 carte occupa quindi circa 2,5–6 MB, secondo quante carte uniche contiene. Scryfall può ricodificare le immagini, quindi il valore va rimisurato nel tempo.
+- **Verifica:**
+  - 847 test, `npm run verify` verde, copertura al 100% su `src/decks/*.ts`, `src/game/**` e `src/match/**`;
+  - nel browser, due liste reali da 100 carte importate online (6 s per 43 ritagli), riaperte dopo il ricaricamento senza richieste di rete;
+  - `scripts/browser-checks.js` (`r3DeckChecks`) a 320×568, 390×844, 844×390, 768×1024 e 1440×900: nessun controllo sotto 44 px, nessuno scroll orizzontale, righe di almeno 88 px, hero di 168/220 px (128 px in orizzontale), nessuno scroll annidato nella Lista, nomi della mano sempre visibili.
+- **Scostamenti da confermare in revisione:**
+  1. **Mano a 390 px:** si vedono 2,9 ritagli e non 3,2. Il token `--hand-crop-width: clamp(7rem, 31vw, 8.5rem)` dà 121 px a 390 px, e 3,2 elementi richiederebbero circa 114 px anche con la riga a tutta larghezza, che è già stata applicata insieme a spazi da 4 px.
+  2. **Riepilogo nella Libreria:** mostra le tre categorie più numerose escludendo Terre e Non classificate, come nella tavola.
+  3. **«Cerca carta» in Verifica:** rifà il riconoscimento esatto e multilingue sul nome corretto, senza ricerca approssimativa.
+  4. **Stile ripristinato:** `.check-option`, rimosso per errore nella pulizia CSS di R1, ora garantisce di nuovo righe da 44 px, anche per la casella Partner nei Dettagli.
+

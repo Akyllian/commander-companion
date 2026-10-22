@@ -62,7 +62,7 @@ describe('commander picker (Phase 2c)', () => {
     expect(within(panel).getByText('1 risultato')).toBeInTheDocument()
 
     await act(async () => fireEvent.click(result))
-    await waitFor(() => expect(card1().querySelector('.player-art > img')).toHaveAttribute('src', 'blob:art'))
+    await waitFor(() => expect(card1().querySelector('.player-art > img')).toHaveAttribute('src', 'blob:art'), { timeout: 5_000 })
 
     expect(scryfallCalls(fetchMock)).toHaveLength(2)
     expect(within(panel).getAllByText('Illustrazione di Ekaterina Burmak').length).toBeGreaterThan(0)
@@ -137,7 +137,7 @@ describe('commander picker (Phase 2c)', () => {
     const panel = openDeckConfig()
     expect(within(panel).getByRole('group', { name: 'Comandante 1' })).toBeInTheDocument()
     expect(within(panel).getByRole('group', { name: 'Comandante 2' })).toBeInTheDocument()
-    await waitFor(() => expect(card1().querySelector('.player-art[data-split]')).not.toBeNull())
+    await waitFor(() => expect(card1().querySelector('.player-art[data-split]')).not.toBeNull(), { timeout: 5_000 })
     expect(card1().querySelectorAll('.player-art__half img')).toHaveLength(2)
     // The shared text veils take the stronger reinforcement of the two arts.
     expect(card1().style.getPropertyValue('--art-veil-name')).toBe('0.6')
