@@ -222,6 +222,41 @@ describe('deck detail (R3 §6–8)', () => {
     expect(trigger).toHaveFocus()
   })
 
+  it('returns focus to the trigger after an inline action, and lets a surface hand it back there (final fix 1)', async () => {
+    const partial = baseDeck({ offline: 'partial' })
+    await store.putDeck(partial)
+    render(<Harness store={store} initial={partial} />)
+    const trigger = screen.getByRole('button', { name: 'Azioni del mazzo' })
+    fireEvent.click(trigger)
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Prepara di nuovo offline' }))
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    expect(trigger).toHaveFocus()
+    await settle()
+    expect(trigger).toHaveFocus()
+    // A surface takes focus and, on cancel, gives it back to the trigger, never to <body>.
+    fireEvent.click(trigger)
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Elimina mazzo' }))
+    const dialog = screen.getByRole('dialog', { name: 'Eliminare il mazzo?' })
+    expect(within(dialog).getByRole('button', { name: 'Annulla' })).toHaveFocus()
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Annulla' }))
+    expect(trigger).toHaveFocus()
+  })
+
+  it.each([
+    ['Tab', false],
+    ['Shift+Tab', true],
+  ])('closes the menu on %s and lets the browser carry on tabbing from the trigger (final fix 1)', (_, shiftKey) => {
+    render(<Harness store={store} initial={baseDeck()} />)
+    const trigger = screen.getByRole('button', { name: 'Azioni del mazzo' })
+    fireEvent.click(trigger)
+    const item = within(screen.getByRole('menu')).getAllByRole('menuitem')[1]
+    item.focus()
+    // Not prevented: the browser's own Tab move runs, from the trigger's place in the page order.
+    expect(fireEvent.keyDown(item, { key: 'Tab', shiftKey })).toBe(true)
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    expect(document.activeElement).toBe(trigger)
+  })
+
   it('duplicates and deletes the deck from its menu', async () => {
     const first = render(<Harness store={store} initial={baseDeck()} />)
     fireEvent.click(screen.getByRole('button', { name: 'Azioni del mazzo' }))

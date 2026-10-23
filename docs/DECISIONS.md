@@ -478,7 +478,7 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
 
   Un mazzo da 100 carte occupa quindi circa 2,5–6 MB, secondo quante carte uniche contiene. Scryfall può ricodificare le immagini, quindi il valore va rimisurato nel tempo.
 - **Verifica:**
-  - 847 test, `npm run verify` verde, copertura al 100% su `src/decks/*.ts`, `src/game/**` e `src/match/**`;
+  - 865 test, `npm run verify` verde, copertura al 100% su `src/decks/*.ts`, `src/game/**` e `src/match/**`;
   - nel browser, due liste reali da 100 carte importate online (6 s per 43 ritagli), riaperte dopo il ricaricamento senza richieste di rete;
   - `scripts/browser-checks.js` (`r3DeckChecks`) a 320×568, 390×844, 844×390, 768×1024 e 1440×900: nessun controllo sotto 44 px, nessuno scroll orizzontale, righe di almeno 88 px, hero di 168/220 px (128 px in orizzontale), nessuno scroll annidato nella Lista, nomi della mano sempre visibili.
 - **Scostamenti da confermare in revisione:**
@@ -488,11 +488,10 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
   4. **Stile ripristinato:** `.check-option`, rimosso per errore nella pulizia CSS di R1, ora garantisce di nuovo righe da 44 px, anche per la casella Partner nei Dettagli.
 
 - **Correzioni della revisione finale (2026-10-22):**
-  - il menu «Azioni del mazzo» è un portal su `<body>` (`AnchoredMenu`), ancorato al trigger, ricalcolato a resize e scroll, spostato o capovolto per restare nel viewport; il focus va alla prima voce dopo il primo posizionamento, Esc o un tocco esterno lo chiudono e riportano il focus al trigger;
+  - il menu «Azioni del mazzo» è un portal su `<body>` (`AnchoredMenu`), ancorato al trigger, ricalcolato a resize e scroll, spostato o capovolto per restare nel viewport; il focus va alla prima voce dopo il primo posizionamento, Esc, un tocco esterno o la scelta di una voce lo chiudono e riportano il focus al trigger (una superficie aperta da una voce lo restituisce al trigger quando si chiude); Tab e Maiusc+Tab lo chiudono e la tabulazione prosegue dalla posizione del trigger;
   - le note di strategia: una scrittura fallita conserva il testo, ferma il salvataggio automatico e mostra «Riprova salvataggio»; anche blur e uscita dalla vista ritentano;
   - «Nuova partita» rilegge da IndexedDB i mazzi collegati e i dati dei comandanti (`readLinkSources`), poi applica un solo `replace`; senza un archivio leggibile ogni collegamento conserva il comandante già applicato;
   - la tablist sposta l'unica tabulazione con le frecce senza attivare la scheda; uscendo dalla tablist la tabulazione torna sulla scheda scelta;
   - la mano precedente esce in 120 ms (`--duration-hand-out`, solo opacità) prima della nuova distribuzione; con riduzione del movimento il cambio è immediato;
   - la sezione Mazzi distingue `loading` («Caricamento dei mazzi…», `role="status"`) da `unavailable`;
   - campi, aree di testo e select usano i token `--field-*`: fondo inchiostro, bordo oro opaco (≥ 3:1), testo avorio, errore con `aria-invalid` e bordo rosso da 2 px, disabilitato attenuato.
-  - verifica: 862 test, `npm run verify` verde.

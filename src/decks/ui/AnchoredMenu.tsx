@@ -23,8 +23,9 @@ const MARGIN = 8
 /**
  * A small action menu in a portal on <body> (R3 review), so no clipped ancestor can cut it.
  * It hangs below its trigger, right-aligned, and flips above or shifts sideways to stay in the
- * viewport. Focus starts on the first item; arrows move it; Escape or a tap outside close the
- * menu and give focus back to the trigger.
+ * viewport. Focus starts on the first item; arrows move it; Escape, a tap outside or choosing an
+ * item close the menu and give focus back to the trigger; Tab and Shift+Tab close it and carry on
+ * from the trigger's place in the page.
  */
 export function AnchoredMenu({ label, trigger, items, onClose }: AnchoredMenuProps) {
   const menuRef = useRef<HTMLUListElement>(null)
@@ -81,6 +82,10 @@ export function AnchoredMenu({ label, trigger, items, onClose }: AnchoredMenuPro
     if (event.key === 'Escape') {
       event.preventDefault()
       close()
+    } else if (event.key === 'Tab') {
+      // Tab and Shift+Tab close the menu and are not prevented: focus sits on the trigger only as
+      // the starting point, so the browser's own move lands on the control after or before it.
+      close()
     } else if (event.key in next) {
       event.preventDefault()
       entries[(next[event.key] + entries.length) % entries.length]?.focus()
@@ -104,6 +109,9 @@ export function AnchoredMenu({ label, trigger, items, onClose }: AnchoredMenuPro
             tabIndex={-1}
             className={item.danger ? 'quiet-danger' : undefined}
             onClick={() => {
+              // Focus goes back to the trigger first: an inline action leaves it there, and a
+              // surface it opens remembers the trigger as the place to return focus on close.
+              trigger.current?.focus()
               onClose()
               item.onSelect()
             }}
