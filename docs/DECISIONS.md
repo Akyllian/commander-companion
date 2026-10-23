@@ -449,7 +449,7 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
   3. sostituire i troncamenti della tendina compatta (per esempio il nome nel binario da 56 px) con abbreviazioni intenzionali.
 
 ## D-040 — R3: Mazzi (implementazione)
-- **Stato:** Implementata da Claude (2026-10-22) secondo il design R3 approvato (`docs/superpowers/specs/2026-10-21-r3-decks-design.md`, 15 decisioni della §19 approvate dal product owner) e il piano `docs/superpowers/plans/2026-10-21-r3-decks.md`, approvato da ChatGPT dopo due revisioni. In attesa della revisione finale di ChatGPT.
+- **Stato:** Implementata da Claude (2026-10-22) secondo il design R3 approvato (`docs/superpowers/specs/2026-10-21-r3-decks-design.md`, 15 decisioni della §19 approvate dal product owner) e il piano `docs/superpowers/plans/2026-10-21-r3-decks.md`, approvato da ChatGPT dopo due revisioni. Revisione finale di ChatGPT superata (2026-10-23) sul commit `6cb12c7`: approvata, con i cinque scostamenti dichiarati.
 - **Dati:**
   - mazzi e dati delle carte in IndexedDB (`commander-companion-decks`, store `decks` e `cards`), validati in lettura (`parseDeck`, `parseCardData`);
   - i ritagli restano nell'art store, e tutte le carte dei mazzi entrano nel keep-set;
@@ -481,7 +481,7 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
   - 865 test, `npm run verify` verde, copertura al 100% su `src/decks/*.ts`, `src/game/**` e `src/match/**`;
   - nel browser, due liste reali da 100 carte importate online (6 s per 43 ritagli), riaperte dopo il ricaricamento senza richieste di rete;
   - `scripts/browser-checks.js` (`r3DeckChecks`) a 320×568, 390×844, 844×390, 768×1024 e 1440×900: nessun controllo sotto 44 px, nessuno scroll orizzontale, righe di almeno 88 px, hero di 168/220 px (128 px in orizzontale), nessuno scroll annidato nella Lista, nomi della mano sempre visibili.
-- **Scostamenti da confermare in revisione:**
+- **Scostamenti approvati in revisione:**
   1. **Mano a 390 px:** si vedono 2,9 ritagli e non 3,2. Il token `--hand-crop-width: clamp(7rem, 31vw, 8.5rem)` dà 121 px a 390 px, e 3,2 elementi richiederebbero circa 114 px anche con la riga a tutta larghezza, che è già stata applicata insieme a spazi da 4 px.
   2. **Riepilogo nella Libreria:** mostra le tre categorie più numerose escludendo Terre e Non classificate, come nella tavola.
   3. **«Cerca carta» in Verifica:** rifà il riconoscimento esatto e multilingue sul nome corretto, senza ricerca approssimativa.
@@ -495,3 +495,4 @@ Le scelte di art direction, UX, visual e motion design sono di competenza di Cha
   - la mano precedente esce in 120 ms (`--duration-hand-out`, solo opacità) prima della nuova distribuzione; con riduzione del movimento il cambio è immediato;
   - la sezione Mazzi distingue `loading` («Caricamento dei mazzi…», `role="status"`) da `unavailable`;
   - campi, aree di testo e select usano i token `--field-*`: fondo inchiostro, bordo oro opaco (≥ 3:1), testo avorio, errore con `aria-invalid` e bordo rosso da 2 px, disabilitato attenuato.
+- **Follow-up non bloccanti:** stato occupato durante «Nuova partita» mentre i mazzi collegati vengono riletti; ricerca locale nelle Carte chiave.

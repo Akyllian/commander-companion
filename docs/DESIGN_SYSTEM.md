@@ -209,7 +209,7 @@ Icon family: 24×24 viewBox, rounded 1.75px stroke, `currentColor` (muted ivory 
 - **Compact life:** `min(6rem, 22dvh)`, so 844×330 shows two rows without vertical scroll.
 - **Tokens:** `--mana-w|u|b|r|g|c`, `--duration-surface-in` 180, `--duration-surface-out` 140, `--duration-tool-swap` 140, `--duration-dice` 160, `--duration-coin` 220, `--duration-art-fade` 140. The global reduced-motion rule makes them immediate.
 
-## Mazzi (R3, D-040) — implemented, awaiting design review
+## Mazzi (R3, D-040) — implemented and approved
 
 - **Library:**
   - `.deck-row` is one link per deck: a 64px `.card-crop` (Partner split on the D-031 diagonal), serif name, commander, owner as text, offline state as icon plus text, and up to three category counts;
