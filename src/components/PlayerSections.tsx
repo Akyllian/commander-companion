@@ -1,5 +1,6 @@
 import type { DefeatReason } from '../game/game'
 import type { CommanderIndex, GameAction, PlayerState } from '../game/types'
+import { DeckPicker } from '../decks/ui/DeckPicker'
 import { CommanderSlotPicker, commanderSlotLabel } from './CommanderPicker'
 
 /**
@@ -54,6 +55,7 @@ export function DeckConfigSection({ player, dispatch, canRemovePartner }: DeckCo
   return (
     <details className="deck-config">
       <summary>Comandante e mazzo</summary>
+      <DeckPicker player={player} dispatch={dispatch} />
       <CommanderSlotPicker player={player} slot={0} dispatch={dispatch} />
       {player.hasPartner && <CommanderSlotPicker player={player} slot={1} dispatch={dispatch} />}
       <label className="check-option">

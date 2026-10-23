@@ -1,0 +1,337 @@
+[
+  {
+    "name": "Anguished Unmaking",
+    "typeLine": "Instant",
+    "oracleText": "Exile target nonland permanent. You lose 3 life."
+  },
+  {
+    "name": "Anointed Procession",
+    "typeLine": "Enchantment",
+    "oracleText": "If an effect would create one or more tokens under your control, it creates twice that many of those tokens instead."
+  },
+  {
+    "name": "Approach of the Second Sun",
+    "typeLine": "Sorcery",
+    "oracleText": "If this spell was cast from your hand and you've cast another spell named Approach of the Second Sun this game, you win the game. Otherwise, put Approach of the Second Sun into its owner's library seventh from the top and you gain 7 life."
+  },
+  {
+    "name": "Arcane Signet",
+    "typeLine": "Artifact",
+    "oracleText": "{T}: Add one mana of any color in your commander's color identity."
+  },
+  {
+    "name": "Austere Command",
+    "typeLine": "Sorcery",
+    "oracleText": "Choose two —\n• Destroy all artifacts.\n• Destroy all enchantments.\n• Destroy all creatures with mana value 3 or less.\n• Destroy all creatures with mana value 4 or greater."
+  },
+  {
+    "name": "Beast Within",
+    "typeLine": "Instant",
+    "oracleText": "Destroy target permanent. Its controller creates a 3/3 green Beast creature token."
+  },
+  {
+    "name": "Blasphemous Act",
+    "typeLine": "Sorcery",
+    "oracleText": "This spell costs {1} less to cast for each creature on the battlefield.\nBlasphemous Act deals 13 damage to each creature."
+  },
+  {
+    "name": "Bojuka Bog",
+    "typeLine": "Land",
+    "oracleText": "This land enters tapped.\nWhen this land enters, exile target player's graveyard.\n{T}: Add {B}."
+  },
+  {
+    "name": "Boros Charm",
+    "typeLine": "Instant",
+    "oracleText": "Choose one —\n• Boros Charm deals 4 damage to target player or planeswalker.\n• Permanents you control gain indestructible until end of turn.\n• Target creature gains double strike until end of turn."
+  },
+  {
+    "name": "Brainstorm",
+    "typeLine": "Instant",
+    "oracleText": "Draw three cards, then put two cards from your hand on top of your library in any order."
+  },
+  {
+    "name": "Carnage Tyrant",
+    "typeLine": "Creature — Dinosaur",
+    "oracleText": "This spell can't be countered.\nTrample, hexproof"
+  },
+  {
+    "name": "Command Tower",
+    "typeLine": "Land",
+    "oracleText": "{T}: Add one mana of any color in your commander's color identity."
+  },
+  {
+    "name": "Counterspell",
+    "typeLine": "Instant",
+    "oracleText": "Counter target spell."
+  },
+  {
+    "name": "Craterhoof Behemoth",
+    "typeLine": "Creature — Beast",
+    "oracleText": "Haste\nWhen this creature enters, creatures you control gain trample and get +X/+X until end of turn, where X is the number of creatures you control."
+  },
+  {
+    "name": "Cultivate",
+    "typeLine": "Sorcery",
+    "oracleText": "Search your library for up to two basic land cards, reveal those cards, put one onto the battlefield tapped and the other into your hand, then shuffle."
+  },
+  {
+    "name": "Cyclonic Rift",
+    "typeLine": "Instant",
+    "oracleText": "Return target nonland permanent you don't control to its owner's hand.\nOverload {6}{U} (You may cast this spell for its overload cost. If you do, change \"target\" in its text to \"each.\")"
+  },
+  {
+    "name": "Damnation",
+    "typeLine": "Sorcery",
+    "oracleText": "Destroy all creatures. They can't be regenerated."
+  },
+  {
+    "name": "Demonic Tutor",
+    "typeLine": "Sorcery",
+    "oracleText": "Search your library for a card, put that card into your hand, then shuffle."
+  },
+  {
+    "name": "Doubling Season",
+    "typeLine": "Enchantment",
+    "oracleText": "If an effect would create one or more tokens under your control, it creates twice that many of those tokens instead.\nIf an effect would put one or more counters on a permanent you control, it puts twice that many of those counters on that permanent instead."
+  },
+  {
+    "name": "Dryad Arbor",
+    "typeLine": "Land Creature — Forest Dryad",
+    "oracleText": "(This land isn't a spell, it's affected by summoning sickness, and it has \"{T}: Add {G}.\")"
+  },
+  {
+    "name": "Enlightened Tutor",
+    "typeLine": "Instant",
+    "oracleText": "Search your library for an artifact or enchantment card, reveal it, then shuffle and put that card on top."
+  },
+  {
+    "name": "Eternal Witness",
+    "typeLine": "Creature — Human Shaman",
+    "oracleText": "When this creature enters, you may return target card from your graveyard to your hand."
+  },
+  {
+    "name": "Evacuation",
+    "typeLine": "Instant",
+    "oracleText": "Return all creatures to their owners' hands."
+  },
+  {
+    "name": "Exotic Orchard",
+    "typeLine": "Land",
+    "oracleText": "{T}: Add one mana of any color that a land an opponent controls could produce."
+  },
+  {
+    "name": "Exploration",
+    "typeLine": "Enchantment",
+    "oracleText": "You may play an additional land on each of your turns."
+  },
+  {
+    "name": "Farewell",
+    "typeLine": "Sorcery",
+    "oracleText": "Choose one or more —\n• Exile all artifacts.\n• Exile all creatures.\n• Exile all enchantments.\n• Exile all graveyards."
+  },
+  {
+    "name": "Felidar Sovereign",
+    "typeLine": "Creature — Cat Beast",
+    "oracleText": "Vigilance (Attacking doesn't cause this creature to tap.)\nLifelink (Damage dealt by this creature also causes you to gain that much life.)\nAt the beginning of your upkeep, if you have 40 or more life, you win the game."
+  },
+  {
+    "name": "Finale of Devastation",
+    "typeLine": "Sorcery",
+    "oracleText": "Search your library and/or graveyard for a creature card with mana value X or less and put it onto the battlefield. If you search your library this way, shuffle. If X is 10 or more, creatures you control get +X/+X and gain haste until end of turn."
+  },
+  {
+    "name": "Flawless Maneuver",
+    "typeLine": "Instant",
+    "oracleText": "If you control a commander, you may cast this spell without paying its mana cost.\nCreatures you control gain indestructible until end of turn."
+  },
+  {
+    "name": "Forest",
+    "typeLine": "Basic Land — Forest",
+    "oracleText": "({T}: Add {G}.)"
+  },
+  {
+    "name": "Glorious Anthem",
+    "typeLine": "Enchantment",
+    "oracleText": "Creatures you control get +1/+1."
+  },
+  {
+    "name": "Grizzly Bears",
+    "typeLine": "Creature — Bear",
+    "oracleText": ""
+  },
+  {
+    "name": "Harmonize",
+    "typeLine": "Sorcery",
+    "oracleText": "Draw three cards."
+  },
+  {
+    "name": "Heroic Intervention",
+    "typeLine": "Instant",
+    "oracleText": "Permanents you control gain hexproof and indestructible until end of turn."
+  },
+  {
+    "name": "Laboratory Maniac",
+    "typeLine": "Creature — Human Wizard",
+    "oracleText": "If you would draw a card while your library has no cards in it, you win the game instead."
+  },
+  {
+    "name": "Lightning Bolt",
+    "typeLine": "Instant",
+    "oracleText": "Lightning Bolt deals 3 damage to any target."
+  },
+  {
+    "name": "Lightning Greaves",
+    "typeLine": "Artifact — Equipment",
+    "oracleText": "Equipped creature has haste and shroud. (It can't be the target of spells or abilities.)\nEquip {0}"
+  },
+  {
+    "name": "Llanowar Elves",
+    "typeLine": "Creature — Elf Druid",
+    "oracleText": "{T}: Add {G}."
+  },
+  {
+    "name": "Mystic Remora",
+    "typeLine": "Enchantment",
+    "oracleText": "Cumulative upkeep {1} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)\nWhenever an opponent casts a noncreature spell, you may draw a card unless that player pays {4}."
+  },
+  {
+    "name": "Mystical Tutor",
+    "typeLine": "Instant",
+    "oracleText": "Search your library for an instant or sorcery card, reveal it, then shuffle and put that card on top."
+  },
+  {
+    "name": "Nature's Claim",
+    "typeLine": "Instant",
+    "oracleText": "Destroy target artifact or enchantment. Its controller gains 4 life."
+  },
+  {
+    "name": "Night's Whisper",
+    "typeLine": "Sorcery",
+    "oracleText": "You draw two cards and lose 2 life."
+  },
+  {
+    "name": "Overrun",
+    "typeLine": "Sorcery",
+    "oracleText": "Creatures you control get +3/+3 and gain trample until end of turn. (Each of those creatures can deal excess combat damage to the player or planeswalker it's attacking.)"
+  },
+  {
+    "name": "Panharmonicon",
+    "typeLine": "Artifact",
+    "oracleText": "If an artifact or creature entering causes a triggered ability of a permanent you control to trigger, that ability triggers an additional time."
+  },
+  {
+    "name": "Path to Exile",
+    "typeLine": "Instant",
+    "oracleText": "Exile target creature. Its controller may search their library for a basic land card, put that card onto the battlefield tapped, then shuffle."
+  },
+  {
+    "name": "Phyrexian Reclamation",
+    "typeLine": "Enchantment",
+    "oracleText": "{1}{B}, Pay 2 life: Return target creature card from your graveyard to your hand."
+  },
+  {
+    "name": "Ponder",
+    "typeLine": "Sorcery",
+    "oracleText": "Look at the top three cards of your library, then put them back in any order. You may shuffle.\nDraw a card."
+  },
+  {
+    "name": "Rampant Growth",
+    "typeLine": "Sorcery",
+    "oracleText": "Search your library for a basic land card, put that card onto the battlefield tapped, then shuffle."
+  },
+  {
+    "name": "Ramunap Excavator",
+    "typeLine": "Creature — Snake Cleric",
+    "oracleText": "You may play lands from your graveyard."
+  },
+  {
+    "name": "Reanimate",
+    "typeLine": "Sorcery",
+    "oracleText": "Put target creature card from a graveyard onto the battlefield under your control. You lose life equal to that card's mana value."
+  },
+  {
+    "name": "Regrowth",
+    "typeLine": "Sorcery",
+    "oracleText": "Return target card from your graveyard to your hand."
+  },
+  {
+    "name": "Reliquary Tower",
+    "typeLine": "Land",
+    "oracleText": "You have no maximum hand size.\n{T}: Add {C}."
+  },
+  {
+    "name": "Revel in Riches",
+    "typeLine": "Enchantment",
+    "oracleText": "Whenever a creature an opponent controls dies, create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")\nAt the beginning of your upkeep, if you control ten or more Treasures, you win the game."
+  },
+  {
+    "name": "Rhystic Study",
+    "typeLine": "Enchantment",
+    "oracleText": "Whenever an opponent casts a spell, you may draw a card unless that player pays {1}."
+  },
+  {
+    "name": "Serra Angel",
+    "typeLine": "Creature — Angel",
+    "oracleText": "Flying\nVigilance (Attacking doesn't cause this creature to tap.)"
+  },
+  {
+    "name": "Sol Ring",
+    "typeLine": "Artifact",
+    "oracleText": "{T}: Add {C}{C}."
+  },
+  {
+    "name": "Sun Titan",
+    "typeLine": "Creature — Giant",
+    "oracleText": "Vigilance\nWhenever this creature enters or attacks, you may return target permanent card with mana value 3 or less from your graveyard to the battlefield."
+  },
+  {
+    "name": "Swiftfoot Boots",
+    "typeLine": "Artifact — Equipment",
+    "oracleText": "Equipped creature has hexproof and haste. (It can't be the target of spells or abilities your opponents control. It can attack and {T} no matter when it came under your control.)\nEquip {1} ({1}: Attach to target creature you control. Equip only as a sorcery.)"
+  },
+  {
+    "name": "Swords to Plowshares",
+    "typeLine": "Instant",
+    "oracleText": "Exile target creature. Its controller gains life equal to its power."
+  },
+  {
+    "name": "Teferi's Protection",
+    "typeLine": "Instant",
+    "oracleText": "Until your next turn, your life total can't change and you gain protection from everything. All permanents you control phase out. (While they're phased out, they're treated as though they don't exist. They phase in before you untap during your untap step.)\nExile Teferi's Protection."
+  },
+  {
+    "name": "Thassa's Oracle",
+    "typeLine": "Creature — Merfolk Wizard",
+    "oracleText": "When this creature enters, look at the top X cards of your library, where X is your devotion to blue. Put up to one of them on top of your library and the rest on the bottom of your library in a random order. If X is greater than or equal to the number of cards in your library, you win the game. (Each {U} in the mana costs of permanents you control counts toward your devotion to blue.)"
+  },
+  {
+    "name": "Three Visits",
+    "typeLine": "Sorcery",
+    "oracleText": "Search your library for a Forest card, put it onto the battlefield, then shuffle."
+  },
+  {
+    "name": "Toxic Deluge",
+    "typeLine": "Sorcery",
+    "oracleText": "As an additional cost to cast this spell, pay X life.\nAll creatures get -X/-X until end of turn."
+  },
+  {
+    "name": "Unearth",
+    "typeLine": "Sorcery",
+    "oracleText": "Return target creature card with mana value 3 or less from your graveyard to the battlefield.\nCycling {2} ({2}, Discard this card: Draw a card.)"
+  },
+  {
+    "name": "Vampiric Tutor",
+    "typeLine": "Instant",
+    "oracleText": "Search your library for a card, then shuffle and put that card on top. You lose 2 life."
+  },
+  {
+    "name": "Worldly Tutor",
+    "typeLine": "Instant",
+    "oracleText": "Search your library for a creature card, reveal it, then shuffle and put the card on top."
+  },
+  {
+    "name": "Wrath of God",
+    "typeLine": "Sorcery",
+    "oracleText": "Destroy all creatures. They can't be regenerated."
+  }
+]

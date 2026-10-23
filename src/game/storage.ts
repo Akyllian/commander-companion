@@ -88,7 +88,7 @@ function isPlayerV2(value: unknown): value is Omit<PlayerState, 'commanders'> {
   )
 }
 
-type PlayerV4 = Omit<PlayerState, 'rad' | 'commanderTax'>
+type PlayerV4 = Omit<PlayerState, 'rad' | 'commanderTax' | 'deck'>
 
 /** Validated v4 players (unique ids, known damage sources), or null. */
 function parseV4Players(value: Record<string, unknown>): PlayerV4[] | null {
@@ -121,14 +121,29 @@ function isPlayerV5(value: PlayerV4): value is PlayerState {
   )
 }
 
-function parseV5(value: Record<string, unknown>): GameState | null {
+const isDeckLink = (value: unknown) =>
+  value === null ||
+  (isRecord(value) &&
+    typeof value.deckId === 'string' &&
+    value.deckId.length > 0 &&
+    value.deckId.length <= 64 &&
+    typeof value.overridden === 'boolean')
+
+function parseV6(value: Record<string, unknown>): GameState | null {
   const players = parseV4Players(value)
   if (!players || !players.every(isPlayerV5)) return null
+  if (!players.every((player) => isDeckLink((player as unknown as Record<string, unknown>).deck))) return null
   const isOwner = (owner: unknown): owner is string | null =>
     owner === null || (typeof owner === 'string' && players.some((player) => player.id === owner))
   const { monarchPlayerId, initiativePlayerId } = value
   if (!isOwner(monarchPlayerId) || !isOwner(initiativePlayerId)) return null
-  return { version: GAME_SCHEMA_VERSION, players, monarchPlayerId, initiativePlayerId }
+  return { version: GAME_SCHEMA_VERSION, players: players as PlayerState[], monarchPlayerId, initiativePlayerId }
+}
+
+/** Schema v5 → v6: nobody has a linked deck yet (R3). */
+function migrateV5(value: Record<string, unknown>): GameState | null {
+  if (!isPlayerList(value.players)) return null
+  return parseV6({ ...value, players: value.players.map((player) => (isRecord(player) ? { ...player, deck: null } : player)) })
 }
 
 interface PlayerV1 {
@@ -215,11 +230,11 @@ function migrateV3(value: Record<string, unknown>): GameState | null {
   })
 }
 
-/** Schema v4 → v5: zero rad and Commander tax, nobody holds Monarch or Initiative (D-033). */
+/** Schema v4 → v5: zero rad and Commander tax, nobody holds Monarch or Initiative (D-033); then v6. */
 function migrateV4(value: Record<string, unknown>): GameState | null {
   const players = parseV4Players(value)
   if (!players) return null
-  return parseV5({
+  return migrateV5({
     players: players.map((player) => ({ ...player, rad: 0, commanderTax: [0, 0] })),
     monarchPlayerId: null,
     initiativePlayerId: null,
@@ -231,8 +246,13 @@ export function parseStoredGame(value: unknown): { game: GameState; migrated: bo
   if (!isRecord(value)) return null
 
   if (value.version === GAME_SCHEMA_VERSION) {
-    const game = parseV5(value)
+    const game = parseV6(value)
     return game && { game, migrated: false }
+  }
+
+  if (value.version === 5) {
+    const game = migrateV5(value)
+    return game && { game, migrated: true }
   }
 
   if (value.version === 4) {

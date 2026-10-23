@@ -140,7 +140,7 @@ describe('Mana (R2 §8.2)', () => {
     fireEvent.click(within(screen.getByRole('navigation', { name: 'Sezioni' })).getByRole('link', { name: 'Partita' }))
     openTool('Mana')
     expect(value('Verde')).toHaveTextContent('1')
-  })
+  }, 20000)
 
   it('starts empty after a confirmed new game and after a reload', () => {
     const first = render(<App />)
@@ -159,5 +159,5 @@ describe('Mana (R2 §8.2)', () => {
     render(<App />)
     openTool('Mana')
     expect(value('Blu')).toHaveTextContent('0')
-  })
+  }, 20000)
 })

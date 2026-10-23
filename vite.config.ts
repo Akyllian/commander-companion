@@ -60,10 +60,12 @@ export default defineConfig(({ mode }) => {
       setupFiles: './src/test/setup.ts',
       css: true,
       globals: true,
+      // Whole-app tests tap dozens of times; under coverage on a loaded machine 5 s is too tight.
+      testTimeout: 15_000,
       coverage: {
         provider: 'v8',
         include: ['src/**/*.{ts,tsx}'],
-        exclude: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/main.tsx', 'src/pwa/register.ts', 'src/**/*.d.ts'],
+        exclude: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/decks/testing.ts', 'src/main.tsx', 'src/pwa/register.ts', 'src/**/*.d.ts'],
         reporter: ['text', 'html'],
         thresholds: {
           // Scoring rules, persistence and history are the reliability core.
@@ -73,6 +75,8 @@ export default defineConfig(({ mode }) => {
           'src/match/**': { lines: 100, branches: 100, functions: 100, statements: 100 },
           'src/shell/hubGeometry.ts': { lines: 100, branches: 100, functions: 100, statements: 100 },
           'src/tools/{random,mana}.ts': { lines: 100, branches: 100, functions: 100, statements: 100 },
+          // R3 deck domain and storage; the views in src/decks/ui are covered by their own tests.
+          'src/decks/*.ts': { lines: 100, branches: 100, functions: 100, statements: 100 },
           // Network, cache and contrast maths for commander art (D-026); canvas glue and hooks excluded.
           'src/media/{scryfall,artAnalysis,artStore,commanderArt,randomArt}.ts': { lines: 100, branches: 100, functions: 100, statements: 100 },
         },

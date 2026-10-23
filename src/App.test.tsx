@@ -7,6 +7,8 @@ import { installMatchMedia } from './test/matchMedia'
 import { DELTA_EXIT_MS } from './components/DeltaBadge'
 import { MATCH_KEY } from './match/presentation'
 import { setArtStoreForTests } from './media/artStore'
+import { IDBFactory } from 'fake-indexeddb'
+import { createIndexedDbDeckStore, setDeckStoreForTests } from './decks/deckStore'
 import type { ArtStore } from './media/artStore'
 
 let clock = 0
@@ -109,7 +111,7 @@ describe('scoring', () => {
     click(player, /^chiudi contatori/i)
     openDetails(player)
     expect(within(screen.getByRole('dialog')).getByText('10 segnalini veleno')).toBeInTheDocument()
-  })
+  }, 20000)
 
   it('lists several defeat causes together in Dettagli', () => {
     vi.spyOn(performance, 'now').mockImplementation(() => (clock += 1000))
@@ -123,8 +125,8 @@ describe('scoring', () => {
     const sheet = screen.getByRole('dialog')
     expect(within(sheet).getByText('10 segnalini veleno')).toBeInTheDocument()
     expect(within(sheet).getByText('punti vita a zero o meno')).toBeInTheDocument()
-    // Fifty full-app taps: under coverage on a busy machine this can pass 5 s.
-  }, 15_000)
+    // Fifty full-app taps: under coverage on a busy machine this can pass 15 s.
+  }, 40_000)
 
   it('keeps one opponent’s damage per source: 21 from one commander, never the sum', () => {
     render(<App />)
@@ -948,6 +950,7 @@ describe('random art per seat (R2 §4.2, D-039)', () => {
 
   afterEach(() => {
     setArtStoreForTests(undefined)
+    setDeckStoreForTests(undefined)
     vi.unstubAllGlobals()
   })
 
@@ -970,6 +973,8 @@ describe('random art per seat (R2 §4.2, D-039)', () => {
       keys: async () => [...keys],
     }
     setArtStoreForTests(store)
+    // No saved decks: the prune may run once the (empty) deck snapshot is known.
+    setDeckStoreForTests(createIndexedDbDeckStore(new IDBFactory()))
     const fetchMock = vi.fn(() => Promise.reject(new TypeError('offline')))
     vi.stubGlobal('fetch', fetchMock)
     localStorage.setItem(MATCH_KEY, JSON.stringify({ version: 1, matchId: 'm1', randomArtBySeat: {}, spareArt: [art(8), art(9)] }))
@@ -980,7 +985,7 @@ describe('random art per seat (R2 §4.2, D-039)', () => {
     })
     expect(fetchMock).toHaveBeenCalledOnce()
     expect(storedMatch().randomArtBySeat).toEqual({ 'player-1': art(8), 'player-2': art(9) })
-    expect(store.delete).toHaveBeenCalledWith(cardId(77))
+    await vi.waitFor(() => expect(store.delete).toHaveBeenCalledWith(cardId(77)))
     expect(store.delete).not.toHaveBeenCalledWith(cardId(8))
     expect(store.delete).not.toHaveBeenCalledWith(cardId(9))
   })

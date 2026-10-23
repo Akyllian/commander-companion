@@ -4,6 +4,7 @@ import type {
   CommanderDamageBySource,
   CommanderSlots,
   CommanderTaxBySlot,
+  DeckLinkSource,
   GameAction,
   GameState,
   PlayerState,
@@ -80,6 +81,7 @@ export function createGame(playerCount = DEFAULT_PLAYERS): GameState {
       commanderDamage: {},
       commanders: [null, null],
       commanderTax: [0, 0],
+      deck: null,
     })),
     monarchPlayerId: null,
     initiativePlayerId: null,
@@ -112,6 +114,44 @@ export function canRemovePartner(state: GameState, playerId: string): boolean {
 }
 
 const TABLE_ROLE_KEYS = { monarch: 'monarchPlayerId', initiative: 'initiativePlayerId' } as const
+
+/** Deck ids are generated UUIDs; anything longer is not one of ours. */
+export const DECK_ID_MAX_LENGTH = 64
+
+const sameCommander = (left: CommanderArt | null, right: CommanderArt | null) =>
+  left?.cardId === right?.cardId && left?.name === right?.name && left?.artist === right?.artist
+
+/** A manual commander change on a linked seat is an override for this match only (R3 §11.2). */
+const overridden = (player: PlayerState): PlayerState =>
+  player.deck && !player.deck.overridden ? { ...player, deck: { ...player.deck, overridden: true } } : player
+
+/** Each surviving seat of a new game keeps its deck link; seats beyond the new count lose theirs. */
+export function carryDeckLinks(previous: GameState, next: GameState): GameState {
+  const links = new Map(previous.players.map((player) => [player.id, player.deck]))
+  if (!next.players.some((player) => links.get(player.id))) return next
+  return { ...next, players: next.players.map((player) => ({ ...player, deck: links.get(player.id) ?? null })) }
+}
+
+/**
+ * A confirmed new game with its links already resolved (R3 §11.2, plan fix 3): linked seats get
+ * their deck's current commanders; a deck that no longer exists keeps the commanders already
+ * applied, and its link, so the seat can say «Mazzo non disponibile». One state, one replace.
+ */
+export function startGameWithLinks(previous: GameState, playerCount: number, decks: Map<string, DeckLinkSource | null>): GameState {
+  const before = new Map(previous.players.map((player) => [player.id, player]))
+  let next = carryDeckLinks(previous, createGame(playerCount))
+  for (const player of next.players) {
+    if (!player.deck) continue
+    const source = decks.get(player.deck.deckId)
+    if (source) {
+      next = gameReducer(next, { type: 'link-deck', playerId: player.id, deckId: player.deck.deckId, commanders: source.commanders, hasPartner: source.hasPartner })
+      continue
+    }
+    const old = before.get(player.id) as PlayerState
+    next = updatePlayer(next, player.id, (seat) => ({ ...seat, hasPartner: old.hasPartner, commanders: old.commanders, deck: { deckId: seat.deck?.deckId as string, overridden: false } }))
+  }
+  return next
+}
 
 
 function updatePlayer(
@@ -199,7 +239,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         if (player.hasPartner === action.hasPartner) return player
         // Without a partner the second commander slot no longer exists (D-027).
         const commanders: CommanderSlots = action.hasPartner ? player.commanders : [player.commanders[0], null]
-        return { ...player, hasPartner: action.hasPartner, commanders }
+        return overridden({ ...player, hasPartner: action.hasPartner, commanders })
       })
     }
 
@@ -218,7 +258,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         }
         const commanders: CommanderSlots = [player.commanders[0], player.commanders[1]]
         commanders[action.slot] = commander
-        return { ...player, commanders }
+        return overridden({ ...player, commanders })
       })
     }
 
@@ -249,6 +289,35 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           }),
       }
     }
+
+    case 'link-deck': {
+      const commanders = action.commanders.map((slot) => slot && normalizeCommander(slot)) as CommanderSlots
+      const valid =
+        action.deckId.length > 0 &&
+        action.deckId.length <= DECK_ID_MAX_LENGTH &&
+        commanders[0] !== null &&
+        action.commanders.every((slot, index) => slot === null || commanders[index] !== null)
+      if (!valid) return state
+      const slots: CommanderSlots = [commanders[0], action.hasPartner ? commanders[1] : null]
+      const owner = state.players.find((player) => player.id === action.playerId)
+      // A Partner with recorded damage or tax cannot be dropped by a deck either (D-027).
+      if (owner?.hasPartner && !action.hasPartner && !canRemovePartner(state, action.playerId)) return state
+      return updatePlayer(state, action.playerId, (player) => {
+        const same =
+          player.deck?.deckId === action.deckId &&
+          !player.deck.overridden &&
+          player.hasPartner === action.hasPartner &&
+          sameCommander(player.commanders[0], slots[0]) &&
+          sameCommander(player.commanders[1], slots[1])
+        return same ? player : { ...player, hasPartner: action.hasPartner, commanders: slots, deck: { deckId: action.deckId, overridden: false } }
+      })
+    }
+
+    case 'unlink-deck':
+      return updatePlayer(state, action.playerId, (player) => {
+        if (!player.deck) return player
+        return { ...player, deck: null, commanders: action.keepCommander ? player.commanders : [null, null] }
+      })
 
     case 'reset-game':
       return {

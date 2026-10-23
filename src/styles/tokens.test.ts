@@ -14,6 +14,18 @@ describe('R2 motion tokens', () => {
     expect(tokens).toContain(`${name}: ${value};`)
   })
 
+  it.each([
+    ['--deck-row-min-height', '88px'],
+    ['--deck-hero-height', '168px'],
+    ['--deck-art-size', '64px'],
+    ['--hand-crop-width', 'clamp(7rem, 31vw, 8.5rem)'],
+    ['--duration-deck-step', '180ms'],
+    ['--duration-hand-deal', '160ms'],
+    ['--duration-hand-out', '120ms'],
+  ])('defines the R3 token %s as %s', (name, value) => {
+    expect(tokens).toContain(`${name}: ${value};`)
+  })
+
   it('keeps the global reduced-motion rule for animations and transitions', () => {
     const rule = app.slice(app.indexOf('@media (prefers-reduced-motion: reduce)'))
     expect(rule).toMatch(/animation-duration: 0\.01ms !important/)
@@ -53,5 +65,35 @@ describe('mana symbol colours (R2 review, F34 exception)', () => {
 
   it('keeps six distinct colours', () => {
     expect(new Set(MANA.map((type) => token(`--mana-${type}`))).size).toBe(6)
+  })
+})
+
+/** Follows var() references down to an OKLCH primitive. */
+const resolve = (name: string): string => {
+  const value = tokens.match(new RegExp(`${name}: ([^;]+);`))?.[1] ?? ''
+  const reference = value.match(/^var\((--[\w-]+)\)$/)
+  return reference ? resolve(reference[1]) : value
+}
+
+describe('form fields on ink and gold (R3 review fix 7)', () => {
+  it('reads text and placeholder at AA on the field', () => {
+    expect(contrast(resolve('--field-text'), resolve('--field-bg'))).toBeGreaterThanOrEqual(4.5)
+    expect(contrast(resolve('--field-placeholder'), resolve('--field-bg'))).toBeGreaterThanOrEqual(4.5)
+    expect(contrast(resolve('--field-text-disabled'), resolve('--field-bg-disabled'))).toBeGreaterThanOrEqual(4.5)
+  })
+
+  it.each(['--field-border', '--field-border-hover', '--field-border-focus', '--field-border-error'])('gives %s at least 3:1 on the field and on ink', (name) => {
+    expect(contrast(resolve(name), resolve('--field-bg'))).toBeGreaterThanOrEqual(3)
+    expect(contrast(resolve(name), token('--primitive-ink-950'))).toBeGreaterThanOrEqual(3)
+  })
+
+  it('styles every text field, textarea and select with the field tokens, and marks errors', () => {
+    const rule = app.slice(app.indexOf('/* Form fields (R3 review fix 7)'))
+    expect(rule).toMatch(/textarea/)
+    expect(rule).toMatch(/select/)
+    expect(rule).toMatch(/var\(--field-border\)/)
+    expect(rule).toMatch(/\[aria-invalid='true'\]/)
+    expect(rule).toMatch(/:disabled/)
+    expect(rule).toMatch(/:focus-visible/)
   })
 })

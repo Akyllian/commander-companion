@@ -1,0 +1,176 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1500" viewBox="0 0 1920 1500" role="img" aria-labelledby="title desc">
+  <title id="title">Commander Companion — tavola R3 Mazzi</title>
+  <desc id="desc">Tavola di art direction con libreria mazzi, import testuale, dettaglio con categorie e note, mano di prova a ritagli e collegamento a un giocatore.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#061719"/><stop offset=".55" stop-color="#020b0e"/><stop offset="1" stop-color="#0a1716"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="52%" cy="18%" r="74%"><stop stop-color="#b99657" stop-opacity=".14"/><stop offset="1" stop-color="#b99657" stop-opacity="0"/></radialGradient>
+    <linearGradient id="artTeal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#176272"/><stop offset=".5" stop-color="#0b3038"/><stop offset="1" stop-color="#061115"/></linearGradient>
+    <linearGradient id="artGold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#766039"/><stop offset=".48" stop-color="#382b20"/><stop offset="1" stop-color="#071214"/></linearGradient>
+    <linearGradient id="artGreen" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#35654d"/><stop offset=".5" stop-color="#17342a"/><stop offset="1" stop-color="#071214"/></linearGradient>
+    <linearGradient id="artViolet" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#5a4168"/><stop offset=".5" stop-color="#2b2440"/><stop offset="1" stop-color="#071214"/></linearGradient>
+    <linearGradient id="artEmber" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#80503a"/><stop offset=".5" stop-color="#3e2523"/><stop offset="1" stop-color="#071214"/></linearGradient>
+    <linearGradient id="heroVeil" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#020b0e" stop-opacity=".48"/><stop offset=".45" stop-color="#020b0e" stop-opacity=".18"/><stop offset="1" stop-color="#010609" stop-opacity=".94"/></linearGradient>
+    <pattern id="stars" width="58" height="58" patternUnits="userSpaceOnUse"><circle cx="9" cy="13" r=".7" fill="#72b9b0" opacity=".13"/><circle cx="42" cy="34" r=".7" fill="#dfc079" opacity=".12"/><path d="M9 13 42 34" stroke="#5d8f88" stroke-width=".5" opacity=".08"/></pattern>
+    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <clipPath id="phoneClip"><rect width="390" height="780" rx="34"/></clipPath>
+    <style>
+      .serif{font-family:"Cormorant Garamond",Georgia,"Times New Roman",serif}.sans{font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif}
+      .ivory{fill:#f1eadb}.gold{fill:#e4c98e}.teal{fill:#75beb5}.muted{fill:#a6b6b2}.dangerText{fill:#ef9e92}
+      .hair{stroke:#a4854d;stroke-opacity:.68;stroke-width:1;fill:none}.hairQuiet{stroke:#927744;stroke-opacity:.36;stroke-width:1;fill:none}
+      .line{stroke:#e0c17e;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;fill:none}.quietLine{stroke:#a8bab5;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;fill:none}
+      .panel{fill:#071619;stroke:#806a40;stroke-width:1}.surface{fill:#061215;stroke:#9a7e49;stroke-opacity:.72}.raised{fill:#0b2022;stroke:#a98a50;stroke-opacity:.82}
+      .button{fill:#0b2224;stroke:#b69455;stroke-opacity:.9}.buttonQuiet{fill:#071619;stroke:#8c7547;stroke-opacity:.7}.selected{fill:#102b2c;stroke:#e0c17e;stroke-width:1.3}
+      .label{font:600 13px Inter,ui-sans-serif,system-ui;letter-spacing:.13em;fill:#d2b977}.tiny{font:11px Inter,ui-sans-serif,system-ui;fill:#a6b6b2}.small{font:13px Inter,ui-sans-serif,system-ui;fill:#a6b6b2}.body{font:14px Inter,ui-sans-serif,system-ui;fill:#edf0e7}.buttonText{font:650 12px Inter,ui-sans-serif,system-ui;fill:#f1eadb}.sectionTitle{font:400 25px "Cormorant Garamond",Georgia,serif;letter-spacing:.04em;fill:#f1eadb}.heading{font:400 31px "Cormorant Garamond",Georgia,serif;fill:#f1eadb}.deckName{font:500 19px "Cormorant Garamond",Georgia,serif;fill:#f1eadb}.count{font:500 22px "Cormorant Garamond",Georgia,serif;fill:#f0dcae}
+    </style>
+    <g id="deckIcon" class="quietLine"><path d="m5 8 7-4 7 4-7 4-7-4Z"/><path d="m5 12 7 4 7-4M5 16l7 4 7-4"/></g>
+    <g id="heart" class="quietLine"><path d="M12 20S4 15 4 9.5C4 6.5 7.8 5 10 7.5L12 10l2-2.5C16.2 5 20 6.5 20 9.5 20 15 12 20 12 20Z"/></g>
+    <g id="book" class="quietLine"><path d="M4 5.5c3-.8 5.7-.2 8 2v12c-2.3-2.2-5-2.8-8-2V5.5Zm16 0c-3-.8-5.7-.2-8 2v12c2.3-2.2 5-2.8 8-2V5.5Z"/></g>
+    <g id="check"><path d="m4 12 5 5L20 6" class="line"/></g>
+    <g id="search" class="quietLine"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></g>
+    <g id="nav">
+      <rect width="366" height="62" fill="#051012" stroke="#79633a" stroke-opacity=".7"/>
+      <g transform="translate(34 8)"><use href="#heart" width="24" height="24"/><text x="12" y="42" class="tiny" text-anchor="middle">PARTITA</text></g>
+      <g transform="translate(124 8)" color="#e4c98e"><use href="#deckIcon" width="24" height="24" style="stroke:#e4c98e"/><text x="12" y="42" class="label" font-size="10" text-anchor="middle">MAZZI</text><path d="M-21 52h66" stroke="#e4c98e" stroke-width="2" filter="url(#glow)"/></g>
+      <g transform="translate(214 8)"><use href="#book" width="24" height="24"/><text x="12" y="42" class="tiny" text-anchor="middle">IMPARA</text></g>
+      <g transform="translate(308 8)"><circle cx="5" cy="12" r="1.3" fill="#a6b6b2"/><circle cx="12" cy="12" r="1.3" fill="#a6b6b2"/><circle cx="19" cy="12" r="1.3" fill="#a6b6b2"/><text x="12" y="42" class="tiny" text-anchor="middle">ALTRO</text></g>
+    </g>
+    <g id="offline"><circle cx="10" cy="10" r="8" fill="none" stroke="#75beb5"/><path d="m6 10 3 3 5-6" stroke="#75beb5" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
+  </defs>
+
+  <rect width="1920" height="1500" fill="url(#bg)"/><rect width="1920" height="1500" fill="url(#stars)"/><rect width="1920" height="1500" fill="url(#halo)"/>
+  <path d="M0 106C330 20 560 128 845 54s675-12 1075 58" class="hairQuiet"/><path d="M0 1435c330-76 620 80 930 4s650-28 990 16" class="hairQuiet"/>
+  <text x="50" y="54" class="serif ivory" font-size="34" letter-spacing="5">COMMANDER COMPANION</text>
+  <text x="51" y="85" class="sans gold" font-size="13" letter-spacing="3">R3 · MAZZI — SPECIFICA VISIVA</text>
+  <text x="1870" y="57" class="sans muted" font-size="13" text-anchor="end">21 ottobre 2026 · proposta per approvazione</text>
+  <line x1="50" y1="108" x2="1870" y2="108" class="hair"/>
+
+  <!-- 01 Library phone -->
+  <g transform="translate(50 140)">
+    <text class="label" y="-12">01 · LIBRERIA / REGISTRO CONTINUO</text>
+    <rect width="390" height="780" rx="34" fill="#020709" stroke="#5a6b67" stroke-width="2"/>
+    <g transform="translate(12 18)"><use href="#nav"/></g>
+    <g transform="translate(28 108)">
+      <text class="heading" y="0">Mazzi</text>
+      <text class="small" y="23">Liste, strategie e mani di prova offline.</text>
+      <rect class="button" x="206" y="-17" width="128" height="44" rx="11"/><path d="M225-2v14m-5-5 5 5 5-5" class="line"/><text class="buttonText" x="282" y="10" text-anchor="middle">IMPORTA</text>
+      <g transform="translate(0 55)">
+        <rect width="334" height="44" rx="10" class="buttonQuiet"/><use href="#search" transform="translate(13 10)"/><text x="48" y="27" class="small">Cerca nei mazzi</text>
+      </g>
+
+      <g transform="translate(0 117)">
+        <rect width="334" height="132" rx="14" fill="#071619"/>
+        <rect x="0" width="72" height="72" rx="12" fill="url(#artTeal)"/><circle cx="48" cy="22" r="18" fill="#9ce3e1" opacity=".12"/><path d="M8 66c19-35 32-30 42-49 8 22 12 24 22 33v22H8Z" fill="#4fc3c5" opacity=".17"/>
+        <text x="86" y="21" class="deckName">Quandrix Unlimited</text><text x="86" y="43" class="small">Zimone, Infinite Analyst</text><text x="86" y="64" class="tiny">Mio</text>
+        <use href="#offline" transform="translate(0 86) scale(.8)"/><text x="22" y="99" class="tiny" style="fill:#75beb5">Disponibile offline</text><text x="0" y="121" class="tiny">Accelerazione 14 · Pescata 12 · Interazione 9</text>
+        <path d="m317 58 6 6-6 6" class="quietLine"/><line x1="0" y1="131" x2="334" y2="131" class="hairQuiet"/>
+      </g>
+      <g transform="translate(0 264)">
+        <rect width="334" height="132" rx="14" fill="#071619"/>
+        <rect width="72" height="72" rx="12" fill="url(#artGold)"/><circle cx="45" cy="26" r="20" fill="#f1c777" opacity=".13"/><path d="M0 70c18-29 39-19 52-55 7 25 13 28 20 34v23H0Z" fill="#ce9f58" opacity=".15"/>
+        <text x="86" y="21" class="deckName">Aura of Serenity</text><text x="86" y="43" class="small">Giada, Font of Hope</text><text x="86" y="64" class="tiny">Di Giulia</text>
+        <use href="#offline" transform="translate(0 86) scale(.8)"/><text x="22" y="99" class="tiny" style="fill:#75beb5">Disponibile offline</text><text x="0" y="121" class="tiny">Protezione 10 · Pescata 8 · Recupero 6</text>
+        <path d="m317 58 6 6-6 6" class="quietLine"/><line x1="0" y1="131" x2="334" y2="131" class="hairQuiet"/>
+      </g>
+      <g transform="translate(0 411)">
+        <rect width="334" height="132" rx="14" fill="#071619"/>
+        <rect width="72" height="72" rx="12" fill="url(#artGreen)"/><path d="M8 69c9-37 25-24 31-55 12 34 25 22 33 39v19H8Z" fill="#6ab47e" opacity=".18"/>
+        <text x="86" y="21" class="deckName">Wild Genesis</text><text x="86" y="43" class="small">Freyalise, Llanowar's Fury</text><text x="86" y="64" class="tiny">Di Marco</text>
+        <path d="M2 90h16m-8-8v16" stroke="#e4c98e"/><text x="24" y="99" class="tiny" style="fill:#d2b977">Offline senza 3 ritagli</text><text x="0" y="121" class="tiny">Terre 37 · Accelerazione 15 · Recupero 7</text>
+        <path d="m317 58 6 6-6 6" class="quietLine"/>
+      </g>
+      <text x="167" y="585" class="tiny" text-anchor="middle">Righe, non card · proprietario locale · stato esplicito</text>
+    </g>
+  </g>
+
+  <!-- 02 Detail phone -->
+  <g transform="translate(470 140)">
+    <text class="label" y="-12">02 · DETTAGLIO / HERO + QUATTRO TAB</text>
+    <rect width="390" height="780" rx="34" fill="#020709" stroke="#5a6b67" stroke-width="2"/>
+    <g transform="translate(12 18)"><use href="#nav"/></g>
+    <g transform="translate(12 80)">
+      <rect width="366" height="168" rx="17" fill="url(#artTeal)" stroke="#b99758"/>
+      <path d="M0 160c78-97 136-58 191-137 61 79 112 18 175 79v66H0Z" fill="#48b7bd" opacity=".17"/><circle cx="270" cy="48" r="46" fill="#a0e5e5" opacity=".12"/><rect width="366" height="168" rx="17" fill="url(#heroVeil)"/>
+      <text x="18" y="28" class="buttonText">‹ MAZZI</text><text x="347" y="29" class="ivory sans" font-size="24" text-anchor="middle">⋮</text>
+      <text x="18" y="112" class="serif ivory" font-size="28">Quandrix Unlimited</text><text x="18" y="135" class="body">Zimone, Infinite Analyst · Mio</text><text x="18" y="154" class="tiny">Illustrazione di Ryan Pancoast</text>
+    </g>
+    <g transform="translate(12 258)">
+      <rect width="366" height="50" fill="#061215" stroke="#806b40"/>
+      <text x="48" y="30" class="buttonText" text-anchor="middle">PANORAMICA</text><text x="143" y="30" class="tiny" text-anchor="middle">LISTA</text><text x="228" y="30" class="tiny" text-anchor="middle">STRATEGIA</text><text x="322" y="30" class="tiny" text-anchor="middle">MANO</text><path d="M8 48h80" stroke="#e4c98e" stroke-width="2"/>
+    </g>
+    <g transform="translate(28 328)">
+      <text class="tiny">100 CARTE · DISPONIBILE OFFLINE</text>
+      <rect y="24" width="334" height="44" rx="11" class="button"/><path d="M16 46h16m-8-8v16" class="line"/><text x="181" y="51" class="buttonText" text-anchor="middle">COLLEGA A UN GIOCATORE</text>
+      <text y="98" class="label">CATEGORIE RICONOSCIUTE</text><text y="119" class="tiny">Una carta può comparire in più categorie.</text>
+      <g transform="translate(0 137)">
+        <g><path d="M3 18c8-15 15-11 23-17 0 12-6 23-20 25" class="quietLine"/><text x="38" y="20" class="body">Accelerazione</text><rect x="186" y="10" width="104" height="4" rx="2" fill="#1c4a49"/><rect x="186" y="10" width="77" height="4" rx="2" fill="#75beb5"/><text x="326" y="21" class="count" text-anchor="end">14</text><line x1="0" y1="36" x2="334" y2="36" class="hairQuiet"/></g>
+        <g transform="translate(0 44)"><path d="M3 5h22v20H3zM14 5v20" class="quietLine"/><text x="38" y="20" class="body">Pescata e selezione</text><rect x="186" y="10" width="104" height="4" rx="2" fill="#1c4a49"/><rect x="186" y="10" width="66" height="4" rx="2" fill="#75beb5"/><text x="326" y="21" class="count" text-anchor="end">12</text><line x1="0" y1="36" x2="334" y2="36" class="hairQuiet"/></g>
+        <g transform="translate(0 88)"><path d="m4 23 8-19 5 10 9 9" class="quietLine"/><text x="38" y="20" class="body">Interazione mirata</text><rect x="186" y="10" width="104" height="4" rx="2" fill="#1c4a49"/><rect x="186" y="10" width="50" height="4" rx="2" fill="#e4c98e"/><text x="326" y="21" class="count" text-anchor="end">9</text><line x1="0" y1="36" x2="334" y2="36" class="hairQuiet"/></g>
+        <g transform="translate(0 132)"><circle cx="14" cy="14" r="11" class="quietLine"/><path d="M14 5v18M5 14h18" class="quietLine"/><text x="38" y="20" class="body">Protezione</text><rect x="186" y="10" width="104" height="4" rx="2" fill="#1c4a49"/><rect x="186" y="10" width="43" height="4" rx="2" fill="#75beb5"/><text x="326" y="21" class="count" text-anchor="end">8</text><line x1="0" y1="36" x2="334" y2="36" class="hairQuiet"/></g>
+      </g>
+      <text y="329" class="label">PIANO DI GIOCO</text><text y="354" class="body">Accelera il mana, moltiplica i segnalini e</text><text y="374" class="body">proteggi Zimone fino al turno decisivo.</text><text y="402" class="buttonText" style="fill:#e4c98e">LEGGI E MODIFICA →</text>
+    </g>
+  </g>
+
+  <!-- 03 Import wide -->
+  <g transform="translate(890 140)">
+    <rect width="980" height="450" rx="28" class="panel"/>
+    <text x="30" y="40" class="label">03 · IMPORT / LISTA → VERIFICA → DETTAGLI</text>
+    <text x="30" y="74" class="sectionTitle">La rete serve una volta. Gli errori restano vicini al testo.</text>
+    <text x="30" y="100" class="small">Pagina, non dialogo · nessuna richiesta a ogni tasto · bozza sempre preservata</text>
+    <g transform="translate(30 128)">
+      <text class="tiny" style="fill:#e4c98e">1 DI 3 · LISTA</text><text x="322" class="tiny">2 DI 3 · VERIFICA</text><text x="640" class="tiny">3 DI 3 · DETTAGLI</text><path d="M0 17h280" stroke="#e4c98e" stroke-width="2"/><path d="M292 17h280M584 17h280" class="hairQuiet"/>
+      <rect y="38" width="438" height="218" rx="14" class="surface"/>
+      <text x="16" y="66" class="buttonText">INCOLLA LA LISTA</text><text x="16" y="94" class="body">1 Zimone, Infinite Analyst</text><text x="16" y="118" class="body">1 Sol Ring</text><text x="16" y="142" class="body">1 Arcane Signet</text><text x="16" y="166" class="body">12 Island</text><text x="16" y="190" class="body">12 Forest</text><text x="16" y="224" class="tiny">Una carta per riga, nel formato «quantità nome».</text>
+      <rect x="0" y="272" width="142" height="44" rx="10" class="button"/><text x="71" y="299" class="buttonText" text-anchor="middle">ANALIZZA LISTA</text>
+      <g transform="translate(470 38)">
+        <rect width="450" height="74" rx="12" class="raised"/><circle cx="24" cy="25" r="11" fill="none" stroke="#e4c98e"/><text x="24" y="30" class="gold sans" font-size="14" text-anchor="middle">!</text><text x="46" y="25" class="buttonText">2 RIGHE DA CORREGGERE</text><text x="46" y="49" class="tiny">94 carte riconosciute · 2 escluse per ora</text>
+        <text y="101" class="label">DA CORREGGERE</text>
+        <rect y="116" width="450" height="72" rx="12" fill="#0a1719" stroke="#a98a50"/><text x="16" y="143" class="body">1 Cultivete</text><text x="16" y="165" class="tiny">Scegli una corrispondenza</text><rect x="292" y="130" width="142" height="44" rx="10" class="buttonQuiet"/><text x="363" y="157" class="buttonText" text-anchor="middle">CERCA CARTA</text>
+        <rect y="198" width="450" height="72" rx="12" fill="#0a1719" stroke="#a98a50"/><text x="16" y="225" class="body">1 Mystic Remoree</text><text x="16" y="247" class="tiny">Nessuna corrispondenza esatta</text><rect x="292" y="212" width="142" height="44" rx="10" class="buttonQuiet"/><text x="363" y="239" class="buttonText" text-anchor="middle">CORREGGI</text>
+        <rect y="282" width="224" height="44" rx="10" class="buttonQuiet"/><text x="112" y="309" class="buttonText" text-anchor="middle">SALVA SENZA 2 RIGHE</text><rect x="234" y="282" width="216" height="44" rx="10" class="buttonQuiet" opacity=".48"/><text x="342" y="309" class="tiny" text-anchor="middle">CONTINUA DOPO CONFERMA</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- 04 Test hand -->
+  <g transform="translate(890 620)">
+    <rect width="980" height="500" rx="28" class="panel"/>
+    <text x="30" y="40" class="label">04 · MANO DI PROVA / SOLO RITAGLI</text>
+    <text x="30" y="74" class="sectionTitle">Sette carte leggibili, nessuna ricostruzione del frame.</text>
+    <text x="30" y="100" class="small">London mulligan · nessun consiglio · funziona offline con texture neutra di fallback</text>
+    <g transform="translate(30 128)">
+      <text class="serif ivory" font-size="24">Mano iniziale</text><text x="170" y="0" class="tiny">7 CARTE · MULLIGAN 2</text>
+      <g transform="translate(0 28)">
+        <g><rect width="118" height="186" rx="14" fill="#071619" stroke="#9d814d"/><rect width="118" height="140" rx="14" fill="url(#artTeal)"/><path d="M0 136c31-76 55-31 74-111 18 58 29 47 44 74v41H0Z" fill="#61c8cf" opacity=".17"/><rect y="128" width="118" height="58" rx="0" fill="#041013"/><text x="59" y="153" class="buttonText" text-anchor="middle">SOL RING</text><text x="59" y="173" class="tiny" text-anchor="middle">Artefatto</text></g>
+        <g transform="translate(128)"><rect width="118" height="186" rx="14" fill="#071619" stroke="#9d814d"/><rect width="118" height="140" rx="14" fill="url(#artGreen)"/><circle cx="75" cy="45" r="29" fill="#96d599" opacity=".13"/><rect y="128" width="118" height="58" fill="#041013"/><text x="59" y="153" class="buttonText" text-anchor="middle">FOREST</text><text x="59" y="173" class="tiny" text-anchor="middle">Terra</text></g>
+        <g transform="translate(256)"><rect width="118" height="186" rx="14" fill="#071619" stroke="#e4c98e" stroke-width="2"/><rect width="118" height="140" rx="14" fill="url(#artViolet)"/><path d="M0 135c24-69 52-41 70-116 19 52 34 44 48 69v52H0Z" fill="#b08ad0" opacity=".14"/><circle cx="102" cy="16" r="12" fill="#e4c98e"/><text x="102" y="21" class="sans" font-size="12" text-anchor="middle" fill="#071619">1</text><rect y="128" width="118" height="58" fill="#041013"/><text x="59" y="150" class="buttonText" text-anchor="middle">ARCANE</text><text x="59" y="165" class="buttonText" text-anchor="middle">SIGNET</text></g>
+        <g transform="translate(384)"><rect width="118" height="186" rx="14" fill="#071619" stroke="#9d814d"/><rect width="118" height="140" rx="14" fill="url(#artTeal)"/><circle cx="41" cy="44" r="24" fill="#8edee3" opacity=".13"/><rect y="128" width="118" height="58" fill="#041013"/><text x="59" y="153" class="buttonText" text-anchor="middle">ISLAND</text><text x="59" y="173" class="tiny" text-anchor="middle">Terra</text></g>
+        <g transform="translate(512)"><rect width="118" height="186" rx="14" fill="#071619" stroke="#e4c98e" stroke-width="2"/><rect width="118" height="140" rx="14" fill="url(#artGold)"/><path d="M0 140c32-67 56-27 72-111 23 54 33 45 46 69v42H0Z" fill="#dbad65" opacity=".16"/><circle cx="102" cy="16" r="12" fill="#e4c98e"/><text x="102" y="21" class="sans" font-size="12" text-anchor="middle" fill="#071619">2</text><rect y="128" width="118" height="58" fill="#041013"/><text x="59" y="153" class="buttonText" text-anchor="middle">CULTIVATE</text><text x="59" y="173" class="tiny" text-anchor="middle">Stregoneria</text></g>
+        <g transform="translate(640)"><rect width="118" height="186" rx="14" fill="#071619" stroke="#9d814d"/><rect width="118" height="140" rx="14" fill="url(#artEmber)"/><circle cx="72" cy="47" r="31" fill="#efaf77" opacity=".12"/><rect y="128" width="118" height="58" fill="#041013"/><text x="59" y="150" class="buttonText" text-anchor="middle">BEAST</text><text x="59" y="165" class="buttonText" text-anchor="middle">WITHIN</text></g>
+        <g transform="translate(768)"><rect width="118" height="186" rx="14" fill="#071619" stroke="#9d814d"/><rect width="118" height="140" rx="14" fill="#0a181a"/><path d="M20 35 98 105M98 35 20 105" stroke="#49615e" opacity=".65"/><rect y="128" width="118" height="58" fill="#041013"/><text x="59" y="150" class="buttonText" text-anchor="middle">MYSTIC</text><text x="59" y="165" class="buttonText" text-anchor="middle">REMORA</text><text x="59" y="181" class="tiny" text-anchor="middle">Ritaglio assente</text></g>
+      </g>
+      <text y="245" class="small">Scegli 2 carte da mettere in fondo · 2 selezionate</text>
+      <rect y="268" width="184" height="44" rx="10" class="buttonQuiet"/><text x="92" y="295" class="buttonText" text-anchor="middle">ANNULLA SELEZIONE</text><rect x="196" y="268" width="218" height="44" rx="10" class="button"/><text x="305" y="295" class="buttonText" text-anchor="middle">METTI 2 IN FONDO</text>
+      <text y="350" class="tiny">Motion: 160 ms + stagger 20 ms · nessun flip · reduced motion immediato</text>
+    </g>
+  </g>
+
+  <!-- 05 linking and states -->
+  <g transform="translate(50 950)">
+    <rect width="810" height="420" rx="28" class="panel"/>
+    <text x="28" y="40" class="label">05 · COLLEGAMENTO / MODIFICABILE IN PARTITA</text>
+    <text x="28" y="74" class="sectionTitle">Il mazzo imposta il comandante; non prende il controllo del tavolo.</text>
+    <g transform="translate(28 102)">
+      <rect width="452" height="274" rx="18" class="surface"/><text x="22" y="34" class="serif ivory" font-size="22">Collega a un giocatore</text><text x="426" y="32" class="tiny" text-anchor="end">CHIUDI</text><line x1="0" y1="48" x2="452" y2="48" class="hair"/>
+      <g transform="translate(16 64)"><rect width="420" height="58" rx="11" class="selected"/><text x="16" y="25" class="body">Danny</text><text x="16" y="45" class="tiny">Nessun mazzo</text><use href="#check" transform="translate(378 15)"/><text x="352" y="35" class="tiny" text-anchor="end" style="fill:#e4c98e">Selezionato</text></g>
+      <g transform="translate(16 130)"><rect width="420" height="58" rx="11" class="buttonQuiet"/><text x="16" y="25" class="body">Giulia</text><text x="16" y="45" class="tiny">Aura of Serenity · Giada</text></g>
+      <rect x="16" y="206" width="420" height="48" rx="11" class="button"/><text x="226" y="235" class="buttonText" text-anchor="middle">COLLEGA MAZZO</text>
+      <g transform="translate(486 4)"><text class="label">DOPO UN OVERRIDE</text><path d="M0 28h266" class="hair"/><text y="58" class="body">Comandante modificato</text><text y="80" class="body">per questa partita</text><text y="111" class="tiny">Il mazzo salvato non cambia.</text><rect y="132" width="266" height="48" rx="11" class="buttonQuiet"/><text x="133" y="161" class="buttonText" text-anchor="middle">RIAPPLICA DAL MAZZO</text><text y="204" class="tiny">Nessun aggiornamento live silenzioso.</text><text y="225" class="tiny">Punteggi e nome non vengono toccati.</text></g>
+    </g>
+  </g>
+
+  <!-- Footer principles -->
+  <g transform="translate(50 1406)"><line x1="0" y1="0" x2="1820" y2="0" class="hair"/><text y="34" class="label">LINGUAGGIO</text><text x="112" y="34" class="body">Registro editoriale · arte solo dove identifica · icone monocromatiche · niente deck score</text><text x="910" y="34" class="label">VINCOLI</text><text x="1000" y="34" class="body">44 px · WCAG AA · offline esplicito · D-025 · nessuna carta intera</text><text y="70" class="label">MOTION</text><text x="112" y="70" class="body">140–180 ms · mano ≤ 280 ms · nessun flip, bounce o particella · reduced motion immediato</text></g>
+</svg>

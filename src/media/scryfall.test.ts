@@ -1,5 +1,9 @@
 import {
   createRateLimiter,
+  fetchCollection,
+  parseCardData,
+  searchLocalized,
+  toCardData,
   downloadArt,
   fetchRandomCandidate,
   MAX_ART_BYTES,
@@ -152,5 +156,193 @@ describe('createRateLimiter (D-039)', () => {
     clock = 500
     expect(await limit(async () => 'ok')).toBe('ok')
     expect(wait).not.toHaveBeenCalled()
+  })
+})
+
+const uuid = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`
+const raw = (overrides: Record<string, unknown> = {}) => ({
+  id: uuid(1),
+  name: 'Sol Ring',
+  type_line: 'Artifact',
+  oracle_text: '{T}: Add {C}{C}.',
+  mana_cost: '{1}',
+  artist: 'Mike Bierek',
+  set: 'cmm',
+  collector_number: '396',
+  image_uris: { art_crop: 'https://cards.scryfall.io/art_crop/front/1.jpg' },
+  ...overrides,
+})
+
+describe('toCardData (R3)', () => {
+  it('maps a normal card', () => {
+    expect(toCardData(raw())).toEqual({
+      cardId: uuid(1),
+      name: 'Sol Ring',
+      printedName: null,
+      typeLine: 'Artifact',
+      oracleText: '{T}: Add {C}{C}.',
+      manaCost: '{1}',
+      artist: 'Mike Bierek',
+      artUrl: 'https://cards.scryfall.io/art_crop/front/1.jpg',
+      set: 'cmm',
+      number: '396',
+    })
+  })
+
+  it('joins both faces of a double-faced card, with the front art, cost and artist', () => {
+    const dfc = raw({
+      name: 'Delver of Secrets // Insectile Aberration',
+      type_line: 'Creature — Human Wizard // Creature — Human Insect',
+      oracle_text: undefined,
+      mana_cost: undefined,
+      artist: undefined,
+      image_uris: undefined,
+      card_faces: [
+        { name: 'Delver of Secrets', mana_cost: '{U}', oracle_text: 'Look at the top card.', artist: 'Matt Stewart', image_uris: { art_crop: 'https://cards.scryfall.io/art_crop/front/d.jpg' } },
+        { name: 'Insectile Aberration', mana_cost: '', oracle_text: 'Flying', artist: 'Matt Stewart', image_uris: { art_crop: 'https://cards.scryfall.io/art_crop/back/d.jpg' } },
+      ],
+    })
+    expect(toCardData(dfc)).toMatchObject({
+      name: 'Delver of Secrets // Insectile Aberration',
+      oracleText: 'Look at the top card.\nFlying',
+      manaCost: '{U}',
+      artist: 'Matt Stewart',
+      artUrl: 'https://cards.scryfall.io/art_crop/front/d.jpg',
+    })
+  })
+
+  it('reads a split card whose faces share one image', () => {
+    const split = raw({
+      name: 'Fire // Ice',
+      oracle_text: undefined,
+      mana_cost: '{1}{R} // {1}{U}',
+      card_faces: [
+        { name: 'Fire', oracle_text: 'Fire deals 2 damage divided as you choose.' },
+        { name: 'Ice', oracle_text: 'Tap target permanent. Draw a card.' },
+      ],
+    })
+    expect(toCardData(split)).toMatchObject({ oracleText: 'Fire deals 2 damage divided as you choose.\nTap target permanent. Draw a card.', manaCost: '{1}{R} // {1}{U}' })
+  })
+
+  it('keeps cards without a usable crop, with no art url', () => {
+    expect(toCardData(raw({ image_uris: undefined }))?.artUrl).toBeNull()
+    expect(toCardData(raw({ image_uris: { art_crop: 'https://evil.example/x.jpg' } }))?.artUrl).toBeNull()
+    expect(toCardData(raw({ image_uris: { art_crop: 3 } }))?.artUrl).toBeNull()
+    // A face without rules text (a vanilla back face) contributes an empty line.
+    expect(toCardData(raw({ oracle_text: undefined, card_faces: [{ name: 'A' }, { name: 'B', oracle_text: 'Flying' }] }))?.oracleText).toBe('\nFlying')
+    expect(toCardData(raw({ printed_name: 'Anello del Sole' }))?.printedName).toBe('Anello del Sole')
+  })
+
+  it.each([
+    ['a non-object', 'x'],
+    ['a missing id', raw({ id: undefined })],
+    ['a missing name', raw({ name: '' })],
+    ['a missing type line', raw({ type_line: undefined })],
+    ['a missing artist', raw({ artist: undefined })],
+    ['a missing set', raw({ set: undefined })],
+    ['a missing collector number', raw({ collector_number: undefined })],
+  ])('rejects %s', (_, value) => {
+    expect(toCardData(value)).toBeNull()
+  })
+})
+
+describe('parseCardData (R3, stored entries)', () => {
+  const stored = () => toCardData(raw()) as NonNullable<ReturnType<typeof toCardData>>
+
+  it('accepts what toCardData produced, after a JSON round trip', () => {
+    expect(parseCardData(JSON.parse(JSON.stringify(stored())))).toEqual(stored())
+    expect(parseCardData({ ...stored(), artUrl: null, printedName: 'Anello del Sole', manaCost: '' })).not.toBeNull()
+  })
+
+  it.each([
+    ['a raw Scryfall object', raw()],
+    ['a non-object', null],
+    ['a bad id', { ...stored(), cardId: 'x' }],
+    ['a missing field', { ...stored(), typeLine: undefined }],
+    ['a foreign art host', { ...stored(), artUrl: 'https://evil.example/x.jpg' }],
+    ['an over-long name', { ...stored(), name: 'x'.repeat(201) }],
+    ['an over-long oracle text', { ...stored(), oracleText: 'x'.repeat(4001) }],
+    ['a non-string printed name', { ...stored(), printedName: 3 }],
+  ])('rejects %s', (_, value) => {
+    expect(parseCardData(value)).toBeNull()
+  })
+})
+
+describe('fetchCollection (R3)', () => {
+  it('posts JSON identifiers in chunks of 75 and maps found and not found', async () => {
+    const calls: Array<{ url: string; init: RequestInit }> = []
+    const fetchImpl = vi.fn(async (url: string, init: RequestInit) => {
+      calls.push({ url, init })
+      const { identifiers } = JSON.parse(String(init.body)) as { identifiers: unknown[] }
+      return json(200, { data: [raw({ id: uuid(calls.length) })], not_found: identifiers.slice(0, 1) })
+    })
+    const identifiers = Array.from({ length: 160 }, (_, i) => ({ name: `Card ${i}` }))
+    const result = await fetchCollection(identifiers, fetchImpl as unknown as typeof fetch)
+    expect(calls.map((call) => (JSON.parse(String(call.init.body)) as { identifiers: unknown[] }).identifiers.length)).toEqual([75, 75, 10])
+    expect(calls[0].url).toBe('https://api.scryfall.com/cards/collection')
+    expect(calls[0].init).toMatchObject({ method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' } })
+    expect(result.found.map((entry) => entry.cardId)).toEqual([uuid(1), uuid(2), uuid(3)])
+    expect(result.notFound).toEqual([{ name: 'Card 0' }, { name: 'Card 75' }, { name: 'Card 150' }])
+  })
+
+  it('makes no request for no identifiers, and tolerates an odd body', async () => {
+    const fetchImpl = vi.fn(() => json(200, 'odd'))
+    expect(await fetchCollection([], fetchImpl as unknown as typeof fetch)).toEqual({ found: [], notFound: [] })
+    expect(fetchImpl).not.toHaveBeenCalled()
+    expect(await fetchCollection([{ name: 'x' }], fetchImpl as unknown as typeof fetch)).toEqual({ found: [], notFound: [] })
+    const partial = (() => json(200, { data: ['bad', raw()] })) as unknown as typeof fetch
+    expect((await fetchCollection([{ name: 'x' }], partial)).found).toHaveLength(1)
+    expect(await fetchCollection([{ name: 'x' }], (() => json(200, {})) as unknown as typeof fetch)).toEqual({ found: [], notFound: [] })
+  })
+
+  it('reports network and server failures', async () => {
+    await expect(fetchCollection([{ name: 'x' }], (() => Promise.reject(new TypeError('offline'))) as unknown as typeof fetch)).rejects.toMatchObject({ kind: 'network' })
+    await expect(fetchCollection([{ name: 'x' }], (() => json(503, {})) as unknown as typeof fetch)).rejects.toMatchObject({ kind: 'response' })
+  })
+})
+
+describe('searchLocalized (R3)', () => {
+  it('asks for an exact multilingual match and keeps equal printed or English names, ignoring case and accents', async () => {
+    const fetchImpl = vi.fn(() =>
+      json(200, {
+        data: [
+          raw({ id: uuid(1), printed_name: 'Anello del Sole' }),
+          raw({ id: uuid(2), name: 'Other', printed_name: 'Altro' }),
+          raw({ id: uuid(3), name: 'Señor', printed_name: undefined }),
+        ],
+      }),
+    )
+    expect((await searchLocalized('anello del sole', fetchImpl as unknown as typeof fetch)).map((entry) => entry.cardId)).toEqual([uuid(1)])
+    const [url] = fetchImpl.mock.calls[0] as unknown as [string]
+    expect(url).toBe(`https://api.scryfall.com/cards/search?include_multilingual=true&q=${encodeURIComponent('!"anello del sole"')}`)
+    expect((await searchLocalized('SENOR', fetchImpl as unknown as typeof fetch)).map((entry) => entry.cardId)).toEqual([uuid(3)])
+  })
+
+  it('deduplicates, sorts stably and keeps at most five options', async () => {
+    const prints = Array.from({ length: 8 }, (_, i) => raw({ id: uuid(i + 1), printed_name: 'Anello del Sole', set: `s${8 - i}`, collector_number: String(10 - i) }))
+    const response = (cards: unknown[]) => (() => json(200, { data: cards })) as unknown as typeof fetch
+    const first = await searchLocalized('Anello del Sole', response([...prints, prints[0]]))
+    const shuffled = await searchLocalized('Anello del Sole', response(prints.toReversed()))
+    expect(first).toHaveLength(5)
+    expect(first.map((entry) => entry.set)).toEqual(['s1', 's2', 's3', 's4', 's5'])
+    expect(shuffled).toEqual(first)
+  })
+
+  it('orders by name, then set, then collector number numerically', async () => {
+    const cards = [
+      raw({ id: uuid(1), name: 'B', printed_name: 'X', set: 'a', collector_number: '1' }),
+      raw({ id: uuid(2), name: 'A', printed_name: 'X', set: 'b', collector_number: '1' }),
+      raw({ id: uuid(3), name: 'A', printed_name: 'X', set: 'a', collector_number: '10' }),
+      raw({ id: uuid(4), name: 'A', printed_name: 'X', set: 'a', collector_number: '9' }),
+    ]
+    const result = await searchLocalized('x', (() => json(200, { data: cards })) as unknown as typeof fetch)
+    expect(result.map((entry) => entry.cardId)).toEqual([uuid(4), uuid(3), uuid(2), uuid(1)])
+  })
+
+  it('returns nothing for 404 or an odd body, and reports failures', async () => {
+    expect(await searchLocalized('x', (() => json(404, {})) as unknown as typeof fetch)).toEqual([])
+    expect(await searchLocalized('x', (() => json(200, 'odd')) as unknown as typeof fetch)).toEqual([])
+    await expect(searchLocalized('x', (() => Promise.reject(new TypeError('offline'))) as unknown as typeof fetch)).rejects.toMatchObject({ kind: 'network' })
+    await expect(searchLocalized('x', (() => json(500, {})) as unknown as typeof fetch)).rejects.toMatchObject({ kind: 'response' })
   })
 })

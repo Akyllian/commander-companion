@@ -64,6 +64,15 @@
   --mana-r: oklch(0.7 0.17 35);
   --mana-g: oklch(0.74 0.15 150);
   --mana-c: oklch(0.8 0.02 250);
+  /* R3 Mazzi (spec §16). */
+  --deck-row-min-height: 88px;
+  --deck-hero-height: 168px;
+  --deck-hero-height-wide: 220px;
+  --deck-art-size: 64px;
+  --hand-crop-width: clamp(7rem, 31vw, 8.5rem);
+  --duration-deck-step: 180ms;
+  --duration-hand-deal: 160ms;
+  --duration-hand-out: 120ms;
   --duration-fast: 140ms;
   --duration-normal: 220ms;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -115,4 +124,14 @@
   --button-radius: var(--radius-md);
   --button-height: 2.75rem;
   --focus-ring: 0 0 0 0.2rem var(--color-background), 0 0 0 0.4rem var(--color-focus);
+  /* Form fields (R3 review): ink well, opaque gold edge at 3:1 or more, ivory text. */
+  --field-bg: var(--color-ink-raised);
+  --field-text: var(--color-ivory);
+  --field-placeholder: var(--color-text-muted);
+  --field-border: var(--primitive-gold-700);
+  --field-border-hover: var(--color-gold);
+  --field-border-focus: var(--color-gold-bright);
+  --field-border-error: var(--color-danger-foreground);
+  --field-bg-disabled: var(--color-ink);
+  --field-text-disabled: var(--color-text-muted);
 }

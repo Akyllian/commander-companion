@@ -15,11 +15,15 @@ const newMatchId = () => crypto.randomUUID()
  * without a commander its random illustration. The network never blocks the game: seats
  * show the neutral texture until their art is cached.
  */
-export function useMatchArt(players: PlayerState[]): { match: MatchPresentation; startNew: () => void } {
+export type DeckArt = Set<string> | 'loading' | 'unavailable'
+
+export function useMatchArt(players: PlayerState[], deckArt: DeckArt): { match: MatchPresentation; startNew: () => void } {
   const [match, setMatch] = useState(() => loadMatch(newMatchId))
   const matchRef = useRef(match)
   const playersRef = useRef(players)
   const pruned = useRef(false)
+  // The match art kept after the first fill settles; the prune also waits for the decks (R3).
+  const [settledKeep, setSettledKeep] = useState<Set<string> | null>(null)
   // Declared before the fill effect, so it reads the values of the same render.
   useEffect(() => {
     matchRef.current = match
@@ -46,15 +50,22 @@ export function useMatchArt(players: PlayerState[]): { match: MatchPresentation;
             ? { ...previous, randomArtBySeat: { ...previous.randomArtBySeat, ...filled.randomArtBySeat } }
             : previous,
         )
-        if (pruned.current) return
-        pruned.current = true
-        // Drop cached art nothing uses: neither a commander nor this match's envelope.
-        const keep = artKeepSet(filled)
-        for (const player of playersRef.current) for (const slot of player.commanders) if (slot) keep.add(slot.cardId)
-        return pruneArt(store, keep)
+        setSettledKeep((previous) => previous ?? artKeepSet(filled))
       })
       .catch(() => undefined)
   }, [seatKey])
+
+  // One prune per session, once both the match fill and the decks are known (R3, fix 1). It keeps
+  // the match envelope, every player's commanders and every saved deck's cards; if the decks
+  // cannot be read it never runs, so no deck art is deleted by mistake.
+  useEffect(() => {
+    const store = getArtStore()
+    if (pruned.current || !store || !settledKeep || !(deckArt instanceof Set)) return
+    pruned.current = true
+    const keep = new Set([...settledKeep, ...deckArt])
+    for (const player of playersRef.current) for (const slot of player.commanders) if (slot) keep.add(slot.cardId)
+    void pruneArt(store, keep).catch(() => undefined)
+  }, [settledKeep, deckArt])
 
   return { match, startNew: () => setMatch((previous) => startNewMatch(previous, newMatchId)) }
 }

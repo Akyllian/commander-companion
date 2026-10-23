@@ -20,7 +20,8 @@ export function useSection(): [Section, (next: Section) => void] {
   }, [])
 
   const navigate = (next: Section) => {
-    if (next === section) return
+    // Inside a deck, «Mazzi» in the bar still goes back to the library.
+    if (next === section && window.location.hash.split('/').length < 2) return
     window.history.pushState(null, '', sectionHref(next))
     setSection(next)
   }
