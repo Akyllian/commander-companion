@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1500" viewBox="0 0 1920 1500" role="img" aria-labelledby="title desc">
+  <title id="title">Commander Companion — tavola R4 Impara</title>
+  <desc id="desc">Tavola di art direction con indice editoriale, lezione, ricerca locale, scenario interattivo e riferimento rapido Commander.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#061719"/><stop offset=".55" stop-color="#020b0e"/><stop offset="1" stop-color="#0a1716"/></linearGradient>
+    <radialGradient id="halo" cx="48%" cy="10%" r="80%"><stop stop-color="#b99657" stop-opacity=".13"/><stop offset="1" stop-color="#b99657" stop-opacity="0"/></radialGradient>
+    <pattern id="stars" width="58" height="58" patternUnits="userSpaceOnUse"><circle cx="9" cy="13" r=".7" fill="#72b9b0" opacity=".13"/><circle cx="42" cy="34" r=".7" fill="#dfc079" opacity=".12"/><path d="M9 13 42 34" stroke="#5d8f88" stroke-width=".5" opacity=".08"/></pattern>
+    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <style>
+      .serif{font-family:"Cormorant Garamond",Georgia,"Times New Roman",serif}.sans{font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif}
+      .ivory{fill:#f1eadb}.gold{fill:#e4c98e}.teal{fill:#75beb5}.muted{fill:#a6b6b2}.ink{fill:#071619}
+      .hair{stroke:#a4854d;stroke-opacity:.68;stroke-width:1;fill:none}.hairQuiet{stroke:#927744;stroke-opacity:.36;stroke-width:1;fill:none}
+      .line{stroke:#e0c17e;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;fill:none}.tealLine{stroke:#75beb5;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;fill:none}.quietLine{stroke:#a8bab5;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;fill:none}
+      .panel{fill:#071619;stroke:#806a40;stroke-width:1}.surface{fill:#061215;stroke:#9a7e49;stroke-opacity:.72}.raised{fill:#0b2022;stroke:#a98a50;stroke-opacity:.82}
+      .button{fill:#0b2224;stroke:#b69455;stroke-opacity:.9}.buttonQuiet{fill:#071619;stroke:#8c7547;stroke-opacity:.7}.selected{fill:#102b2c;stroke:#e0c17e;stroke-width:1.3}
+      .label{font:600 13px Inter,ui-sans-serif,system-ui;letter-spacing:.13em;fill:#d2b977}.tiny{font:11px Inter,ui-sans-serif,system-ui;fill:#a6b6b2}.small{font:13px Inter,ui-sans-serif,system-ui;fill:#a6b6b2}.body{font:14px Inter,ui-sans-serif,system-ui;fill:#edf0e7}.buttonText{font:650 12px Inter,ui-sans-serif,system-ui;fill:#f1eadb}.sectionTitle{font:400 25px "Cormorant Garamond",Georgia,serif;letter-spacing:.03em;fill:#f1eadb}.heading{font:400 32px "Cormorant Garamond",Georgia,serif;fill:#f1eadb}.lesson{font:500 18px "Cormorant Garamond",Georgia,serif;fill:#f1eadb}.roman{font:500 22px "Cormorant Garamond",Georgia,serif;fill:#d8bd80}
+    </style>
+    <g id="heart" class="quietLine"><path d="M12 20S4 15 4 9.5C4 6.5 7.8 5 10 7.5L12 10l2-2.5C16.2 5 20 6.5 20 9.5 20 15 12 20 12 20Z"/></g>
+    <g id="deck" class="quietLine"><path d="m5 8 7-4 7 4-7 4-7-4Z"/><path d="m5 12 7 4 7-4M5 16l7 4 7-4"/></g>
+    <g id="book"><path d="M4 5.5c3-.8 5.7-.2 8 2v12c-2.3-2.2-5-2.8-8-2V5.5Zm16 0c-3-.8-5.7-.2-8 2v12c2.3-2.2 5-2.8 8-2V5.5Z" class="quietLine"/><path d="M12 7.5v12" class="line"/></g>
+    <g id="search" class="quietLine"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></g>
+    <g id="check"><path d="m4 12 5 5L20 6" class="line"/></g>
+    <g id="stack" class="quietLine"><path d="m4 8 8-4 8 4-8 4-8-4Z"/><path d="m4 12 8 4 8-4M4 16l8 4 8-4"/></g>
+    <g id="nav">
+      <rect width="366" height="62" fill="#051012" stroke="#79633a" stroke-opacity=".7"/>
+      <g transform="translate(34 8)"><use href="#heart"/><text x="12" y="42" class="tiny" text-anchor="middle">PARTITA</text></g>
+      <g transform="translate(124 8)"><use href="#deck"/><text x="12" y="42" class="tiny" text-anchor="middle">MAZZI</text></g>
+      <g transform="translate(214 8)"><use href="#book"/><text x="12" y="42" class="label" font-size="10" text-anchor="middle">IMPARA</text><path d="M-21 52h66" stroke="#e4c98e" stroke-width="2" filter="url(#glow)"/></g>
+      <g transform="translate(308 8)"><circle cx="5" cy="12" r="1.3" fill="#a6b6b2"/><circle cx="12" cy="12" r="1.3" fill="#a6b6b2"/><circle cx="19" cy="12" r="1.3" fill="#a6b6b2"/><text x="12" y="42" class="tiny" text-anchor="middle">ALTRO</text></g>
+    </g>
+  </defs>
+
+  <rect width="1920" height="1500" fill="url(#bg)"/><rect width="1920" height="1500" fill="url(#stars)"/><rect width="1920" height="1500" fill="url(#halo)"/>
+  <path d="M0 106C330 20 560 128 845 54s675-12 1075 58" class="hairQuiet"/><path d="M0 1435c330-76 620 80 930 4s650-28 990 16" class="hairQuiet"/>
+  <text x="50" y="54" class="serif ivory" font-size="34" letter-spacing="5">COMMANDER COMPANION</text>
+  <text x="51" y="85" class="sans gold" font-size="13" letter-spacing="3">R4 · IMPARA — SPECIFICA VISIVA</text>
+  <text x="1870" y="57" class="sans muted" font-size="13" text-anchor="end">23 ottobre 2026 · proposta per approvazione</text>
+  <line x1="50" y1="108" x2="1870" y2="108" class="hair"/>
+
+  <!-- 01 Index phone -->
+  <g transform="translate(50 140)">
+    <text class="label" y="-12">01 · INDICE / BIBLIOTECA EDITORIALE</text>
+    <rect width="390" height="780" rx="34" fill="#020709" stroke="#5a6b67" stroke-width="2"/>
+    <g transform="translate(12 18)"><use href="#nav"/></g>
+    <g transform="translate(28 102)">
+      <g transform="translate(286 -4) scale(1.8)"><use href="#book"/></g><path d="M316-2v62" class="hair"/><path d="M322 2v52" class="tealLine" opacity=".65"/>
+      <text class="heading">Impara</text><text y="25" class="small">Dalle prime fasi alle interazioni più sottili.</text>
+      <g transform="translate(0 50)"><rect width="334" height="48" rx="11" class="surface"/><use href="#search" transform="translate(14 13)"/><text x="52" y="29" class="small">Cerca una fase, una zona o una regola</text></g>
+      <g transform="translate(0 112)"><rect width="334" height="72" rx="13" class="raised"/><use href="#book" transform="translate(14 18)"/><text x="54" y="25" class="lesson">Riferimento rapido Commander</text><text x="54" y="47" class="tiny">40 vita · veleno · danni · Partner · tassa</text><text x="310" y="43" class="gold sans" font-size="22">›</text></g>
+      <g transform="translate(0 205)">
+        <text class="roman">I</text><text x="38" class="sectionTitle">Le basi</text><text x="334" y="0" class="tiny" text-anchor="end">6 LEZIONI</text>
+        <g transform="translate(0 22)"><rect width="334" height="64" fill="#061215"/><circle cx="22" cy="32" r="13" fill="none" stroke="#75beb5"/><path d="M16 32h12M22 26v12" class="tealLine"/><text x="48" y="25" class="lesson">Preparare una partita</text><text x="48" y="46" class="tiny">Comandante, vita, mano e ordine dei turni</text><path d="m316 27 5 5-5 5" class="quietLine"/></g>
+        <g transform="translate(0 87)"><rect width="334" height="64" fill="#061215"/><rect x="9" y="19" width="26" height="26" rx="4" class="hair"/><text x="48" y="25" class="lesson">Carte, permanenti e zone</text><text x="48" y="46" class="tiny">Include un diagramma · 5 min</text><path d="m316 27 5 5-5 5" class="quietLine"/></g>
+        <g transform="translate(0 152)"><rect width="334" height="64" fill="#061215"/><circle cx="22" cy="32" r="13" class="hair"/><text x="22" y="37" class="gold sans" font-size="12" text-anchor="middle">I</text><text x="48" y="25" class="lesson">Le fasi di un turno</text><text x="48" y="46" class="tiny">Include scenario · 7 min</text><path d="m316 27 5 5-5 5" class="quietLine"/></g>
+      </g>
+      <g transform="translate(0 447)"><text class="roman">II</text><text x="38" class="sectionTitle">Meccaniche</text><text x="334" class="tiny" text-anchor="end">7 LEZIONI</text><line y1="18" x2="334" y2="18" class="hairQuiet"/><text y="46" class="body">Comandanti, abilità, bersagli, priorità e pila.</text><text y="76" class="buttonText" style="fill:#e4c98e">APRI IL PERCORSO →</text></g>
+      <g transform="translate(0 551)"><text class="roman">III</text><text x="38" class="sectionTitle">Interazioni</text><text x="334" class="tiny" text-anchor="end">7 LEZIONI</text><line y1="18" x2="334" y2="18" class="hairQuiet"/><text y="46" class="body">Quando magie, abilità e protezioni si incontrano.</text></g>
+      <g transform="translate(0 630)"><text class="roman">IV</text><text x="38" class="sectionTitle">Al tavolo</text><text x="334" class="tiny" text-anchor="end">6 LEZIONI</text></g>
+    </g>
+  </g>
+
+  <!-- 02 Lesson phone -->
+  <g transform="translate(470 140)">
+    <text class="label" y="-12">02 · LEZIONE / UNA COLONNA CALMA</text>
+    <rect width="390" height="780" rx="34" fill="#020709" stroke="#5a6b67" stroke-width="2"/>
+    <g transform="translate(12 18)"><use href="#nav"/></g>
+    <g transform="translate(28 100)">
+      <text class="buttonText" style="fill:#e4c98e">‹ TORNA A IMPARA</text><text y="42" class="tiny">LE BASI · LEZIONE 4 DI 6</text>
+      <text y="84" class="heading">Le fasi di un turno</text>
+      <text y="113" class="body">Ogni turno segue la stessa struttura. Conoscerla</text><text y="134" class="body">ti dice quando puoi agire e cosa viene dopo.</text>
+      <g transform="translate(0 157)"><line x1="0" y1="0" x2="334" y2="0" class="hair"/><text y="28" class="label">IN BREVE</text><text y="57" class="body">• Inizio: STAP, mantenimento, acquisizione.</text><text y="82" class="body">• Due fasi principali intorno al combattimento.</text><text y="107" class="body">• La fine prepara il turno successivo.</text><line x1="0" y1="126" x2="334" y2="126" class="hairQuiet"/></g>
+      <text y="321" class="sectionTitle">La sequenza</text>
+      <g transform="translate(0 344)"><path d="M14 26H320" class="hair"/><g fill="#071619" stroke="#d8bd80"><circle cx="18" cy="26" r="12"/><circle cx="78" cy="26" r="12"/><circle cx="138" cy="26" r="12"/><circle cx="198" cy="26" r="12"/><circle cx="258" cy="26" r="12"/><circle cx="318" cy="26" r="12"/></g><g class="sans gold" font-size="10" text-anchor="middle"><text x="18" y="30">1</text><text x="78" y="30">2</text><text x="138" y="30">3</text><text x="198" y="30">4</text><text x="258" y="30">5</text><text x="318" y="30">6</text></g><g class="tiny" text-anchor="middle"><text x="18" y="53">STAP</text><text x="78" y="53">MANT.</text><text x="138" y="53">PESCA</text><text x="198" y="53">MAIN</text><text x="258" y="53">LOTTA</text><text x="318" y="53">FINE</text></g></g>
+      <text y="430" class="body">Annuncia i passaggi in cui un avversario potrebbe</text><text y="452" class="body">voler agire. «Vado in combattimento» propone</text><text y="474" class="body">una scorciatoia: non cancella la priorità.</text>
+      <g transform="translate(0 505)"><rect width="334" height="104" rx="12" fill="#0a1a1c" stroke="#806a40"/><text x="16" y="28" class="label">DA RICORDARE AL TAVOLO</text><text x="16" y="56" class="body">Conferma il passaggio prima di dichiarare</text><text x="16" y="78" class="body">attaccanti o spostare i danni.</text></g>
+      <text y="640" class="tiny">Regole 500–514 · verificate il 25 settembre 2026</text>
+    </g>
+  </g>
+
+  <!-- 03 Desktop lesson and rail -->
+  <g transform="translate(890 140)">
+    <rect width="980" height="480" rx="28" class="panel"/>
+    <text x="30" y="40" class="label">03 · DESKTOP / PERCORSO + LETTURA 68CH</text>
+    <text x="30" y="76" class="sectionTitle">La navigazione sostiene il testo; non lo trasforma in dashboard.</text>
+    <g transform="translate(30 108)">
+      <rect width="214" height="330" rx="14" fill="#061215" stroke="#806a40"/><text x="18" y="30" class="tiny">PERCORSO II</text><text x="18" y="59" class="sectionTitle">Meccaniche</text>
+      <g transform="translate(12 78)"><rect width="190" height="48" rx="9" class="buttonQuiet"/><text x="12" y="29" class="body">Comandante e mazzo</text></g>
+      <g transform="translate(12 132)"><rect width="190" height="48" rx="9" class="buttonQuiet"/><text x="12" y="29" class="body">Zona di comando</text></g>
+      <g transform="translate(12 186)"><rect width="190" height="58" rx="9" class="selected"/><text x="12" y="25" class="body">Priorità e pila</text><text x="12" y="44" class="tiny" style="fill:#e4c98e">Selezionata</text></g>
+      <g transform="translate(12 250)"><rect width="190" height="48" rx="9" class="buttonQuiet"/><text x="12" y="29" class="body">Abilità innescate</text></g>
+      <g transform="translate(250 4)"><text class="tiny">MECCANICHE · LEZIONE 5 DI 7</text><text y="48" class="serif ivory" font-size="38">Priorità e pila</text><text y="78" class="body">La pila ordina magie e abilità: l'ultima aggiunta è</text><text y="100" class="body">normalmente la prima a risolversi.</text><line y1="122" x2="660" y2="122" class="hair"/>
+        <text y="155" class="sectionTitle">Tre magie, un solo ordine</text>
+        <g transform="translate(0 174)"><g transform="translate(0 72)"><rect width="180" height="58" rx="10" class="surface"/><text x="16" y="25" class="body">A · magia iniziale</text><text x="16" y="44" class="tiny">si risolve per ultima</text></g><g transform="translate(42 38)"><rect width="180" height="58" rx="10" class="surface"/><text x="16" y="25" class="body">B · risposta</text></g><g transform="translate(84)"><rect width="180" height="58" rx="10" class="selected"/><text x="16" y="25" class="body">C · ultima risposta</text><text x="16" y="44" class="tiny" style="fill:#e4c98e">si risolve per prima</text></g><path d="M295 18h94m-12-8 12 8-12 8" class="tealLine"/><text x="412" y="23" class="tiny">RISOLUZIONE</text></g>
+        <text y="340" class="body">Dopo ogni risoluzione il gioco controlla lo stato, poi</text><text y="362" class="body">restituisce priorità: non si risolve tutta la pila in blocco.</text></g>
+    </g>
+  </g>
+
+  <!-- 04 Scenario -->
+  <g transform="translate(890 650)">
+    <rect width="610" height="470" rx="28" class="panel"/>
+    <text x="28" y="40" class="label">04 · SCENARIO / NESSUN PUNTEGGIO</text><text x="28" y="74" class="sectionTitle">Prova tu</text>
+    <g transform="translate(28 96)"><text class="body">Hai subito 12 danni dal primo comandante e 9 dal suo Partner.</text><text y="24" class="body">Hai raggiunto la soglia di sconfitta Commander?</text>
+      <g transform="translate(0 55)"><rect width="554" height="58" rx="11" class="buttonQuiet"/><circle cx="24" cy="29" r="9" fill="none" stroke="#a6b6b2"/><text x="48" y="34" class="body">Sì, il totale è 21</text></g>
+      <g transform="translate(0 121)"><rect width="554" height="58" rx="11" class="selected"/><circle cx="24" cy="29" r="9" fill="none" stroke="#e4c98e"/><circle cx="24" cy="29" r="4" fill="#e4c98e"/><text x="48" y="34" class="body">No, i due comandanti hanno conteggi separati</text></g>
+      <rect y="195" width="180" height="44" rx="10" class="button"/><text x="90" y="222" class="buttonText" text-anchor="middle">VERIFICA RISPOSTA</text>
+      <g transform="translate(0 258)"><rect width="554" height="112" rx="12" fill="#0d2424" stroke="#75beb5"/><use href="#check" transform="translate(16 15)"/><text x="54" y="31" class="lesson">Esatto</text><text x="16" y="60" class="body">La soglia riguarda lo stesso comandante.</text><text x="16" y="82" class="body">Nell'app scegli anche quale Partner ha inflitto il danno.</text><text x="16" y="103" class="tiny">Regole 704.6c e 903.10a</text></g>
+    </g>
+  </g>
+
+  <!-- 05 Search and quick reference -->
+  <g transform="translate(1530 650)">
+    <rect width="340" height="470" rx="28" class="panel"/>
+    <text x="24" y="40" class="label">05 · RICERCA LOCALE</text>
+    <g transform="translate(20 60)"><rect width="300" height="48" rx="11" class="selected"/><use href="#search" transform="translate(12 12)"/><text x="50" y="29" class="body">pila</text><text x="280" y="29" class="tiny" text-anchor="end">3 risultati</text></g>
+    <g transform="translate(20 126)"><text class="tiny">MECCANICHE</text><text y="27" class="lesson">Priorità e pila</text><text y="48" class="tiny">La <tspan fill="#f1eadb" text-decoration="underline">pila</tspan> ordina magie e abilità…</text><line y1="66" x2="300" y2="66" class="hairQuiet"/></g>
+    <g transform="translate(20 210)"><text class="tiny">INTERAZIONI</text><text y="27" class="lesson">Rispondere nel momento giusto</text><text y="48" class="tiny">…l'oggetto deve essere ancora sulla <tspan fill="#f1eadb" text-decoration="underline">pila</tspan>.</text><line y1="66" x2="300" y2="66" class="hairQuiet"/></g>
+    <g transform="translate(20 294)"><text class="tiny">GLOSSARIO</text><text y="27" class="lesson">Pila</text><text y="48" class="tiny">Zona dove magie e abilità attendono…</text></g>
+    <rect x="20" y="384" width="300" height="44" rx="10" class="buttonQuiet"/><text x="170" y="411" class="buttonText" text-anchor="middle">CANCELLA RICERCA</text>
+  </g>
+
+  <!-- 06 Quick reference strip -->
+  <g transform="translate(50 950)">
+    <rect width="810" height="420" rx="28" class="panel"/>
+    <text x="28" y="40" class="label">06 · RIFERIMENTO RAPIDO / PAGINA, NON SHEET</text>
+    <text x="28" y="76" class="sectionTitle">Soglie leggibili in pochi secondi, con la fonte accanto.</text>
+    <g transform="translate(28 106)"><text class="buttonText" style="fill:#e4c98e">‹ TORNA A IMPARA</text><text y="46" class="serif ivory" font-size="30">Riferimento rapido Commander</text><text y="73" class="body">Le regole che spiegano i punteggi mostrati dall'app.</text>
+      <g transform="translate(0 106)"><text class="roman">R1</text><text x="50" class="lesson">Vita iniziale</text><text x="50" y="25" class="body">Ogni giocatore inizia con <tspan font-weight="700">40</tspan> punti vita.</text><text x="700" y="12" class="tiny" text-anchor="end">Regola 903.7</text><line y1="44" x2="754" y2="44" class="hairQuiet"/></g>
+      <g transform="translate(0 166)"><text class="roman">R3</text><text x="50" class="lesson">Veleno</text><text x="50" y="25" class="body"><tspan font-weight="700">10</tspan> o più segnalini veleno fanno perdere.</text><text x="700" y="12" class="tiny" text-anchor="end">Regola 704.5c</text><line y1="44" x2="754" y2="44" class="hairQuiet"/></g>
+      <g transform="translate(0 226)"><text class="roman">R4</text><text x="50" class="lesson">Danni Commander</text><text x="50" y="25" class="body"><tspan font-weight="700">21</tspan> dallo stesso comandante, solo da combattimento.</text><text x="700" y="12" class="tiny" text-anchor="end">903.10a · 704.6c</text></g>
+      <text y="304" class="tiny">Regole aggiornate al 25 settembre 2026 · Sintesi, non sostituisce le regole ufficiali.</text>
+    </g>
+  </g>
+
+  <g transform="translate(50 1406)"><line x1="0" y1="0" x2="1820" y2="0" class="hair"/><text y="34" class="label">LINGUAGGIO</text><text x="112" y="34" class="body">Tomo editoriale · diagrammi funzionali · nessuna illustrazione · nessuna gamification</text><text x="990" y="34" class="label">VINCOLI</text><text x="1080" y="34" class="body">44 px · WCAG AA · tutto offline · 68ch · riferimenti verificati</text><text y="70" class="label">MOTION</text><text x="112" y="70" class="body">140–180 ms · nessun flip di pagina o animazione dei diagrammi · reduced motion immediato</text></g>
+</svg>
